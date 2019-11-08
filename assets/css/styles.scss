@@ -71,7 +71,7 @@ a {
 
 header,
 footer {
-  & > div {
+  &>div {
     display: flex;
     padding: 16px;
     width: 100%;
@@ -397,20 +397,28 @@ button {
     margin-left: 8px;
   }
 
+  &:not([disabled]):hover,
+  &:not([disabled]):active,
+  &:not([disabled]):focus {
+    color: var(--act-color);
+    fill: var(--act-color);
+    box-shadow: 0 0 0 2px var(--fg-color);
+    transition: all 0.2s ease-in-out;
+  }
+
   &.icon {
     background-color: var(--bg-color);
     color: var(--fg-light-color);
     fill: var(--fg-light-color);
 
-    &:not([disabled]):hover {
+    &:not([disabled]):hover,
+    &:not([disabled]):active,
+    &:not([disabled]):focus {
       color: var(--fg-color);
       fill: var(--fg-color);
+      box-shadow: none;
+      transition: all 0.2s ease-in-out;
     }
-  }
-
-  &:not([disabled]):hover {
-    color: var(--act-color);
-    fill: var(--act-color);
   }
 }
 
@@ -497,8 +505,11 @@ pre {
   resize: vertical;
   text-overflow: ellipsis;
 
-  &:not([readonly]):hover {
-    background-color: var(--bg-dark-color);
+  &:not([readonly]):hover,
+  &:not([readonly]):active,
+  &:not([readonly]):focus {
+    box-shadow: inset 0 0 0 2px var(--fg-light-color);
+    transition: all 0.2s ease-in-out;
   }
 }
 
@@ -519,16 +530,16 @@ code {
 }
 
 select,
-input,
 option {
   height: 40px;
+  cursor: pointer;
 }
 
 input[type="checkbox"] {
   display: none;
 
   &,
-  & + label {
+  &+label {
     vertical-align: middle;
     cursor: pointer;
 
@@ -547,24 +558,24 @@ input[type="checkbox"] {
     }
   }
 
-  &:checked + label:before {
+  &:checked+label:before {
     background-color: var(--ac-color);
     border-color: var(--ac-color);
     color: var(--act-color);
   }
 }
 
-.error,
-.disabled,
+.error:not(input),
+.disabled:not(input),
 [disabled] {
   background-color: var(--err-color);
   color: var(--fg-light-color);
   fill: var(--fg-light-color);
-  cursor: default;
+  cursor: not-allowed;
 
   &.icon {
-    color: var(--bg-color);
-    fill: var(--bg-color);
+    color: var(--err-color);
+    fill: var(--err-color);
   }
 }
 
@@ -732,22 +743,24 @@ div.tab {
   display: none;
 }
 
-input[type="radio"] + label {
+input[type="radio"]+label {
   padding: 8px 16px;
   border-bottom: 2px solid transparent;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
 
-  &:hover {
+  &:hover,
+  &:active,
+  &:focus {
     border-color: var(--brd-color);
   }
 }
 
-input[type="radio"]:checked + label {
+input[type="radio"]:checked+label {
   border-color: var(--fg-color);
 }
 
-input[type="radio"]:checked + label + div.tab {
+input[type="radio"]:checked+label+div.tab {
   display: block;
 }
 

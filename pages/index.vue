@@ -40,18 +40,17 @@
       </div>
     </pw-modal>
 
-    <pw-section
-      v-if="showPreRequestScript"
-      class="orange"
-      label="Pre-Request"
-      ref="preRequest"
-    >
+    <pw-section v-if="showPreRequestScript" class="orange" label="Pre-Request" ref="preRequest">
       <ul>
         <li>
           <div class="flex-wrap">
             <label for="generatedCode">JavaScript Code</label>
             <div>
-              <a href="https://github.com/liyasthomas/postwoman/wiki/Pre-Request-Scripts" target="_blank">
+              <a
+                href="https://github.com/liyasthomas/postwoman/wiki/Pre-Request-Scripts"
+                target="_blank"
+                rel="noopener"
+              >
                 <button class="icon" v-tooltip="'Wiki'">
                   <i class="material-icons">help</i>
                 </button>
@@ -262,7 +261,7 @@
           >
             <i class="material-icons">file_copy</i>
           </button>
-          
+
           <button
             class="icon"
             @click="saveRequest"
@@ -301,9 +300,9 @@
                 @click="copyRequestCode"
                 id="copyRequestCode"
                 ref="copyRequestCode"
+                v-tooltip="'Copy code'"
               >
                 <i class="material-icons">file_copy</i>
-                <span>Copy</span>
               </button>
             </div>
           </div>
@@ -548,23 +547,35 @@
           <div class="flex-wrap">
             <label for="body">response</label>
             <div>
-              <button class="icon" @click="copyResponse" ref="copyResponse" v-if="response.body">
+              <button
+                class="icon"
+                @click="copyResponse"
+                ref="copyResponse"
+                v-if="response.body"
+                v-tooltip="'Copy response'"
+              >
                 <i class="material-icons">file_copy</i>
-                <span>Copy</span>
               </button>
-              <button class="icon" @click="downloadResponse" ref="downloadResponse" v-if="response.body">
-                <i class="material-icons">cloud_download</i>
-                <span>Download</span>
+              <button
+                class="icon"
+                @click="downloadResponse"
+                ref="downloadResponse"
+                v-if="response.body"
+                v-tooltip="'Download file'"
+              >
+                <i class="material-icons">get_app</i>
               </button>
             </div>
           </div>
           <div id="response-details-wrapper">
-            <pre><code
+            <pre>
+              <code
   ref="responseBody"
   id="body"
   rows="16"
   placeholder="(waiting to send request)"
->{{response.body}}</code></pre>
+>{{response.body}}</code>
+            </pre>
             <iframe
               :class="{hidden: !previewEnabled}"
               class="covers-response"
@@ -681,8 +692,8 @@ export default {
       showPreRequestScript: false,
       preRequestScript: "",
       copyButton: '<i class="material-icons">file_copy</i>',
-      copiedButton: '<i class="material-icons">done</i>',
-      downloadedButton: '<i class="material-icons">cloud_done</i>',
+      downloadButton: '<i class="material-icons">get_app</i>',
+      doneButton: '<i class="material-icons">done</i>',
       isHidden: true,
       response: {
         status: "",
@@ -751,8 +762,7 @@ export default {
         } else if (
           responseText &&
           this.response.body !== "(waiting to send request)" &&
-          this.response.body !== "Loading..." &&
-          this.response.body !== "See JavaScript console (F12) for details."
+          this.response.body !== "Loading..."
         ) {
           responseText.innerText =
             this.responseType === "application/json" ||
@@ -1364,14 +1374,14 @@ export default {
           return;
         } else {
           this.response.status = error.message;
-          this.response.body = "See JavaScript console (F12) for details.";
+          this.response.body = error + ". Check console for details.";
           this.$toast.error(error + " (F12 for details)", {
             icon: "error"
           });
           if (!this.$store.state.postwoman.settings.PROXY_ENABLED) {
             this.$toast.info("Try enabling Proxy", {
               icon: "help",
-              duration: 5000,
+              duration: 8000,
               action: {
                 text: "Settings",
                 onClick: (e, toastObject) => {
@@ -1486,7 +1496,7 @@ export default {
         dummy.select();
         document.execCommand("copy");
         document.body.removeChild(dummy);
-        this.$refs.copyRequest.innerHTML = this.copiedButton;
+        this.$refs.copyRequest.innerHTML = this.doneButton;
         this.$toast.info("Copied to clipboard", {
           icon: "done"
         });
@@ -1499,78 +1509,62 @@ export default {
       }
     },
     copyRequestCode() {
-      this.$refs.copyRequestCode.innerHTML =
-        this.copiedButton + "<span>Copied</span>";
+      this.$refs.copyRequestCode.innerHTML = this.doneButton;
       this.$toast.success("Copied to clipboard", {
         icon: "done"
       });
       this.$refs.generatedCode.select();
       document.execCommand("copy");
       setTimeout(
-        () =>
-          (this.$refs.copyRequestCode.innerHTML =
-            this.copyButton + "<span>Copy</span>"),
+        () => (this.$refs.copyRequestCode.innerHTML = this.copyButton),
         1000
       );
     },
     copyResponse() {
-      this.$refs.copyResponse.innerHTML =
-        this.copiedButton + "<span>Copied</span>";
+      this.$refs.copyResponse.innerHTML = this.doneButton;
       this.$toast.success("Copied to clipboard", {
         icon: "done"
       });
-      // Creates a textarea element
       var aux = document.createElement("textarea");
       var copy =
         this.responseType == "application/json"
           ? JSON.stringify(this.response.body)
           : this.response.body;
-      // Adds response body to the new textarea
       aux.innerText = copy;
-      // Append the textarea to the body
       document.body.appendChild(aux);
-      // Highlight the content
       aux.select();
       document.execCommand("copy");
-      // Remove the input from the body
       document.body.removeChild(aux);
       setTimeout(
-        () =>
-          (this.$refs.copyResponse.innerHTML =
-            this.copyButton + "<span>Copy</span>"),
+        () => (this.$refs.copyResponse.innerHTML = this.copyButton),
         1000
       );
     },
-
-    downloadResponse(){
-      // Storing the data in a organized way
+    downloadResponse() {
       var dataToWrite = JSON.stringify(this.response.body, null, 2);
-      // Default filename, maybe its better to add the url requested ?
-      var filename = 'response'
-      // Creating the Blob with data and mimetype
-      var file = new Blob([dataToWrite], {type: 'application/json'});
-      // Create a "a" element
+      var file = new Blob([dataToWrite], { type: this.responseType });
       var a = document.createElement("a"),
-              url = URL.createObjectURL(file);
-      
-      // Point "a" element to url of new to be downloaded
+        url = URL.createObjectURL(file);
       a.href = url;
-      // Makes "a" element downloadable with filename
-      a.download = filename;
-      // Appends the brand new "a" element on body.
+      a.download = (
+        this.url +
+        this.path +
+        " [" +
+        this.method +
+        "] on " +
+        Date()
+      ).replace(".", "[dot]");
       document.body.appendChild(a);
-      // Finally click on element to download it!
       a.click();
-      this.$refs.downloadResponse.innerHTML =
-        this.downloadedButton + "<span>Downloaded</span>";
-      this.$toast.success("Download started, check your browser", {
+      this.$refs.downloadResponse.innerHTML = this.doneButton;
+      this.$toast.success("Download started", {
         icon: "done"
       });
-      setTimeout(function() {
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);  
-      }, 0); 
-      
+      setTimeout(() => {
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.$refs.downloadResponse.innerHTML = this.downloadButton;
+      }, 1000);
     },
     togglePreview() {
       this.previewEnabled = !this.previewEnabled;
@@ -1729,7 +1723,7 @@ export default {
           this.bodyParams = [];
           this.rawParams = "";
       }
-      e.target.innerHTML = this.copiedButton;
+      e.target.innerHTML = this.doneButton;
       this.$toast.info("Cleared", {
         icon: "clear_all"
       });
