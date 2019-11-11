@@ -5,8 +5,13 @@
         <input aria-label="Search" type="text" placeholder="search history" v-model="filterText" />
       </li>
     </ul>
-    <ul v-if="history.length !== 0">
+    <ul v-if="history.length !== 0" class="labels">
       <div class="show-on-small-screen">
+        <li>
+          <button class="icon">
+            <i class="material-icons">star_half</i>
+          </button>
+        </li>
         <li>
           <button class="icon">
             <i class="material-icons">history</i>
@@ -72,30 +77,38 @@
       <ul v-for="(entry, index) in filteredHistory" :key="index" class="entry">
         <div class="show-on-small-screen">
           <li>
-            <button v-if="entry.usesScripts" class="icon" v-tooltip="'This entry used pre-request scripts'">
-              <i class="material-icons">code</i>
+            <button class="icon" :class="{ stared: entry.star }" @click="toggleStar(index)" v-tooltip="{ content: !entry.star ? 'Add star' : 'Remove star'}">
+              <i class="material-icons" v-if="entry.star">star</i>
+              <i class="material-icons" v-else>star_border</i>
             </button>
-            <button v-else class="icon" v-tooltip="'No pre-request scripts'">
-              <i class="material-icons">http</i>
+          </li>
+          <li>
+            <button class="icon" v-tooltip="{ content: !entry.usesScripts ? 'No pre-request script' : 'Used pre-request script'}">
+              <i class="material-icons" v-if="!entry.usesScripts">http</i>
+              <i class="material-icons" v-else>code</i>
             </button>
           </li>
         </div>
-        <li>
-          <input aria-label="Label" type="text" readonly :value="entry.label" placeholder="No label" />
-        </li>
-        <li>
-          <input aria-label="Time" type="text" readonly :value="entry.time" v-tooltip="entry.date" />
-        </li>
+        <div class="show-on-small-screen">
+          <li>
+            <input aria-label="Label" type="text" readonly :value="entry.label" placeholder="No label" />
+          </li>
+          <li>
+            <input aria-label="Time" type="text" readonly :value="entry.time" v-tooltip="entry.date" />
+          </li>
+        </div>
         <li class="method-list-item">
           <input aria-label="Method" type="text" readonly :value="entry.method" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}" />
           <span class="entry-status-code" :class="findEntryStatus(entry).className" :style="{'--status-code': entry.status}">{{entry.status}}</span>
         </li>
-        <li>
-          <input aria-label="URL" type="text" readonly :value="entry.url" placeholder="No URL" />
-        </li>
-        <li>
-          <input aria-label="Path" type="text" readonly :value="entry.path" placeholder="No path" />
-        </li>
+        <div class="show-on-small-screen">
+          <li>
+            <input aria-label="URL" type="text" readonly :value="entry.url" placeholder="No URL" />
+          </li>
+          <li>
+            <input aria-label="Path" type="text" readonly :value="entry.path" placeholder="No path" />
+          </li>
+        </div>
         <transition name="smooth">
           <div v-if="show" class="show-on-small-screen">
             <li>
@@ -177,9 +190,21 @@
     opacity: 0;
   }
 
+  .stared {
+    color: #F8E81C !important;
+  }
+
   @media (max-width: 720px) {
     .virtual-list.filled {
-      min-height: 200px;
+      min-height: 320px;
+    }
+
+    .labels {
+      display: none;
+    }
+
+    .entry {
+      border-bottom: 1px solid var(--brd-color);
     }
   }
 
@@ -348,8 +373,12 @@
         this.history = byDuration;
         this.reverse_sort_duration = !this.reverse_sort_duration;
       },
-      toggleCollapse: function() {
+      toggleCollapse() {
         this.show = !this.show
+      },
+      toggleStar(index) {
+        this.history[index]["star"] = !this.history[index]["star"];
+        updateOnLocalStorage("history", this.history);
       }
     }
   };
