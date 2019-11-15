@@ -47,9 +47,9 @@
     margin: 0 4px;
     left: 0;
     padding: 0;
-    border-radius: 0 0 4px 4px;
+    border-radius: 0 0 8px 8px;
     z-index: 9999;
-    transition: transform 200ms ease-out;
+    transition: transform 0.2s ease-out;
 
     li {
       width: 100%;
@@ -57,10 +57,9 @@
       padding: 8px 16px;
       font-size: 18px;
       font-family: "Roboto Mono", monospace;
-      white-space: pre-wrap;
 
       &:last-child {
-        border-radius: 0 0 4px 4px;
+        border-radius: 0 0 8px 8px;
       }
 
       &:hover,
@@ -197,8 +196,8 @@ export default {
           })
           // Cut off the part that's already been typed.
           .map(entry => entry.substring(this.selectionStart))
-          // We only want the top 3 suggestions.
-          .slice(0, 3)
+          // We only want the top 6 suggestions.
+          .slice(0, 6)
       );
     }
   },

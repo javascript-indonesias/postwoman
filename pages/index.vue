@@ -27,15 +27,12 @@
             @keydown="formatRawParams"
             rows="8"
             v-model="preRequestScript"
-            v-textarea-auto-height="preRequestScript"
             spellcheck="false"
             placeholder="pw.env.set('variable', 'value');"
           ></textarea>
         </li>
       </ul>
     </pw-section>
-
-    <br />
 
     <pw-section class="blue" label="Request" ref="request">
       <ul>
@@ -80,7 +77,14 @@
             type="text"
             v-model="label"
             placeholder="(optional)"
+            list="preLabels"
           />
+          <datalist id="preLabels">
+            <option value="Login"></option>
+            <option value="Logout"></option>
+            <option value="Bug"></option>
+            <option value="Users"></option>
+          </datalist>
         </li>
         <li>
           <label class="hide-on-small-screen" for="send">&nbsp;</label>
@@ -116,11 +120,30 @@
         </ul>
         <ul>
           <li>
-            <span>
-              <pw-toggle :on="rawInput" @change="rawInput = $event"
-                >Raw Input {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle
-              >
-            </span>
+            <div class="flex-wrap">
+              <span>
+                <pw-toggle :on="rawInput" @change="rawInput = $event"
+                  >Raw Input {{ rawInput ? "Enabled" : "Disabled" }}</pw-toggle
+                >
+              </span>
+              <div>
+                <label for="payload">
+                  <button
+                    class="icon"
+                    @click="$refs.payload.click()"
+                    v-tooltip="'Upload file'"
+                  >
+                    <i class="material-icons">attach_file</i>
+                  </button>
+                </label>
+                <input
+                  ref="payload"
+                  name="payload"
+                  type="file"
+                  @change="uploadPayload"
+                />
+              </div>
+            </div>
           </li>
         </ul>
         <div v-if="!rawInput">
@@ -202,7 +225,6 @@
                 @keydown="formatRawParams"
                 rows="8"
                 v-model="rawParams"
-                v-textarea-auto-height="rawParams"
               ></textarea>
             </li>
           </ul>
@@ -274,6 +296,7 @@
             class="icon"
             @click="clearContent('', $event)"
             v-tooltip.bottom="'Clear All'"
+            ref="clearAll"
           >
             <i class="material-icons">clear_all</i>
           </button>
@@ -1903,10 +1926,47 @@ export default {
       this.contentType = ["POST", "PUT", "PATCH"].includes(this.method)
         ? "application/json"
         : "";
+    },
+    uploadPayload() {
+      this.rawInput = true;
+      let file = this.$refs.payload.files[0];
+      if (file != null) {
+        let reader = new FileReader();
+        reader.onload = e => {
+          this.rawParams = e.target.result;
+        };
+        reader.readAsText(file);
+        this.$toast.info("File imported", {
+          icon: "attach_file"
+        });
+      } else {
+        this.$toast.error("Choose a file", {
+          icon: "attach_file"
+        });
+      }
     }
   },
   mounted() {
     this.observeRequestButton();
+    this._keyListener = function(e) {
+      if (e.key === "g" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.sendRequest();
+      }
+      else if (e.key === "s" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.saveRequest();
+      }
+      else if (e.key === "k" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.copyRequest();
+      }
+      else if (e.key === "l" && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        this.$refs.clearAll.click();
+      }
+    };
+    document.addEventListener("keydown", this._keyListener.bind(this));
   },
   created() {
     this.urlExcludes = this.$store.state.postwoman.settings.URL_EXCLUDES || {
@@ -1939,6 +1999,9 @@ export default {
         this.setRouteQueryState();
       }
     );
+  },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this._keyListener);
   }
 };
 </script>

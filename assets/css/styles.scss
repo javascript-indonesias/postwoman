@@ -231,31 +231,6 @@ nav.secondary-nav {
   flex-direction: column;
 }
 
-$responsiveWidth: 720px;
-
-@media (max-width: $responsiveWidth) {
-  .columns {
-    flex-flow: column;
-  }
-
-  .nav-first {
-    width: 100%;
-    background-color: var(--bg-color);
-  }
-
-  nav.primary-nav {
-    flex-flow: row;
-  }
-
-  nav.secondary-nav {
-    display: none;
-  }
-
-  .main {
-    padding: 0 8px;
-  }
-}
-
 h1,
 h2,
 h3 {
@@ -348,6 +323,10 @@ h3 {
   }
 
   &.popover {
+    .wrapper {
+      min-height: auto;
+    }
+
     .popover-inner {
       background: $bgcolor;
       color: $fgcolor;
@@ -490,6 +469,7 @@ fieldset.yellow legend {
   display: none;
 }
 
+kbd,
 select,
 input,
 option,
@@ -616,25 +596,8 @@ ol li {
   display: flex;
 }
 
-@media (max-width: $responsiveWidth) {
-
-  ul,
-  ol {
-    flex-direction: column;
-  }
-
-  ul li,
-  ol li {
-    display: flex;
-  }
-
-  .hide-on-small-screen {
-    display: none;
-  }
-
-  .show-on-small-screen {
-    display: inline-flex;
-  }
+.hide-on-large-screen {
+  display: none;
 }
 
 #installPWA {
@@ -748,6 +711,7 @@ div.tab {
   order: 1;
 }
 
+input[type="file"],
 input[type="radio"],
 div.tab {
   display: none;
@@ -785,4 +749,46 @@ input[type="radio"]:checked+label+div.tab {
 
 .toasted.bubble .action {
   color: inherit !important;
+}
+
+@media (max-width: $responsiveWidth) {
+  .columns {
+    flex-flow: column;
+  }
+
+  .nav-first {
+    width: 100%;
+    background-color: var(--bg-color);
+  }
+
+  nav.primary-nav {
+    flex-flow: row;
+  }
+
+  nav.secondary-nav {
+    display: none;
+  }
+
+  .main {
+    padding: 0 8px;
+  }
+
+  ul,
+  ol {
+    flex-direction: column;
+  }
+
+  ul li,
+  ol li {
+    display: flex;
+  }
+
+  .hide-on-small-screen {
+    display: none;
+  }
+
+  .hide-on-large-screen,
+  .show-on-small-screen {
+    display: inline-flex;
+  }
 }
