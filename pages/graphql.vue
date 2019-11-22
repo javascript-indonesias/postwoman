@@ -13,13 +13,15 @@
                 @keyup.enter="getSchema()"
               />
             </li>
-            <li>
-              <label for="get" class="hide-on-small-screen">&nbsp;</label>
-              <button id="get" name="get" @click="getSchema">
-                Get Schema
-                <span><i class="material-icons">send</i></span>
-              </button>
-            </li>
+            <div>
+              <li>
+                <label for="get" class="hide-on-small-screen">&nbsp;</label>
+                <button id="get" name="get" @click="getSchema">
+                  Get Schema
+                  <span><i class="material-icons">send</i></span>
+                </button>
+              </li>
+            </div>
           </ul>
         </pw-section>
 
@@ -37,11 +39,7 @@
               useWorker: false
             }"
           />
-          <button
-            class="icon"
-            @click="copySchema"
-            v-tooltip="'Copy Schema'"
-          >
+          <button class="icon" @click="copySchema" v-tooltip="'Copy Schema'">
             <i class="material-icons">file_copy</i>
           </button>
         </pw-section>
@@ -138,7 +136,6 @@ export default {
   },
   data() {
     return {
-      url: "https://rickandmortyapi.com/graphql",
       schemaString: "",
       queryFields: [],
       mutationFields: [],
@@ -146,8 +143,17 @@ export default {
       gqlTypes: []
     };
   },
+  computed: {
+    url: {
+      get() {
+        return this.$store.state.gql.url;
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "url" });
+      }
+    }
+  },
   methods: {
-
     copySchema() {
       const aux = document.createElement("textarea");
       aux.innerText = this.schemaString;
@@ -169,11 +175,36 @@ export default {
       this.$nuxt.$loading.start();
 
       try {
-        const res = await axios.post(this.url, {
-            query: gql.getIntrospectionQuery()
-        })
 
-        const schema = gql.buildClientSchema(res.data.data);
+        const query = JSON.stringify({
+          query: gql.getIntrospectionQuery()
+        });
+
+        const reqOptions = {
+          method: "post",
+          url: this.url,
+          headers: {
+            "content-type": "application/json"
+          },
+          data: query
+        }
+
+        const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
+          ? {
+            method: "post",
+            url: `https://postwoman.apollotv.xyz/`,
+            data: reqOptions
+          }
+          : reqOptions;
+
+
+        const res = await axios(reqConfig);
+
+        const data = this.$store.state.postwoman.settings.PROXY_ENABLED
+          ? res.data
+          : res;
+
+        const schema = gql.buildClientSchema(data.data.data);
         this.schemaString = gql.printSchema(schema, {
           commentDescriptions: true
         });
@@ -236,14 +267,14 @@ export default {
         this.$toast.info(`Finished in ${duration}ms`, {
           icon: "done"
         });
-      } catch(error) {
-          this.$nuxt.$loading.finish();
-          this.schemaString = error + ". Check console for details.";
-          this.$toast.error(error + " (F12 for details)", {
-            icon: "error"
-          });
-          console.log("Error", error);
-        }
+      } catch (error) {
+        this.$nuxt.$loading.finish();
+        this.schemaString = error + ". Check console for details.";
+        this.$toast.error(error + " (F12 for details)", {
+          icon: "error"
+        });
+        console.log("Error", error);
+      }
     }
   }
 };

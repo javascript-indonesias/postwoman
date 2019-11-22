@@ -88,21 +88,23 @@
                 <option value="Users"></option>
               </datalist>
             </li>
-            <li>
-              <label class="hide-on-small-screen" for="send">&nbsp;</label>
-              <button
-                :disabled="!isValidURL"
-                @click="sendRequest"
-                id="send"
-                ref="sendButton"
-              >
-                Send
-                <span id="hidden-message">Again</span>
-                <span>
-                  <i class="material-icons">send</i>
-                </span>
-              </button>
-            </li>
+            <div>
+              <li>
+                <label class="hide-on-small-screen" for="send">&nbsp;</label>
+                <button
+                  :disabled="!isValidURL"
+                  @click="sendRequest"
+                  id="send"
+                  ref="sendButton"
+                >
+                  Send
+                  <span id="hidden-message">Again</span>
+                  <span>
+                    <i class="material-icons">send</i>
+                  </span>
+                </button>
+              </li>
+            </div>
           </ul>
           <div
             class="blue"
@@ -313,7 +315,6 @@
           <input id="tab-one" type="radio" name="options" checked="checked" />
           <label for="tab-one">Authentication</label>
           <div class="tab">
-
             <pw-section
               class="cyan"
               label="Authentication"
@@ -399,7 +400,6 @@
           <input id="tab-two" type="radio" name="options" />
           <label for="tab-two">Headers</label>
           <div class="tab">
-
             <pw-section class="orange" label="Headers" ref="headers">
               <ul>
                 <li>
@@ -480,7 +480,6 @@
           <input id="tab-three" type="radio" name="options" />
           <label for="tab-three">Parameters</label>
           <div class="tab">
-
             <pw-section class="pink" label="Parameters" ref="parameters">
               <ul>
                 <li>
@@ -591,6 +590,20 @@
                 <div>
                   <button
                     class="icon"
+                    @click="ToggleExpandResponse"
+                    ref="ToggleExpandResponse"
+                    v-if="response.body"
+                    v-tooltip="{
+                      content: !expandResponse
+                        ? 'Expand response'
+                        : 'Collapse response'
+                    }"
+                  >
+                    <i class="material-icons" v-if="!expandResponse">unfold_more</i>
+                    <i class="material-icons" v-else>unfold_less</i>
+                  </button>
+                  <button
+                    class="icon"
                     @click="copyResponse"
                     ref="copyResponse"
                     v-if="response.body"
@@ -614,7 +627,7 @@
                   :value="responseBodyText"
                   :lang="responseBodyType"
                   :options="{
-                    maxLines: '16',
+                    maxLines: responseBodyMaxLines,
                     minLines: '16',
                     fontSize: '16px',
                     autoScrollEditorIntoView: true,
@@ -862,6 +875,7 @@ export default {
       },
       previewEnabled: false,
       paramsWatchEnabled: true,
+      expandResponse: false,
 
       /**
        * These are content types that can be automatically
@@ -888,7 +902,8 @@ export default {
 
       urlExcludes: {},
       responseBodyText: "",
-      responseBodyType: "text"
+      responseBodyType: "text",
+      responseBodyMaxLines: 16
     };
   },
   watch: {
@@ -1686,6 +1701,10 @@ export default {
         () => (this.$refs.copyRequestCode.innerHTML = this.copyButton),
         1000
       );
+    },
+    ToggleExpandResponse() {
+      this.expandResponse = !this.expandResponse;
+      this.responseBodyMaxLines = (this.responseBodyMaxLines == Infinity) ? 16 : Infinity;
     },
     copyResponse() {
       this.$refs.copyResponse.innerHTML = this.doneButton;

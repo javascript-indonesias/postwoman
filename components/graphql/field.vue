@@ -14,11 +14,8 @@
 <style>
 .field-box {
   padding: 16px;
-  margin: 4px 0;
-}
-
-.field-title {
-  font-weight: 700;
+  margin: 4px;
+  border-bottom: 1px solid var(--brd-color);
 }
 
 .field-deprecated {
@@ -28,6 +25,7 @@
   padding: 4px 8px;
   margin: 4px 0;
   border-radius: 4px;
+  font-size: 14px;
   font-weight: 700;
 }
 
