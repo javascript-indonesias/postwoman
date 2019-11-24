@@ -88,23 +88,21 @@
                 <option value="Users"></option>
               </datalist>
             </li>
-            <div>
-              <li>
-                <label class="hide-on-small-screen" for="send">&nbsp;</label>
-                <button
-                  :disabled="!isValidURL"
-                  @click="sendRequest"
-                  id="send"
-                  ref="sendButton"
-                >
-                  Send
-                  <span id="hidden-message">Again</span>
-                  <span>
-                    <i class="material-icons">send</i>
-                  </span>
-                </button>
-              </li>
-            </div>
+            <li>
+              <label class="hide-on-small-screen" for="send">&nbsp;</label>
+              <button
+                :disabled="!isValidURL"
+                @click="sendRequest"
+                id="send"
+                ref="sendButton"
+              >
+                Send
+                <span id="hidden-message">Again</span>
+                <span>
+                  <i class="material-icons">send</i>
+                </span>
+              </button>
+            </li>
           </ul>
           <div
             class="blue"
@@ -604,21 +602,21 @@
                   </button>
                   <button
                     class="icon"
-                    @click="copyResponse"
-                    ref="copyResponse"
-                    v-if="response.body"
-                    v-tooltip="'Copy response'"
-                  >
-                    <i class="material-icons">file_copy</i>
-                  </button>
-                  <button
-                    class="icon"
                     @click="downloadResponse"
                     ref="downloadResponse"
                     v-if="response.body"
                     v-tooltip="'Download file'"
                   >
                     <i class="material-icons">get_app</i>
+                  </button>
+                  <button
+                    class="icon"
+                    @click="copyResponse"
+                    ref="copyResponse"
+                    v-if="response.body"
+                    v-tooltip="'Copy response'"
+                  >
+                    <i class="material-icons">file_copy</i>
                   </button>
                 </div>
               </div>
@@ -1683,9 +1681,7 @@ export default {
           icon: "done"
         });
         setTimeout(
-          () =>
-            (this.$refs.copyRequest.innerHTML =
-              '<i class="material-icons">file_copy</i>'),
+          () => (this.$refs.copyRequest.innerHTML = this.copyButton),
           1000
         );
       }
