@@ -28,7 +28,7 @@ try {
       version.name = (await axios
         .get("https://api.github.com/repos/liyasthomas/postwoman/releases")
         // If we can't get it from GitHub, we'll resort to getting it from package.json
-        .catch(ex => ({
+        .catch((ex) => ({
           data: [{
             tag_name: require("./package.json").version
           }]
@@ -43,8 +43,9 @@ try {
       runCommand("git", ["branch"])
       .split("* ")[1]
       .split(" ")[0] + (IS_DEV_MODE ? " - DEV MODE" : "");
-    if (["", "master"].includes(version.variant))
+    if (["", "master"].includes(version.variant)) {
       delete version.variant;
+    }
 
     // Write version data into a file
     fs.writeFileSync(

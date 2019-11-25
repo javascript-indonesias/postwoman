@@ -88,21 +88,23 @@
                 <option value="Users"></option>
               </datalist>
             </li>
-            <li>
-              <label class="hide-on-small-screen" for="send">&nbsp;</label>
-              <button
-                :disabled="!isValidURL"
-                @click="sendRequest"
-                id="send"
-                ref="sendButton"
-              >
-                Send
-                <span id="hidden-message">Again</span>
-                <span>
-                  <i class="material-icons">send</i>
-                </span>
-              </button>
-            </li>
+            <ul>
+              <li>
+                <label class="hide-on-small-screen" for="send">&nbsp;</label>
+                <button
+                  :disabled="!isValidURL"
+                  @click="sendRequest"
+                  id="send"
+                  ref="sendButton"
+                >
+                  Send
+                  <span id="hidden-message">Again</span>
+                  <span>
+                    <i class="material-icons">send</i>
+                  </span>
+                </button>
+              </li>
+            </ul>
           </ul>
           <div
             class="blue"
@@ -1229,7 +1231,7 @@ export default {
           );
         }
         if (this.headers) {
-          this.headers.forEach(function(element) {
+          this.headers.forEach((element) => {
             requestString.push(
               "xhr.setRequestHeader('" +
                 element.key +
@@ -1286,7 +1288,7 @@ export default {
           );
         }
         if (this.headers) {
-          this.headers.forEach(function(element) {
+          this.headers.forEach((element) => {
             headers.push(
               '    "' + element.key + '": "' + element.value + '",\n'
             );
@@ -1324,7 +1326,7 @@ export default {
           );
         }
         if (this.headers) {
-          this.headers.forEach(function(element) {
+          this.headers.forEach((element) => {
             requestString.push(
               "  -H '" + element.key + ": " + element.value + "' \\\n"
             );
@@ -1735,7 +1737,7 @@ export default {
         this.method +
         "] on " +
         Date()
-      ).replace(".", "[dot]");
+      ).replace(/\./g, "[dot]");
       document.body.appendChild(a);
       a.click();
       this.$refs.downloadResponse.innerHTML = this.doneButton;
@@ -1964,7 +1966,7 @@ export default {
     uploadPayload() {
       this.rawInput = true;
       let file = this.$refs.payload.files[0];
-      if (file != null) {
+      if (file !== null) {
         let reader = new FileReader();
         reader.onload = e => {
           this.rawParams = e.target.result;
