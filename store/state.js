@@ -18,6 +18,8 @@ export default () => ({
     contentType: '',
   },
   gql: {
-    url: 'https://rickandmortyapi.com/graphql'
+    url: 'https://rickandmortyapi.com/graphql',
+    headers: [],
+    query: ""
   }
 });

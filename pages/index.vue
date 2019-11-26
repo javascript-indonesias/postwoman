@@ -109,7 +109,7 @@
           <div
             class="blue"
             label="Request Body"
-            v-if="method === 'POST' || method === 'PUT' || method === 'PATCH'"
+            v-if="['POST', 'PUT', 'PATCH'].includes(method)"
           >
             <ul>
               <li>
@@ -248,7 +248,7 @@
               <button
                 class="icon"
                 id="code"
-                v-on:click="isHidden = !isHidden"
+                @click="isHidden = !isHidden"
                 :disabled="!isValidURL"
                 v-tooltip.bottom="{
                   content: isHidden ? 'Show Code' : 'Hide Code'
@@ -599,7 +599,9 @@
                         : 'Collapse response'
                     }"
                   >
-                    <i class="material-icons" v-if="!expandResponse">unfold_more</i>
+                    <i class="material-icons" v-if="!expandResponse"
+                      >unfold_more</i
+                    >
                     <i class="material-icons" v-else>unfold_less</i>
                   </button>
                   <button
@@ -1205,7 +1207,7 @@ export default {
     },
     requestCode() {
       if (this.requestType === "JavaScript XHR") {
-        var requestString = [];
+        const requestString = [];
         requestString.push("const xhr = new XMLHttpRequest()");
         const user = this.auth === "Basic" ? "'" + this.httpUser + "'" : null;
         const pswd =
@@ -1231,7 +1233,7 @@ export default {
           );
         }
         if (this.headers) {
-          this.headers.forEach((element) => {
+          this.headers.forEach(element => {
             requestString.push(
               "xhr.setRequestHeader('" +
                 element.key +
@@ -1259,14 +1261,14 @@ export default {
         }
         return requestString.join("\n");
       } else if (this.requestType == "Fetch") {
-        var requestString = [];
-        var headers = [];
+        const requestString = [];
+        let headers = [];
         requestString.push(
           'fetch("' + this.url + this.pathName + this.queryString + '", {\n'
         );
         requestString.push('  method: "' + this.method + '",\n');
         if (this.auth === "Basic") {
-          var basic = this.httpUser + ":" + this.httpPassword;
+          const basic = this.httpUser + ":" + this.httpPassword;
           headers.push(
             '    "Authorization": "Basic ' +
               window.btoa(unescape(encodeURIComponent(basic))) +
@@ -1288,7 +1290,7 @@ export default {
           );
         }
         if (this.headers) {
-          this.headers.forEach((element) => {
+          this.headers.forEach(element => {
             headers.push(
               '    "' + element.key + '": "' + element.value + '",\n'
             );
@@ -1308,13 +1310,13 @@ export default {
         requestString.push("})");
         return requestString.join("");
       } else if (this.requestType === "cURL") {
-        var requestString = [];
+        const requestString = [];
         requestString.push("curl -X " + this.method + " \\\n");
         requestString.push(
           "  '" + this.url + this.pathName + this.queryString + "' \\\n"
         );
         if (this.auth === "Basic") {
-          var basic = this.httpUser + ":" + this.httpPassword;
+          const basic = this.httpUser + ":" + this.httpPassword;
           requestString.push(
             "  -H 'Authorization: Basic " +
               window.btoa(unescape(encodeURIComponent(basic))) +
@@ -1326,7 +1328,7 @@ export default {
           );
         }
         if (this.headers) {
-          this.headers.forEach((element) => {
+          this.headers.forEach(element => {
             requestString.push(
               "  -H '" + element.key + ": " + element.value + "' \\\n"
             );
@@ -1412,7 +1414,9 @@ export default {
       const config = this.$store.state.postwoman.settings.PROXY_ENABLED
         ? {
             method: "POST",
-            url: `https://postwoman.apollotv.xyz/`,
+            url:
+              this.$store.state.postwoman.settings.PROXY_URL ||
+              "https://postwoman.apollotv.xyz/",
             data: requestOptions
           }
         : requestOptions;
@@ -1672,7 +1676,7 @@ export default {
           .then(() => {})
           .catch(console.error);
       } else {
-        var dummy = document.createElement("input");
+        const dummy = document.createElement("input");
         document.body.appendChild(dummy);
         dummy.value = window.location.href;
         dummy.select();
@@ -1702,15 +1706,16 @@ export default {
     },
     ToggleExpandResponse() {
       this.expandResponse = !this.expandResponse;
-      this.responseBodyMaxLines = (this.responseBodyMaxLines == Infinity) ? 16 : Infinity;
+      this.responseBodyMaxLines =
+        this.responseBodyMaxLines == Infinity ? 16 : Infinity;
     },
     copyResponse() {
       this.$refs.copyResponse.innerHTML = this.doneButton;
       this.$toast.success("Copied to clipboard", {
         icon: "done"
       });
-      var aux = document.createElement("textarea");
-      var copy =
+      const aux = document.createElement("textarea");
+      const copy =
         this.responseType == "application/json"
           ? JSON.stringify(this.response.body)
           : this.response.body;
@@ -1725,9 +1730,9 @@ export default {
       );
     },
     downloadResponse() {
-      var dataToWrite = JSON.stringify(this.response.body, null, 2);
-      var file = new Blob([dataToWrite], { type: this.responseType });
-      var a = document.createElement("a"),
+      const dataToWrite = JSON.stringify(this.response.body, null, 2);
+      const file = new Blob([dataToWrite], { type: this.responseType });
+      const a = document.createElement("a"),
         url = URL.createObjectURL(file);
       a.href = url;
       a.download = (

@@ -157,9 +157,10 @@ _Collections are synced with local session storage_
 **Features:**
  - Hide your IP address
  - Fixes [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS) (Cross Origin Resource Sharing) issues
- - Access APIs served in non-HTTPS (`http://`, `localhost`, etc.)
+ - Access APIs served in non-HTTPS (`http://`)
+ - Use custom Proxy URL
 
-_Proxy is hosted by ApolloTV - [Privacy policy](https://apollotv.xyz/legal)_
+_Official Postwoman Proxy is hosted by ApolloTV - [Privacy policy](https://apollotv.xyz/legal)_
 
 📜 **Pre-Request Scripts**: Snippets of code associated with a request that are executed before the request is sent.
 
@@ -336,13 +337,75 @@ This project is licensed under the [MIT License](https://opensource.org/licenses
 
 ## Badges
 
-| Status | Preview | Markdown code (copy & paste into `readme.md`) |
-| ----------- | ----------- | ----------- |
-| **Default** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-50fa7b?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-50fa7b?logo=Postwoman)](https://postwoman.io)` |
-| **Success** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io)` |
-| **Critical** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io)` |
-| **Custom** | [![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io)` |
-| Customize | [![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io) | `[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io)` |
+<p>
+
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-252628?logo=Postwoman)](https://postwoman.io)
+<details>
+<summary>Default</summary>
+<p>
+
+```
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-252628?logo=Postwoman)](https://postwoman.io)
+```
+</p>
+</details>
+</p>
+<p>
+
+---
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io)
+<details>
+<summary>Success</summary>
+<p>
+
+```
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-success?logo=Postwoman)](https://postwoman.io)
+```
+</p>
+</details>
+</p>
+<p>
+
+---
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io)
+<details>
+<summary>Critical</summary>
+<p>
+
+```
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-critical?logo=Postwoman)](https://postwoman.io)
+```
+</p>
+</details>
+</p>
+<p>
+
+---
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io)
+<details>
+<summary>Custom</summary>
+<p>
+
+```
+[![Postwoman](https://img.shields.io/badge/Tested_on-Postwoman-blueviolet?logo=Postwoman)](https://postwoman.io)
+```
+</p>
+</details>
+</p>
+<p>
+
+---
+[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io)
+<details>
+<summary>Customize</summary>
+<p>
+
+```
+[![Postwoman](https://img.shields.io/badge/your_text-Postwoman-hex_color_code?logo=Postwoman)](https://postwoman.io)
+```
+</p>
+</details>
+</p>
 
 <div align="center">
   <br>
