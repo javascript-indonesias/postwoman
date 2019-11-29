@@ -3,7 +3,7 @@
     <header class="header">
       <div class="flex-wrap">
         <div class="slide-in">
-          <nuxt-link to="/">
+          <nuxt-link :to="localePath('index')">
             <h1 class="logo">Postwoman</h1>
           </nuxt-link>
         </div>
@@ -31,12 +31,12 @@
             class="icon"
             id="installPWA"
             @click.prevent="showInstallPrompt()"
-            v-tooltip="'Install PWA'"
+            v-tooltip="$t('install_pwa')"
           >
             <i class="material-icons">offline_bolt</i>
           </button>
           <v-popover>
-            <button class="tooltip-target icon" v-tooltip="'More'">
+            <button class="icon" v-tooltip="'More'">
               <i class="material-icons">more_vert</i>
             </button>
             <template slot="popover">
@@ -47,7 +47,7 @@
                   v-close-popover
                 >
                   <i class="material-icons">keyboard</i>
-                  <span>Shortcuts</span>
+                  <span>{{ $t("shortcuts") }}</span>
                 </button>
               </div>
               <div>
@@ -57,7 +57,7 @@
                   v-close-popover
                 >
                   <i class="material-icons">favorite</i>
-                  <span>Support us</span>
+                  <span>{{ $t("support_us") }}</span>
                 </button>
               </div>
               <div>
@@ -76,7 +76,7 @@
                       d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"
                     />
                   </svg>
-                  <span>Tweet</span>
+                  <span>{{ $t("tweet") }}</span>
                 </button>
               </div>
             </template>
@@ -93,99 +93,207 @@
               seems to mess up the nuxt-link active class.
             -->
             <nuxt-link
-              to="/"
+              :to="localePath('index')"
               :class="linkActive('/')"
-              v-tooltip.right="'Home'"
+              v-tooltip.right="$t('home')"
               aria-label="Home"
             >
               <logo alt style="height: 24px;"></logo>
             </nuxt-link>
             <nuxt-link
-              to="/realtime"
+              :to="localePath('realtime')"
               :class="linkActive('/realtime')"
-              v-tooltip.right="'Realtime'"
+              v-tooltip.right="$t('realtime')"
             >
               <i class="material-icons">settings_input_hdmi</i>
             </nuxt-link>
             <nuxt-link
-              to="/graphql"
+              :to="localePath('graphql')"
               :class="linkActive('/graphql')"
-              v-tooltip.right="'GraphQL'"
+              v-tooltip.right="$t('graphql')"
+              aria-label="GraphQL"
             >
-              <i class="material-icons">cloud</i>
+              <svg
+                class="material-icons"
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+                x="0px"
+                y="0px"
+                viewBox="0 0 400 400"
+              >
+                <g>
+                  <g>
+                    <g>
+                      <rect
+                        x="122"
+                        y="-0.4"
+                        transform="matrix(-0.866 -0.5 0.5 -0.866 163.3196 363.3136)"
+                        width="16.6"
+                        height="320.3"
+                      />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <rect x="39.8" y="272.2" width="320.3" height="16.6" />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <rect
+                        x="37.9"
+                        y="312.2"
+                        transform="matrix(-0.866 -0.5 0.5 -0.866 83.0693 663.3409)"
+                        width="185"
+                        height="16.6"
+                      />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <rect
+                        x="177.1"
+                        y="71.1"
+                        transform="matrix(-0.866 -0.5 0.5 -0.866 463.3409 283.0693)"
+                        width="185"
+                        height="16.6"
+                      />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <rect
+                        x="122.1"
+                        y="-13"
+                        transform="matrix(-0.5 -0.866 0.866 -0.5 126.7903 232.1221)"
+                        width="16.6"
+                        height="185"
+                      />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <rect
+                        x="109.6"
+                        y="151.6"
+                        transform="matrix(-0.5 -0.866 0.866 -0.5 266.0828 473.3766)"
+                        width="320.3"
+                        height="16.6"
+                      />
+                    </g>
+                  </g>
+                  <g>
+                    <g><rect x="52.5" y="107.5" width="16.6" height="185" /></g>
+                  </g>
+                  <g>
+                    <g>
+                      <rect x="330.9" y="107.5" width="16.6" height="185" />
+                    </g>
+                  </g>
+                  <g>
+                    <g>
+                      <rect
+                        x="262.4"
+                        y="240.1"
+                        transform="matrix(-0.5 -0.866 0.866 -0.5 126.7953 714.2875)"
+                        width="14.5"
+                        height="160.9"
+                      />
+                    </g>
+                  </g>
+                  <path
+                    d="M369.5,297.9c-9.6,16.7-31,22.4-47.7,12.8c-16.7-9.6-22.4-31-12.8-47.7c9.6-16.7,31-22.4,47.7-12.8C373.5,259.9,379.2,281.2,369.5,297.9"
+                  />
+                  <path
+                    d="M90.9,137c-9.6,16.7-31,22.4-47.7,12.8c-16.7-9.6-22.4-31-12.8-47.7c9.6-16.7,31-22.4,47.7-12.8C94.8,99,100.5,120.3,90.9,137"
+                  />
+                  <path
+                    d="M30.5,297.9c-9.6-16.7-3.9-38,12.8-47.7c16.7-9.6,38-3.9,47.7,12.8c9.6,16.7,3.9,38-12.8,47.7C61.4,320.3,40.1,314.6,30.5,297.9"
+                  />
+                  <path
+                    d="M309.1,137c-9.6-16.7-3.9-38,12.8-47.7c16.7-9.6,38-3.9,47.7,12.8c9.6,16.7,3.9,38-12.8,47.7C340.1,159.4,318.7,153.7,309.1,137"
+                  />
+                  <path
+                    d="M200,395.8c-19.3,0-34.9-15.6-34.9-34.9c0-19.3,15.6-34.9,34.9-34.9c19.3,0,34.9,15.6,34.9,34.9C234.9,380.1,219.3,395.8,200,395.8"
+                  />
+                  <path
+                    d="M200,74c-19.3,0-34.9-15.6-34.9-34.9c0-19.3,15.6-34.9,34.9-34.9c19.3,0,34.9,15.6,34.9,34.9C234.9,58.4,219.3,74,200,74"
+                  />
+                </g>
+              </svg>
             </nuxt-link>
             <nuxt-link
-              to="/settings"
+              :to="localePath('settings')"
               :class="linkActive('/settings')"
-              v-tooltip.right="'Settings'"
+              v-tooltip.right="$t('settings')"
               aria-label="Settings"
             >
               <i class="material-icons">settings</i>
             </nuxt-link>
           </nav>
-          <div v-if="['/'].includes($route.path)">
+          <div v-if="$route.path === '/'">
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#request" v-tooltip.right="'Request'">
+                  <a href="#request" v-tooltip.right="$t('request')">
                     <i class="material-icons">cloud_upload</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#options" v-tooltip.right="'Options'">
+                  <a href="#options" v-tooltip.right="$t('options')">
                     <i class="material-icons">toc</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#response" v-tooltip.right="'Response'">
+                  <a href="#response" v-tooltip.right="$t('response')">
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>
               </ul>
             </nav>
           </div>
-          <div v-else-if="['/realtime'].includes($route.path)">
+          <div v-else-if="$route.path === '/realtime'">
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#request" v-tooltip.right="'Request'">
+                  <a href="#request" v-tooltip.right="$t('request')">
                     <i class="material-icons">cloud_upload</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#response" v-tooltip.right="'Communication'">
+                  <a href="#response" v-tooltip.right="$t('communication')">
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>
               </ul>
             </nav>
           </div>
-          <div v-else-if="['/graphql'].includes($route.path)">
+          <div v-else-if="$route.path === '/graphql'">
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#endpoint" v-tooltip.right="'Endpoint'">
+                  <a href="#endpoint" v-tooltip.right="$t('endpoint')">
                     <i class="material-icons">cloud_upload</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#schema" v-tooltip.right="'Schema'">
+                  <a href="#schema" v-tooltip.right="$t('schema')">
                     <i class="material-icons">cloud_download</i>
                   </a>
                 </li>
               </ul>
             </nav>
           </div>
-          <div v-else-if="['/settings'].includes($route.path)">
+          <div v-else-if="$route.path === '/settings'">
             <nav class="secondary-nav">
               <ul>
                 <li>
-                  <a href="#theme" v-tooltip.right="'Theme'">
+                  <a href="#theme" v-tooltip.right="$t('theme')">
                     <i class="material-icons">brush</i>
                   </a>
                 </li>
                 <li>
-                  <a href="#proxy" v-tooltip.right="'Proxy'">
+                  <a href="#proxy" v-tooltip.right="$t('proxy')">
                     <i class="material-icons">public</i>
                   </a>
                 </li>
@@ -193,49 +301,79 @@
             </nav>
           </div>
         </aside>
-        <nuxt id="main" class="main" />
+        <transition name="layout" appear>
+          <nuxt id="main" class="main" />
+        </transition>
         <aside class="nav-second"></aside>
       </div>
     </div>
     <footer class="footer">
-      <!-- Bottom section of footer: version/author information -->
-      <p class="align-center mono">
-        <span v-if="version.name">
-          <a
-            v-bind:href="
-              'https://github.com/liyasthomas/postwoman/releases/tag/' +
-                version.name
-            "
-            target="_blank"
-            rel="noopener"
-            >{{ version.name }}</a
-          >
-          <!-- <span v-if="version.hash">
-            -
+      <div class="flex-wrap">
+        <!-- Bottom section of footer: version/author information -->
+        <div>
+          <span v-if="version.name" class="mono">
             <a
-              v-bind:href="'https://github.com/liyasthomas/postwoman/commit/' + version.hash"
+              v-bind:href="
+                'https://github.com/liyasthomas/postwoman/releases/tag/' +
+                  version.name
+              "
               target="_blank"
               rel="noopener"
-            >{{version.hash}}</a>
-          </span> -->
-          <!-- <span v-if="version.variant">({{version.variant}})</span> -->
-          &#x2022;
-        </span>
-        <a href="https://liyasthomas.web.app" target="_blank" rel="noopener"
-          >🦄</a
-        >
-        &#x2022;
-        <a href="https://postwoman.launchaco.com" target="_blank" rel="noopener"
-          >Subscribe</a
-        >
-      </p>
+            >
+              {{ version.name }}
+            </a>
+            &#x2022;
+            <a
+              href="https://liyasthomas.web.app"
+              target="_blank"
+              rel="noopener"
+            >
+              🦄
+            </a>
+            <!-- <span v-if="version.hash">
+              -
+              <a
+                v-bind:href="'https://github.com/liyasthomas/postwoman/commit/' + version.hash"
+                target="_blank"
+                rel="noopener"
+              >{{version.hash}}</a>
+            </span> -->
+            <!-- <span v-if="version.variant">({{version.variant}})</span> -->
+          </span>
+        </div>
+        <div class="flex-wrap">
+          <a
+            href="https://postwoman.launchaco.com"
+            target="_blank"
+            rel="noopener"
+          >
+            <button class="icon" v-tooltip="$t('subscribe')">
+              <i class="material-icons">email</i>
+            </button>
+          </a>
+          <v-popover>
+            <button class="icon" v-tooltip="$t('choose_language')">
+              <i class="material-icons">translate</i>
+            </button>
+            <template slot="popover">
+              <div v-for="locale in availableLocales" :key="locale.code">
+                <nuxt-link :to="switchLocalePath(locale.code)">
+                  <button class="icon" v-close-popover>
+                    {{ locale.name }}
+                  </button>
+                </nuxt-link>
+              </div>
+            </template>
+          </v-popover>
+        </div>
+      </div>
     </footer>
     <modal v-if="showShortcuts" @close="showShortcuts = false">
       <div slot="header">
         <ul>
           <li>
             <div class="flex-wrap">
-              <h3 class="title">Shortcuts</h3>
+              <h3 class="title">{{ $t("shortcuts") }}</h3>
               <div>
                 <button class="icon" @click="showShortcuts = false">
                   <i class="material-icons">close</i>
@@ -248,22 +386,22 @@
       <div slot="body">
         <br />
         <div>
-          <label>Send Request</label>
+          <label>{{ $t("send_request") }}</label>
           <kbd>⌘ G</kbd>
         </div>
         <br />
         <div>
-          <label>Save to Collections</label>
+          <label>{{ $t("save_to_collections") }}</label>
           <kbd>⌘ S</kbd>
         </div>
         <br />
         <div>
-          <label>Copy Request Link</label>
+          <label>{{ $t("copy_request_link") }}</label>
           <kbd>⌘ K</kbd>
         </div>
         <br />
         <div>
-          <label>Reset Request</label>
+          <label>{{ $t("reset_request") }}</label>
           <kbd>⌘ L</kbd>
         </div>
         <br />
@@ -275,7 +413,7 @@
         <ul>
           <li>
             <div class="flex-wrap">
-              <h3 class="title">Support us on</h3>
+              <h3 class="title">{{ $t("support_us_on") }}</h3>
               <div>
                 <button class="icon" @click="showSupport = false">
                   <i class="material-icons">close</i>
@@ -294,7 +432,7 @@
           >
             <button class="icon">
               <i class="material-icons">favorite</i>
-              <span>Open Collective</span>
+              <span>{{ $t("open_collective") }}</span>
             </button>
           </a>
         </div>
@@ -306,7 +444,7 @@
           >
             <button class="icon">
               <i class="material-icons">favorite</i>
-              <span>PayPal</span>
+              <span>{{ $t("paypal") }}</span>
             </button>
           </a>
         </div>
@@ -318,7 +456,7 @@
           >
             <button class="icon">
               <i class="material-icons">favorite</i>
-              <span>Patreon</span>
+              <span>{{ $t("patreon") }}</span>
             </button>
           </a>
         </div>
@@ -439,6 +577,12 @@ export default {
   watch: {
     $route() {
       this.$toast.clear();
+    }
+  },
+
+  computed: {
+    availableLocales() {
+      return this.$i18n.locales.filter(i => i.code !== this.$i18n.locale);
     }
   }
 };

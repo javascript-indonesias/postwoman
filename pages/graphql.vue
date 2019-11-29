@@ -5,7 +5,7 @@
         <pw-section class="blue" label="Endpoint" ref="endpoint">
           <ul>
             <li>
-              <label for="url">URL</label>
+              <label for="url">{{ $t("url") }}</label>
               <input
                 id="url"
                 type="url"
@@ -17,7 +17,7 @@
               <li>
                 <label for="get" class="hide-on-small-screen">&nbsp;</label>
                 <button id="get" name="get" @click="getSchema">
-                  Get Schema
+                  {{ $t("get_schema") }}
                   <span><i class="material-icons">send</i></span>
                 </button>
               </li>
@@ -29,7 +29,7 @@
           <ul>
             <li>
               <div class="flex-wrap">
-                <label for="headerList">Header List</label>
+                <label for="headerList">{{ $t("header_list") }}</label>
                 <div>
                   <button
                     class="icon"
@@ -95,7 +95,7 @@
             <li>
               <button class="icon" @click="addRequestHeader">
                 <i class="material-icons">add</i>
-                <span>Add New</span>
+                <span>{{ $t("add_new") }}</span>
               </button>
             </li>
           </ul>
@@ -103,7 +103,7 @@
 
         <pw-section class="green" label="Schema" ref="schema">
           <div class="flex-wrap">
-            <label>response</label>
+            <label>{{ $t("response") }}</label>
             <div>
               <button
                 class="icon"
@@ -152,7 +152,7 @@
         </pw-section>
         <pw-section class="cyan" label="Query" ref="query">
           <div class="flex-wrap">
-            <label for="gqlQuery">Query</label>
+            <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
               <button
                 class="icon"
@@ -171,15 +171,11 @@
               </button>
             </div>
           </div>
-          <textarea
-            id="gqlQuery"
-            rows="8"
-            v-model="gqlQueryString">
-          ></textarea>
+          <textarea id="gqlQuery" rows="8" v-model="gqlQueryString"></textarea>
         </pw-section>
         <pw-section class="purple" label="Response" ref="response">
           <div class="flex-wrap">
-            <label for="responseField">Response</label>
+            <label for="responseField">{{ $t("response") }}</label>
             <div>
               <button
                 class="icon"
@@ -216,9 +212,9 @@
               name="side"
               checked="checked"
             />
-            <label v-if="queryFields.length > 0" for="queries-tab"
-              >Queries</label
-            >
+            <label v-if="queryFields.length > 0" for="queries-tab">
+              {{ $t("queries") }}
+            </label>
             <div v-if="queryFields.length > 0" class="tab">
               <div v-for="field in queryFields" :key="field.name">
                 <gql-field :gqlField="field" />
@@ -232,9 +228,9 @@
               name="side"
               checked="checked"
             />
-            <label v-if="mutationFields.length > 0" for="mutations-tab"
-              >Mutations</label
-            >
+            <label v-if="mutationFields.length > 0" for="mutations-tab">
+              {{ $t("mutations") }}
+            </label>
             <div v-if="mutationFields.length > 0" class="tab">
               <div v-for="field in mutationFields" :key="field.name">
                 <gql-field :gqlField="field" />
@@ -248,9 +244,9 @@
               name="side"
               checked="checked"
             />
-            <label v-if="subscriptionFields.length > 0" for="subscriptions-tab"
-              >Subscriptions</label
-            >
+            <label v-if="subscriptionFields.length > 0" for="subscriptions-tab">
+              {{ $t("subscriptions") }}
+            </label>
             <div v-if="subscriptionFields.length > 0" class="tab">
               <div v-for="field in subscriptionFields" :key="field.name">
                 <gql-field :gqlField="field" />
@@ -264,7 +260,9 @@
               name="side"
               checked="checked"
             />
-            <label v-if="gqlTypes.length > 0" for="gqltypes-tab">Types</label>
+            <label v-if="gqlTypes.length > 0" for="gqltypes-tab">
+              {{ $t("types") }}
+            </label>
             <div v-if="gqlTypes.length > 0" class="tab">
               <div v-for="type in gqlTypes" :key="type.name">
                 <gql-type :gqlType="type" />
@@ -279,7 +277,7 @@
 
 <style scoped lang="scss">
 .tab {
-  max-height: calc(100vh - 172px);
+  max-height: calc(100vh - 186px);
   overflow: auto;
 }
 </style>
@@ -435,7 +433,7 @@ export default {
           : res;
 
         this.responseString = JSON.stringify(data.data, null, 2);
-        
+
         this.$nuxt.$loading.finish();
         const duration = Date.now() - startTime;
         this.$toast.info(`Finished in ${duration}ms`, {
@@ -449,7 +447,6 @@ export default {
         });
         console.log("Error", error);
       }
-
     },
     async getSchema() {
       const startTime = Date.now();
@@ -604,10 +601,22 @@ export default {
       return false;
     },
     removeRequestHeader(index) {
+      // .slice() is used so we get a separate array, rather than just a reference
+      const oldHeaders = this.headers.slice();
+
       this.$store.commit("removeGQLHeader", index);
       this.$toast.error("Deleted", {
-        icon: "delete"
+        icon: "delete",
+        action: {
+          text: "Undo",
+          duration: 4000,
+          onClick: (e, toastObject) => {
+            this.headers = oldHeaders;
+            toastObject.remove();
+          }
+        }
       });
+      console.log(oldHeaders);
     }
   }
 };

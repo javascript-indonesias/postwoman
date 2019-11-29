@@ -7,19 +7,19 @@ import * as querystring from "querystring";
  * output this: 'msg1=value1&msg2=value2'
  * @param dataArguments
  */
-function joinDataArguments(dataArguments) {
+const joinDataArguments = dataArguments => {
   let data = "";
   dataArguments.forEach((argument, i) => {
     if (i === 0) {
       data += argument;
     } else {
-      data += "&" + argument;
+      data += `&${argument}`;
     }
   });
   return data;
-}
+};
 
-function parseCurlCommand(curlCommand) {
+const parseCurlCommand = curlCommand => {
   let newlineFound = /\r|\n/.exec(curlCommand);
   if (newlineFound) {
     // remove newlines
@@ -47,7 +47,7 @@ function parseCurlCommand(curlCommand) {
   }
   let headers;
 
-  let parseHeaders = function (headerFieldName) {
+  const parseHeaders = headerFieldName => {
     if (parsedArguments[headerFieldName]) {
       if (!headers) {
         headers = {};
@@ -55,7 +55,7 @@ function parseCurlCommand(curlCommand) {
       if (!Array.isArray(parsedArguments[headerFieldName])) {
         parsedArguments[headerFieldName] = [parsedArguments[headerFieldName]];
       }
-      parsedArguments[headerFieldName].forEach((header) => {
+      parsedArguments[headerFieldName].forEach(header => {
         if (header.includes("Cookie")) {
           // stupid javascript tricks: closure
           cookieString = header;
@@ -95,17 +95,15 @@ function parseCurlCommand(curlCommand) {
     if (!Array.isArray(parsedArguments.F)) {
       parsedArguments.F = [parsedArguments.F];
     }
-    parsedArguments.F.forEach((multipartArgument) => {
+    parsedArguments.F.forEach(multipartArgument => {
       // input looks like key=value. value could be json or a file path prepended with an @
       const [key, value] = multipartArgument.split("=", 2);
       multipartUploads[key] = value;
     });
   }
   if (cookieString) {
-    let cookieParseOptions = {
-      decode: function (s) {
-        return s;
-      }
+    const cookieParseOptions = {
+      decode: s => s
     };
     // separate out cookie headers into separate data structure
     // note: cookie is case insensitive
@@ -174,8 +172,8 @@ function parseCurlCommand(curlCommand) {
   });
 
   urlObject.search = null; // Clean out the search/query portion.
-  let request = {
-    url: url,
+  const request = {
+    url,
     urlWithoutQuery: URL.format(urlObject)
   };
   if (compressed) {
@@ -223,6 +221,6 @@ function parseCurlCommand(curlCommand) {
     request.insecure = true;
   }
   return request;
-}
+};
 
 export default parseCurlCommand;

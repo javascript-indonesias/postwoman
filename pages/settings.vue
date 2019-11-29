@@ -3,7 +3,7 @@
     <pw-section class="cyan" label="Theme" ref="theme">
       <ul>
         <li>
-          <h3 class="title">Background</h3>
+          <h3 class="title">{{ $t("background") }}</h3>
           <div class="backgrounds">
             <span
               :key="theme.class"
@@ -22,7 +22,7 @@
       </ul>
       <ul>
         <li>
-          <h3 class="title">Color</h3>
+          <h3 class="title">{{ $t("color") }}</h3>
           <div class="colors">
             <span
               :key="entry.color"
@@ -41,16 +41,17 @@
       </ul>
       <ul>
         <li>
-          <h3 class="title">Labels</h3>
+          <h3 class="title">{{ $t("color") }}</h3>
           <span>
             <pw-toggle
               :on="settings.FRAME_COLORS_ENABLED"
               @change="toggleSetting('FRAME_COLORS_ENABLED')"
-              >Multi-color
-              {{
-                settings.FRAME_COLORS_ENABLED ? "Enabled" : "Disabled"
-              }}</pw-toggle
             >
+              {{ $t("multi_color") }}
+              {{
+                settings.FRAME_COLORS_ENABLED ? $t("enabled") : $t("disabled")
+              }}
+            </pw-toggle>
           </span>
         </li>
       </ul>
@@ -64,9 +65,10 @@
               <pw-toggle
                 :on="settings.PROXY_ENABLED"
                 @change="toggleSetting('PROXY_ENABLED')"
-                >Proxy
-                {{ settings.PROXY_ENABLED ? "enabled" : "disabled" }}</pw-toggle
               >
+                {{ $t("proxy") }}
+                {{ settings.PROXY_ENABLED ? $t("enabled") : $t("disabled") }}
+              </pw-toggle>
             </span>
             <a
               href="https://github.com/liyasthomas/postwoman/wiki/Proxy"
@@ -83,7 +85,7 @@
       <ul>
         <li>
           <div class="flex-wrap">
-            <label for="url">URL</label>
+            <label for="url">{{ $t("url") }}</label>
             <button
               class="icon"
               @click="settings.PROXY_URL = `https://postwoman.apollotv.xyz/`"
@@ -92,17 +94,22 @@
               <i class="material-icons">clear_all</i>
             </button>
           </div>
-          <input id="url" type="url" v-model="settings.PROXY_URL" :disabled="!settings.PROXY_ENABLED">
+          <input
+            id="url"
+            type="url"
+            v-model="settings.PROXY_URL"
+            :disabled="!settings.PROXY_ENABLED"
+          />
         </li>
       </ul>
       <ul class="info">
         <li>
           <p>
-            Postwoman's Official Proxy is hosted by ApolloTV.
+            {{ $t("postwoman_official_proxy_hosting") }}
             <br />
-            Read the
-            <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener"
-              >ApolloTV privacy policy</a
+            {{ $t("read_the") }}
+            <a href="https://apollotv.xyz/legal" target="_blank" rel="noopener">
+              {{ $t("apollotv_privacy_policy") }} </a
             >.
           </p>
         </li>
@@ -231,7 +238,9 @@ export default {
           this.$store.state.postwoman.settings.FRAME_COLORS_ENABLED || false,
         PROXY_ENABLED:
           this.$store.state.postwoman.settings.PROXY_ENABLED || false,
-        PROXY_URL: this.$store.state.postwoman.settings.PROXY_URL || "https://postwoman.apollotv.xyz/",
+        PROXY_URL:
+          this.$store.state.postwoman.settings.PROXY_URL ||
+          "https://postwoman.apollotv.xyz/",
         PROXY_KEY: this.$store.state.postwoman.settings.PROXY_KEY || ""
       }
     };
