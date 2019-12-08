@@ -85,13 +85,14 @@ a {
   display: inline-flex;
   color: inherit;
   text-decoration: none;
+  transition: all 0.2s ease-in-out;
 }
 
 header,
 footer {
   & > div {
     display: flex;
-    padding: 16px;
+    padding: 16px 8px;
     width: 100%;
     align-items: center;
     justify-content: space-between;
@@ -135,7 +136,10 @@ footer {
 
 .logo {
   font-size: 22px;
-  color: var(--ac-color);
+
+  &:hover {
+    color: var(--ac-color);
+  }
 }
 
 .nav-first,
@@ -170,7 +174,6 @@ footer {
 nav.primary-nav {
   display: flex;
   flex-flow: column nowrap;
-  border-bottom: 1px solid var(--brd-color);
 
   svg {
     fill: var(--fg-light-color);
@@ -213,6 +216,7 @@ nav.primary-nav {
 
 nav.secondary-nav {
   display: flex;
+  border-top: 1px solid var(--brd-color);
 
   ul {
     display: flex;
@@ -424,6 +428,22 @@ button {
       transition: all 0.2s ease-in-out;
     }
   }
+}
+
+@keyframes beat {
+  30% {
+    transform: scale(1.1);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.material-icons:active {
+  animation: beat 0.5s forwards 1;
 }
 
 fieldset {
@@ -807,20 +827,24 @@ input[type="radio"]:checked + label + .tab {
   }
 
   .nav-first {
+    position: fixed;
+    top: auto;
+    bottom: 0;
     width: 100%;
     background-color: var(--bg-color);
   }
 
   nav.primary-nav {
-    flex-flow: row;
+    flex-flow: row nowrap;
+    overflow: auto;
+    justify-content: space-around;
   }
-
   nav.secondary-nav {
     display: none;
   }
 
   .main {
-    padding: 0 8px;
+    padding: 0 8px 68px;
   }
 
   ul,
@@ -853,5 +877,9 @@ input[type="radio"]:checked + label + .tab {
 
   .inner-right {
     margin-left: 0;
+  }
+
+  .toasted {
+    margin-bottom: 68px;
   }
 }
