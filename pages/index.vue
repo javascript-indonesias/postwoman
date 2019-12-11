@@ -552,7 +552,7 @@
               </ul>
             </pw-section>
           </div>
-          <div class="flex-wrap">
+          <!-- <div class="flex-wrap">
             <span></span>
             <button
               class="icon hide-on-small-screen"
@@ -565,7 +565,7 @@
                 {{ activeSidebar ? "last_page" : "first_page" }}
               </i>
             </button>
-          </div>
+          </div> -->
         </section>
 
         <pw-section
@@ -794,6 +794,7 @@
     </div>
   </div>
 </template>
+
 <script>
 import section from "../components/section";
 import url from "url";
@@ -1846,12 +1847,16 @@ export default {
         ? [flat("rawParams")]
         : [deep("bodyParams")];
 
-      this.$router.replace(
+      history.replaceState(
+        window.location.href,
+        "",
         "/?" +
-          flats
-            .concat(deeps, bodyParams)
-            .join("")
-            .slice(0, -1)
+          encodeURIComponent(
+            flats
+              .concat(deeps, bodyParams)
+              .join("")
+              .slice(0, -1)
+          )
       );
     },
     setRouteQueries(queries) {
