@@ -346,6 +346,18 @@ export default {
         name: "Türkçe",
         iso: "tr-TR",
         file: "tr-TR.js"
+      },
+      {
+        code: "de",
+        name: "Deutsch",
+        iso: "de-DE",
+        file: "de-DE.js"
+      },
+      {
+        code: "ja",
+        name: "日本語",
+        iso: "ja-JP",
+        file: "ja-JP.js"
       }
     ],
     defaultLocale: "en",
