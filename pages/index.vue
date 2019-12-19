@@ -728,14 +728,17 @@
           </ul>
         </div>
         <div slot="footer">
-          <ul>
-            <li>
-              <button class="icon" @click="handleImport">
-                <i class="material-icons">get_app</i>
-                <span>{{ $t("import") }}</span>
+          <div class="flex-wrap">
+            <span></span>
+            <span>
+              <button class="icon" @click="showModal = false">
+                Cancel
               </button>
-            </li>
-          </ul>
+              <button class="icon primary" @click="handleImport">
+                {{ $t("import") }}
+              </button>
+            </span>
+          </div>
         </div>
       </pw-modal>
 
@@ -1986,7 +1989,7 @@ export default {
         window.location.href,
         "",
         "/?" +
-          encodeURIComponent(
+          encodeURI(
             flats
               .concat(deeps, bodyParams)
               .join("")
@@ -1999,7 +2002,7 @@ export default {
         throw new Error("Route query parameters must be a Object");
       for (const key in queries) {
         if (["headers", "params", "bodyParams"].includes(key))
-          this[key] = JSON.parse(queries[key]);
+          this[key] = JSON.parse(decodeURI(queries[key]));
         if (key === "rawParams") {
           this.rawInput = true;
           this.rawParams = queries["rawParams"];
