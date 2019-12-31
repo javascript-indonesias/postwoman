@@ -1,9 +1,9 @@
 <template>
   <div class="page">
     <pw-section class="blue" label="Collections" ref="collections">
-      <ul class="info">
+      <ul>
         <li>
-          <p>
+          <p class="info">
             Import any Postwoman Collection to Generate Documentation on-the-go.
           </p>
         </li>
@@ -17,7 +17,7 @@
               v-tooltip="'JSON'"
             >
               <i class="material-icons">folder</i>
-              <span>Import Collections</span>
+              <span>Import collections</span>
             </button>
           </label>
           <input
@@ -55,6 +55,9 @@
     </pw-section>
 
     <pw-section class="green" label="Documentation" ref="documentation">
+      <p v-if="this.items.length === 0" class="info">
+        Generate documentation first
+      </p>
       <div>
         <span
           class="collection"
@@ -83,44 +86,49 @@
                 <i class="material-icons">insert_drive_file</i>
                 {{ request.name || "None" }}
               </h4>
-              <p class="doc-desc">
+              <p class="doc-desc" v-if="request.url">
                 <span>
                   URL: <code>{{ request.url || "None" }}</code>
                 </span>
               </p>
-              <p class="doc-desc">
+              <p class="doc-desc" v-if="request.path">
                 <span>
                   Path: <code>{{ request.path || "None" }}</code>
                 </span>
               </p>
-              <p class="doc-desc">
+              <p class="doc-desc" v-if="request.method">
                 <span>
                   Method: <code>{{ request.method || "None" }}</code>
                 </span>
               </p>
-              <p class="doc-desc">
+              <p class="doc-desc" v-if="request.auth">
                 <span>
                   Authentication:
                   <code>{{ request.auth || "None" }}</code>
                 </span>
               </p>
-              <p class="doc-desc">
+              <p class="doc-desc" v-if="request.httpUser">
                 <span>
                   Username: <code>{{ request.httpUser || "None" }}</code>
                 </span>
               </p>
-              <p class="doc-desc">
+              <p class="doc-desc" v-if="request.httpPassword">
                 <span>
-                  Password: <code>{{ request.httpPassword || "None" }}</code>
+                  Password:
+                  <code>{{ request.httpPassword || "None" }}</code>
                 </span>
               </p>
-              <p class="doc-desc">
+              <p class="doc-desc" v-if="request.bearerToken">
                 <span>
                   Token: <code>{{ request.bearerToken || "None" }}</code>
                 </span>
               </p>
-              <h4>Headers</h4>
-              <span v-for="header in request.headers" :key="header.key">
+              <h4 v-if="request.headers.length > 0">Headers</h4>
+              <span
+                v-if="request.headers"
+                v-for="header in request.headers"
+                :key="header.key"
+              >
                 <p class="doc-desc">
                   <span>
                     {{ header.key || "None" }}:
@@ -128,8 +136,12 @@
                   </span>
                 </p>
               </span>
-              <h4>Parameters</h4>
-              <span v-for="parameter in request.params" :key="parameter.key">
+              <h4 v-if="request.params.length > 0">Parameters</h4>
+              <span
+                v-if="request.params"
+                v-for="parameter in request.params"
+                :key="parameter.key"
+              >
                 <p class="doc-desc">
                   <span>
                     {{ parameter.key || "None" }}:
@@ -137,8 +149,12 @@
                   </span>
                 </p>
               </span>
-              <h4>Payload</h4>
-              <span v-for="payload in request.bodyParam" :key="payload.key">
+              <h4 v-if="request.bodyParam">Payload</h4>
+              <span
+                v-if="request.bodyParam"
+                v-for="payload in request.bodyParam"
+                :key="payload.key"
+              >
                 <p class="doc-desc">
                   <span>
                     {{ payload.key || "None" }}:
@@ -146,19 +162,21 @@
                   </span>
                 </p>
               </span>
-              <p class="doc-desc">
+              <p class="doc-desc" v-if="request.rawParams">
                 <span>
                   Parameters: <code>{{ request.rawParams || "None" }}</code>
                 </span>
               </p>
-              <p class="doc-desc">
+              <p class="doc-desc" v-if="request.contentType">
                 <span>
-                  Content Type: <code>{{ request.contentType || "None" }}</code>
+                  Content Type:
+                  <code>{{ request.contentType || "None" }}</code>
                 </span>
               </p>
-              <p class="doc-desc">
+              <p class="doc-desc" v-if="request.requestType">
                 <span>
-                  Request Type: <code>{{ request.requestType || "None" }}</code>
+                  Request Type:
+                  <code>{{ request.requestType || "None" }}</code>
                 </span>
               </p>
             </span>
@@ -172,44 +190,48 @@
               <i class="material-icons">insert_drive_file</i>
               {{ request.name || "None" }}
             </h4>
-            <p class="doc-desc">
+            <p class="doc-desc" v-if="request.url">
               <span>
                 URL: <code>{{ request.url || "None" }}</code>
               </span>
             </p>
-            <p class="doc-desc">
+            <p class="doc-desc" v-if="request.path">
               <span>
                 Path: <code>{{ request.path || "None" }}</code>
               </span>
             </p>
-            <p class="doc-desc">
+            <p class="doc-desc" v-if="request.method">
               <span>
                 Method: <code>{{ request.method || "None" }}</code>
               </span>
             </p>
-            <p class="doc-desc">
+            <p class="doc-desc" v-if="request.auth">
               <span>
                 Authentication:
                 <code>{{ request.auth || "None" }}</code>
               </span>
             </p>
-            <p class="doc-desc">
+            <p class="doc-desc" v-if="request.httpUser">
               <span>
                 Username: <code>{{ request.httpUser || "None" }}</code>
               </span>
             </p>
-            <p class="doc-desc">
+            <p class="doc-desc" v-if="request.httpPassword">
               <span>
                 Password: <code>{{ request.httpPassword || "None" }}</code>
               </span>
             </p>
-            <p class="doc-desc">
+            <p class="doc-desc" v-if="request.bearerToken">
               <span>
                 Token: <code>{{ request.bearerToken || "None" }}</code>
               </span>
             </p>
-            <h4>Headers</h4>
-            <span v-for="header in request.headers" :key="header.key">
+            <h4 v-if="request.headers.length > 0">Headers</h4>
+            <span
+              v-if="request.headers"
+              v-for="header in request.headers"
+              :key="header.key"
+            >
               <p class="doc-desc">
                 <span>
                   {{ header.key || "None" }}:
@@ -217,8 +239,12 @@
                 </span>
               </p>
             </span>
-            <h4>Parameters</h4>
-            <span v-for="parameter in request.params" :key="parameter.key">
+            <h4 v-if="request.params.length > 0">Parameters</h4>
+            <span
+              v-if="request.params"
+              v-for="parameter in request.params"
+              :key="parameter.key"
+            >
               <p class="doc-desc">
                 <span>
                   {{ parameter.key || "None" }}:
@@ -226,8 +252,12 @@
                 </span>
               </p>
             </span>
-            <h4>Payload</h4>
-            <span v-for="payload in request.bodyParam" :key="payload.key">
+            <h4 v-if="request.bodyParam">Payload</h4>
+            <span
+              v-if="request.bodyParam"
+              v-for="payload in request.bodyParam"
+              :key="payload.key"
+            >
               <p class="doc-desc">
                 <span>
                   {{ payload.key || "None" }}:
@@ -235,19 +265,21 @@
                 </span>
               </p>
             </span>
-            <p class="doc-desc">
+            <p class="doc-desc" v-if="request.rawParams">
               <span>
                 Parameters: <code>{{ request.rawParams || "None" }}</code>
               </span>
             </p>
-            <p class="doc-desc">
+            <p class="doc-desc" v-if="request.contentType">
               <span>
-                Content Type: <code>{{ request.contentType || "None" }}</code>
+                Content Type:
+                <code>{{ request.contentType || "None" }}</code>
               </span>
             </p>
-            <p class="doc-desc">
+            <p class="doc-desc" v-if="request.requestType">
               <span>
-                Request Type: <code>{{ request.requestType || "None" }}</code>
+                Request Type:
+                <code>{{ request.requestType || "None" }}</code>
               </span>
             </p>
           </span>
