@@ -45,17 +45,92 @@
             <li>
               <label for="method">{{ $t("method") }}</label>
               <span class="select-wrapper">
-                <select id="method" v-model="method" @change="methodChange">
-                  <option value="GET">GET</option>
-                  <option value="HEAD">HEAD</option>
-                  <option value="POST">POST</option>
-                  <option value="PUT">PUT</option>
-                  <option value="DELETE">DELETE</option>
-                  <option value="CONNECT">CONNECT</option>
-                  <option value="OPTIONS">OPTIONS</option>
-                  <option value="TRACE">TRACE</option>
-                  <option value="PATCH">PATCH</option>
-                </select>
+                <v-popover>
+                  <input id="method" v-model="method" />
+                  <template slot="popover">
+                    <div>
+                      <button
+                        class="icon"
+                        @click="method = 'GET'"
+                        v-close-popover
+                      >
+                        GET
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="method = 'HEAD'"
+                        v-close-popover
+                      >
+                        HEAD
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="method = 'POST'"
+                        v-close-popover
+                      >
+                        POST
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="method = 'PUT'"
+                        v-close-popover
+                      >
+                        PUT
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="method = 'DELETE'"
+                        v-close-popover
+                      >
+                        DELETE
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="method = 'CONNECT'"
+                        v-close-popover
+                      >
+                        CONNECT
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="method = 'OPTIONS'"
+                        v-close-popover
+                      >
+                        OPTIONS
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="method = 'TRACE'"
+                        v-close-popover
+                      >
+                        TRACE
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="method = 'PATCH'"
+                        v-close-popover
+                      >
+                        PATCH
+                      </button>
+                    </div>
+                  </template>
+                </v-popover>
               </span>
             </li>
             <li>
@@ -934,21 +1009,18 @@
           <input id="sync-tab" type="radio" name="side" />
           <label for="sync-tab">{{ $t("notes") }}</label>
           <div class="tab">
-            <pw-section
-              v-if="fb.currentUser"
-              class="pink"
-              :label="$t('notes')"
-              ref="sync"
-            >
-              <inputform />
-              <ballsfeed />
-            </pw-section>
-            <pw-section v-else>
-              <ul>
-                <li>
-                  <label>{{ $t("login_first") }}</label>
-                </li>
-              </ul>
+            <pw-section class="pink" :label="$t('notes')" ref="sync">
+              <div v-if="fb.currentUser">
+                <inputform />
+                <ballsfeed />
+              </div>
+              <div v-else>
+                <ul>
+                  <li>
+                    <label>{{ $t("login_first") }}</label>
+                  </li>
+                </ul>
+              </div>
             </pw-section>
           </div>
         </section>
@@ -1577,6 +1649,12 @@ export default {
     editingRequest(newValue) {
       this.editRequest = newValue;
       this.showRequestModal = true;
+    },
+    method() {
+      // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
+      this.contentType = ["POST", "PUT", "PATCH"].includes(this.method)
+        ? "application/json"
+        : "";
     }
   },
   computed: {
@@ -2671,12 +2749,6 @@ export default {
         this.urlExcludes[excludedField] = excluded;
       }
       this.setRouteQueryState();
-    },
-    methodChange() {
-      // this.$store.commit('setState', { 'value': ["POST", "PUT", "PATCH"].includes(this.method) ? 'application/json' : '', 'attribute': 'contentType' })
-      this.contentType = ["POST", "PUT", "PATCH"].includes(this.method)
-        ? "application/json"
-        : "";
     },
     uploadPayload() {
       this.rawInput = true;
