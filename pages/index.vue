@@ -46,12 +46,22 @@
               <label for="method">{{ $t("method") }}</label>
               <span class="select-wrapper">
                 <v-popover>
-                  <input id="method" v-model="method" />
+                  <input
+                    id="method"
+                    class="method"
+                    v-if="!customMethod"
+                    v-model="method"
+                    readonly
+                  />
+                  <input v-else v-model="method" placeholder="CUSTOM" />
                   <template slot="popover">
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'GET'"
+                        @click="
+                          customMethod = false;
+                          method = 'GET';
+                        "
                         v-close-popover
                       >
                         GET
@@ -60,7 +70,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'HEAD'"
+                        @click="
+                          customMethod = false;
+                          method = 'HEAD';
+                        "
                         v-close-popover
                       >
                         HEAD
@@ -69,7 +82,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'POST'"
+                        @click="
+                          customMethod = false;
+                          method = 'POST';
+                        "
                         v-close-popover
                       >
                         POST
@@ -78,7 +94,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'PUT'"
+                        @click="
+                          customMethod = false;
+                          method = 'PUT';
+                        "
                         v-close-popover
                       >
                         PUT
@@ -87,7 +106,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'DELETE'"
+                        @click="
+                          customMethod = false;
+                          method = 'DELETE';
+                        "
                         v-close-popover
                       >
                         DELETE
@@ -96,7 +118,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'CONNECT'"
+                        @click="
+                          customMethod = false;
+                          method = 'CONNECT';
+                        "
                         v-close-popover
                       >
                         CONNECT
@@ -105,7 +130,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'OPTIONS'"
+                        @click="
+                          customMethod = false;
+                          method = 'OPTIONS';
+                        "
                         v-close-popover
                       >
                         OPTIONS
@@ -114,7 +142,10 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'TRACE'"
+                        @click="
+                          customMethod = false;
+                          method = 'TRACE';
+                        "
                         v-close-popover
                       >
                         TRACE
@@ -123,10 +154,25 @@
                     <div>
                       <button
                         class="icon"
-                        @click="method = 'PATCH'"
+                        @click="
+                          customMethod = false;
+                          method = 'PATCH';
+                        "
                         v-close-popover
                       >
                         PATCH
+                      </button>
+                    </div>
+                    <div>
+                      <button
+                        class="icon"
+                        @click="
+                          customMethod = true;
+                          method = 'CUSTOM';
+                        "
+                        v-close-popover
+                      >
+                        CUSTOM
                       </button>
                     </div>
                   </template>
@@ -173,7 +219,6 @@
                 ref="sendButton"
               >
                 {{ $t("send") }}
-                <!-- <span id="hidden-message">{{ $t("again") }}</span> -->
                 <span>
                   <i class="material-icons">send</i>
                 </span>
@@ -206,13 +251,42 @@
                     </pw-toggle>
                   </span>
                   <div>
+                    <label for="attachment">
+                      <button
+                        class="icon"
+                        @click="$refs.attachment.click()"
+                        v-tooltip="
+                          files.length === 0
+                            ? $t('upload_file')
+                            : filenames.replace('<br/>', '')
+                        "
+                      >
+                        <i class="material-icons">attach_file</i>
+                        <span>
+                          {{
+                            files.length === 0
+                              ? "No files"
+                              : files.length == 1
+                              ? "1 file"
+                              : files.length + " files"
+                          }}
+                        </span>
+                      </button>
+                    </label>
+                    <input
+                      ref="attachment"
+                      name="attachment"
+                      type="file"
+                      @change="uploadAttachment"
+                      multiple
+                    />
                     <label for="payload">
                       <button
                         class="icon"
                         @click="$refs.payload.click()"
-                        v-tooltip="$t('upload_file')"
+                        v-tooltip="$t('import_json')"
                       >
-                        <i class="material-icons">attach_file</i>
+                        <i class="material-icons">post_add</i>
                       </button>
                     </label>
                     <input
@@ -335,10 +409,10 @@
                   content: isHidden ? $t('show_code') : $t('hide_code')
                 }"
               >
-                <i class="material-icons">flash_on</i>
+                <i class="material-icons">code</i>
               </button>
               <button
-                :class="'icon' + (showPreRequestScript ? ' info-response' : '')"
+                class="icon"
                 id="preRequestScriptButton"
                 v-tooltip.bottom="{
                   content: !showPreRequestScript
@@ -351,14 +425,15 @@
                   class="material-icons"
                   :class="showPreRequestScript"
                   v-if="!showPreRequestScript"
-                  >code</i
                 >
-                <i class="material-icons" :class="showPreRequestScript" v-else
-                  >close</i
-                >
+                  playlist_add
+                </i>
+                <i class="material-icons" :class="showPreRequestScript" v-else>
+                  close
+                </i>
               </button>
               <button
-                :class="'icon' + (testsEnabled ? ' info-response' : '')"
+                class="icon"
                 id="preRequestScriptButto"
                 v-tooltip.bottom="{
                   content: !testsEnabled ? 'Enable Tests' : 'Disable Tests'
@@ -370,7 +445,7 @@
                   :class="testsEnabled"
                   v-if="!testsEnabled"
                 >
-                  assignment_turned_in
+                  playlist_add_check
                 </i>
                 <i class="material-icons" :class="testsEnabled" v-else>close</i>
               </button>
@@ -455,7 +530,7 @@
                     </button>
                   </div>
                 </div>
-                <div v-for="testReport in testReports">
+                <div v-for="(testReport, index) in testReports" :key="index">
                   <div v-if="testReport.startBlock" class="info">
                     <h4>{{ testReport.startBlock }}</h4>
                   </div>
@@ -998,13 +1073,7 @@
           <input id="collection-tab" type="radio" name="side" />
           <label for="collection-tab">{{ $t("collections") }}</label>
           <div class="tab">
-            <pw-section
-              class="yellow"
-              :label="$t('collections')"
-              ref="collections"
-            >
-              <collections />
-            </pw-section>
+            <collections />
           </div>
           <input id="sync-tab" type="radio" name="side" />
           <label for="sync-tab">{{ $t("notes") }}</label>
@@ -1559,7 +1628,10 @@ export default {
       responseBodyType: "text",
       responseBodyMaxLines: 16,
       activeSidebar: true,
-      fb
+      fb,
+      customMethod: false,
+      files: [],
+      filenames: ""
     };
   },
   watch: {
@@ -2127,7 +2199,7 @@ export default {
         url: this.url + this.pathName + this.queryString,
         auth,
         headers,
-        data: requestBody ? requestBody.toString() : null,
+        data: requestBody,
         credentials: true
       };
       if (preRequestScript) {
@@ -2206,6 +2278,18 @@ export default {
           //'Content-Length': requestBody.length,
           "Content-Type": `${this.contentType}; charset=utf-8`
         });
+      }
+
+      requestBody = requestBody ? requestBody.toString() : null;
+
+      if (this.files.length !== 0) {
+        const formData = new FormData();
+        for (let i = 0; i < this.files.length; i++) {
+          let file = this.files[i];
+          formData.append(`files[${i}]`, file);
+        }
+        formData.append("data", requestBody);
+        requestBody = formData;
       }
 
       // If the request uses a token for auth, we want to make sure it's sent here.
@@ -2669,9 +2753,9 @@ export default {
         default:
           (this.label = ""),
             (this.method = "GET"),
-            (this.url = "https://reqres.in"),
+            (this.url = "https://httpbin.org"),
             (this.auth = "None"),
-            (this.path = "/api/users"),
+            (this.path = "/get"),
             (this.auth = "None");
           this.httpUser = "";
           this.httpPassword = "";
@@ -2689,6 +2773,7 @@ export default {
           this.accessTokenUrl = "";
           this.clientId = "";
           this.scope = "";
+          this.files = [];
       }
       e.target.innerHTML = this.doneButton;
       this.$toast.info(this.$t("cleared"), {
@@ -2749,6 +2834,22 @@ export default {
         this.urlExcludes[excludedField] = excluded;
       }
       this.setRouteQueryState();
+    },
+    uploadAttachment() {
+      this.filenames = "";
+      this.files = this.$refs.attachment.files;
+      if (this.files.length !== 0) {
+        for (let file of this.files) {
+          this.filenames = `${this.filenames}<br/>${file.name}`;
+        }
+        this.$toast.info(this.$t("file_imported"), {
+          icon: "attach_file"
+        });
+      } else {
+        this.$toast.error(this.$t("choose_file"), {
+          icon: "attach_file"
+        });
+      }
     },
     uploadPayload() {
       this.rawInput = true;
