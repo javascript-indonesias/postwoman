@@ -10,6 +10,7 @@
                 id="url"
                 type="url"
                 v-model="url"
+                spellcheck="false"
                 @keyup.enter="getSchema()"
               />
             </li>
@@ -26,31 +27,19 @@
         </pw-section>
 
         <pw-section class="orange" :label="$t('headers')" ref="headers">
-          <ul>
+          <ul v-if="headers.length !== 0">
             <li>
               <div class="flex-wrap">
                 <label for="headerList">{{ $t("header_list") }}</label>
                 <div>
-                  <button
-                    class="icon"
-                    @click="headers = []"
-                    v-tooltip.bottom="$t('clear')"
-                  >
+                  <button class="icon" @click="headers = []" v-tooltip.bottom="$t('clear')">
                     <i class="material-icons">clear_all</i>
                   </button>
                 </div>
               </div>
-              <textarea
-                id="headerList"
-                readonly
-                v-textarea-auto-height="headerString"
-                v-model="headerString"
-                :placeholder="$t('add_one_header')"
-                rows="1"
-              ></textarea>
             </li>
           </ul>
-          <ul v-for="(header, index) in headers" :key="index">
+          <ul v-for="(header, index) in headers" :key="`${header.value}_${index}`">
             <li>
               <autocomplete
                 :placeholder="$t('header_count', { count: index + 1 })"
@@ -60,7 +49,7 @@
                 @input="
                   $store.commit('setGQLHeaderKey', {
                     index,
-                    value: $event
+                    value: $event,
                   })
                 "
                 autofocus
@@ -74,7 +63,7 @@
                 @change="
                   $store.commit('setGQLHeaderValue', {
                     index,
-                    value: $event.target.value
+                    value: $event.target.value,
                   })
                 "
                 autofocus
@@ -88,7 +77,7 @@
                   v-tooltip.bottom="$t('delete')"
                   id="header"
                 >
-                  <i class="material-icons">delete</i>
+                  <deleteIcon class="material-icons" />
                 </button>
               </li>
             </div>
@@ -105,16 +94,14 @@
 
         <pw-section class="green" :label="$t('schema')" ref="schema">
           <div class="flex-wrap">
-            <label>{{ $t("response") }}</label>
-            <div>
+            <label>{{ $t("schema") }}</label>
+            <div v-if="schema">
               <button
                 class="icon"
                 @click="ToggleExpandResponse"
                 ref="ToggleExpandResponse"
                 v-tooltip="{
-                  content: !expandResponse
-                    ? $t('expand_response')
-                    : $t('collapse_response')
+                  content: !expandResponse ? $t('expand_response') : $t('collapse_response'),
                 }"
               >
                 <i class="material-icons">
@@ -123,11 +110,11 @@
               </button>
               <button
                 class="icon"
-                @click="downloadResponse"
-                ref="downloadResponse"
+                @click="downloadSchema"
+                ref="downloadSchema"
                 v-tooltip="$t('download_file')"
               >
-                <i class="material-icons">get_app</i>
+                <i class="material-icons">save_alt</i>
               </button>
               <button
                 class="icon"
@@ -135,33 +122,43 @@
                 @click="copySchema"
                 v-tooltip="$t('copy_schema')"
               >
-                <i class="material-icons">file_copy</i>
+                <i class="material-icons">content_copy</i>
               </button>
             </div>
           </div>
-          <Editor
-            :value="schemaString"
+          <ace-editor
+            v-if="schema"
+            :value="schema"
             :lang="'graphqlschema'"
             :options="{
               maxLines: responseBodyMaxLines,
-              minLines: '16',
+              minLines: 16,
               fontSize: '16px',
               autoScrollEditorIntoView: true,
               readOnly: true,
               showPrintMargin: false,
-              useWorker: false
+              useWorker: false,
             }"
+          />
+          <input
+            v-else
+            class="missing-data-response"
+            :value="$t('waiting_receive_schema')"
+            ref="status"
+            id="status"
+            name="status"
+            readonly
+            type="text"
           />
         </pw-section>
 
         <pw-section class="cyan" :label="$t('query')" ref="query">
-          <div class="flex-wrap">
+          <div class="flex-wrap gqlRunQuery">
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
               <button
-                class="icon"
                 @click="runQuery()"
-                v-tooltip.bottom="$t('run_query')"
+                v-tooltip.bottom="`${$t('run_query')} (${getSpecialKey()}-Enter)`"
               >
                 <i class="material-icons">play_arrow</i>
               </button>
@@ -171,35 +168,43 @@
                 ref="copyQueryButton"
                 v-tooltip="$t('copy_query')"
               >
-                <i class="material-icons">file_copy</i>
+                <i class="material-icons">content_copy</i>
+              </button>
+              <button
+                class="icon"
+                @click="doPrettifyQuery"
+                v-tooltip="`${$t('prettify_query')} (${getSpecialKey()}-P)`"
+              >
+                <i class="material-icons">photo_filter</i>
               </button>
             </div>
           </div>
-          <QueryEditor
+          <queryeditor
             ref="queryEditor"
             v-model="gqlQueryString"
+            :onRunGQLQuery="runQuery"
             :options="{
               maxLines: responseBodyMaxLines,
-              minLines: '16',
+              minLines: 10,
               fontSize: '16px',
               autoScrollEditorIntoView: true,
               showPrintMargin: false,
-              useWorker: false
+              useWorker: false,
             }"
           />
         </pw-section>
 
         <pw-section class="yellow" label="Variables" ref="variables">
-          <Editor
+          <ace-editor
             v-model="variableString"
             :lang="'json'"
             :options="{
-              maxLines: responseBodyMaxLines,
-              minLines: '16',
+              maxLines: 10,
+              minLines: 5,
               fontSize: '16px',
               autoScrollEditorIntoView: true,
               showPrintMargin: false,
-              useWorker: false
+              useWorker: false,
             }"
           />
         </pw-section>
@@ -210,119 +215,98 @@
             <div>
               <button
                 class="icon"
+                @click="downloadResponse"
+                ref="downloadResponse"
+                v-if="response"
+                v-tooltip="$t('download_file')"
+              >
+                <i class="material-icons">save_alt</i>
+              </button>
+              <button
+                class="icon"
                 @click="copyResponse"
                 ref="copyResponseButton"
+                v-if="response"
                 v-tooltip="$t('copy_response')"
               >
-                <i class="material-icons">file_copy</i>
+                <i class="material-icons">content_copy</i>
               </button>
             </div>
           </div>
-          <Editor
-            :value="responseString"
+          <ace-editor
+            v-if="response"
+            :value="response"
             :lang="'json'"
+            :lint="false"
             :options="{
               maxLines: responseBodyMaxLines,
-              minLines: '16',
+              minLines: 10,
               fontSize: '16px',
               autoScrollEditorIntoView: true,
               readOnly: true,
               showPrintMargin: false,
-              useWorker: false
+              useWorker: false,
             }"
+          />
+          <input
+            v-else
+            class="missing-data-response"
+            :value="$t('waiting_receive_response')"
+            ref="status"
+            id="status"
+            name="status"
+            readonly
+            type="text"
           />
         </pw-section>
       </div>
       <aside class="sticky-inner inner-right">
         <pw-section class="purple" :label="$t('docs')" ref="docs">
           <section>
-            <input
-              v-if="queryFields.length > 0"
-              id="queries-tab"
-              type="radio"
-              name="side"
-              checked="checked"
-            />
-            <label v-if="queryFields.length > 0" for="queries-tab">
-              {{ $t("queries") }}
-            </label>
-            <div v-if="queryFields.length > 0" class="tab">
-              <div v-for="field in queryFields" :key="field.name">
-                <gql-field
-                  :gqlField="field"
-                  :jumpTypeCallback="handleJumpToType"
-                />
-              </div>
-            </div>
+            <tabs ref="gqlTabs">
+              <div class="gqlTabs">
+                <tab
+                  v-if="queryFields.length > 0"
+                  :id="'queries'"
+                  :label="$t('queries')"
+                  :selected="true"
+                >
+                  <div v-for="field in queryFields" :key="field.name">
+                    <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                  </div>
+                </tab>
 
-            <input
-              v-if="mutationFields.length > 0"
-              id="mutations-tab"
-              type="radio"
-              name="side"
-              checked="checked"
-            />
-            <label v-if="mutationFields.length > 0" for="mutations-tab">
-              {{ $t("mutations") }}
-            </label>
-            <div v-if="mutationFields.length > 0" class="tab">
-              <div v-for="field in mutationFields" :key="field.name">
-                <gql-field
-                  :gqlField="field"
-                  :jumpTypeCallback="handleJumpToType"
-                />
-              </div>
-            </div>
+                <tab v-if="mutationFields.length > 0" :id="'mutations'" :label="$t('mutations')">
+                  <div v-for="field in mutationFields" :key="field.name">
+                    <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                  </div>
+                </tab>
 
-            <input
-              v-if="subscriptionFields.length > 0"
-              id="subscriptions-tab"
-              type="radio"
-              name="side"
-              checked="checked"
-            />
-            <label v-if="subscriptionFields.length > 0" for="subscriptions-tab">
-              {{ $t("subscriptions") }}
-            </label>
-            <div v-if="subscriptionFields.length > 0" class="tab">
-              <div v-for="field in subscriptionFields" :key="field.name">
-                <gql-field
-                  :gqlField="field"
-                  :jumpTypeCallback="handleJumpToType"
-                />
-              </div>
-            </div>
+                <tab
+                  v-if="subscriptionFields.length > 0"
+                  :id="'subscriptions'"
+                  :label="$t('subscriptions')"
+                >
+                  <div v-for="field in subscriptionFields" :key="field.name">
+                    <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
+                  </div>
+                </tab>
 
-            <input
-              v-if="gqlTypes.length > 0"
-              id="gqltypes-tab"
-              type="radio"
-              name="side"
-              checked="checked"
-            />
-            <label v-if="gqlTypes.length > 0" for="gqltypes-tab">
-              {{ $t("types") }}
-            </label>
-            <div v-if="gqlTypes.length > 0" class="tab">
-              <div
-                v-for="type in gqlTypes"
-                :key="type.name"
-                :id="`type_${type.name}`"
-              >
-                <gql-type
-                  :gqlType="type"
-                  :jumpTypeCallback="handleJumpToType"
-                />
+                <tab v-if="gqlTypes.length > 0" :id="'types'" :label="$t('types')" ref="typesTab">
+                  <div v-for="type in gqlTypes" :key="type.name" :id="`type_${type.name}`">
+                    <type :gqlType="type" :jumpTypeCallback="handleJumpToType" />
+                  </div>
+                </tab>
               </div>
-            </div>
+            </tabs>
           </section>
 
           <p
             v-if="
               queryFields.length === 0 &&
-                mutationFields.length === 0 &&
-                subscriptionFields.length === 0 &&
-                gqlTypes.length === 0
+              mutationFields.length === 0 &&
+              subscriptionFields.length === 0 &&
+              gqlTypes.length === 0
             "
             class="info"
           >
@@ -335,378 +319,417 @@
 </template>
 
 <style scoped lang="scss">
-.tab {
-  max-height: calc(100vh - 186px);
+.gqlTabs {
+  max-height: calc(100vh - 192px);
   overflow: auto;
+}
+.gqlRunQuery {
+  margin-bottom: 12px;
 }
 </style>
 
 <script>
-import axios from "axios";
-import * as gql from "graphql";
-import textareaAutoHeight from "../directives/textareaAutoHeight";
-import { commonHeaders } from "../functions/headers";
-import AceEditor from "../components/ace-editor";
-import QueryEditor from "../components/graphql/queryeditor";
-import { sendNetworkRequest } from "../functions/network";
+import axios from "axios"
+import * as gql from "graphql"
+import { commonHeaders } from "~/helpers/headers"
+import { getPlatformSpecialKey } from "~/helpers/platformutils"
+import { sendNetworkRequest } from "~/helpers/network"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
 
 export default {
-  directives: {
-    textareaAutoHeight
-  },
-  components: {
-    "pw-section": () => import("../components/section"),
-    "gql-field": () => import("../components/graphql/field"),
-    "gql-type": () => import("../components/graphql/type"),
-    autocomplete: () => import("../components/autocomplete"),
-    Editor: AceEditor,
-    QueryEditor: QueryEditor
-  },
+  components: { deleteIcon },
   data() {
     return {
-      schemaString: "",
       commonHeaders,
       queryFields: [],
       mutationFields: [],
       subscriptionFields: [],
       gqlTypes: [],
-      responseString: "",
-      copyButton: '<i class="material-icons">file_copy</i>',
-      downloadButton: '<i class="material-icons">get_app</i>',
+      copyButton: '<i class="material-icons">content_copy</i>',
+      downloadButton: '<i class="material-icons">save_alt</i>',
       doneButton: '<i class="material-icons">done</i>',
       expandResponse: false,
-      responseBodyMaxLines: 16
-    };
-  },
+      responseBodyMaxLines: 16,
 
+      settings: {
+        SCROLL_INTO_ENABLED:
+          typeof this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED !== "undefined"
+            ? this.$store.state.postwoman.settings.SCROLL_INTO_ENABLED
+            : true,
+      },
+    }
+  },
   computed: {
     url: {
       get() {
-        return this.$store.state.gql.url;
+        return this.$store.state.gql.url
       },
       set(value) {
-        this.$store.commit("setGQLState", { value, attribute: "url" });
-      }
+        this.$store.commit("setGQLState", { value, attribute: "url" })
+      },
     },
     headers: {
       get() {
-        return this.$store.state.gql.headers;
+        return this.$store.state.gql.headers
       },
       set(value) {
-        this.$store.commit("setGQLState", { value, attribute: "headers" });
-      }
+        this.$store.commit("setGQLState", { value, attribute: "headers" })
+      },
     },
     gqlQueryString: {
       get() {
-        return this.$store.state.gql.query;
+        return this.$store.state.gql.query
       },
       set(value) {
-        this.$store.commit("setGQLState", { value, attribute: "query" });
-      }
+        this.$store.commit("setGQLState", { value, attribute: "query" })
+      },
+    },
+    response: {
+      get() {
+        return this.$store.state.gql.response
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "response" })
+      },
+    },
+    schema: {
+      get() {
+        return this.$store.state.gql.schema
+      },
+      set(value) {
+        this.$store.commit("setGQLState", { value, attribute: "schema" })
+      },
     },
     variableString: {
       get() {
-        return this.$store.state.gql.variablesJSONString;
+        return this.$store.state.gql.variablesJSONString
       },
       set(value) {
         this.$store.commit("setGQLState", {
           value,
-          attribute: "variablesJSONString"
-        });
-      }
+          attribute: "variablesJSONString",
+        })
+      },
     },
     headerString() {
       const result = this.headers
         .filter(({ key }) => !!key)
         .map(({ key, value }) => `${key}: ${value}`)
-        .join(",\n");
-      return result === "" ? "" : `${result}`;
+        .join(",\n")
+      return result === "" ? "" : `${result}`
+    },
+  },
+  mounted() {
+    if (this.$store.state.gql.schemaIntrospection && this.$store.state.gql.schema) {
+      const gqlSchema = gql.buildClientSchema(JSON.parse(this.$store.state.gql.schemaIntrospection))
+      this.getDocsFromSchema(gqlSchema)
     }
   },
   methods: {
+    getSpecialKey: getPlatformSpecialKey,
+    doPrettifyQuery() {
+      this.$refs.queryEditor.prettifyQuery()
+    },
     handleJumpToType(type) {
-      const typesTab = document.getElementById("gqltypes-tab");
-      typesTab.checked = true;
+      this.$refs.gqlTabs.selectTab(this.$refs.typesTab)
 
-      const rootTypeName = this.resolveRootType(type).name;
+      const rootTypeName = this.resolveRootType(type).name
 
-      const target = document.getElementById(`type_${rootTypeName}`);
-      if (target) {
+      const target = document.getElementById(`type_${rootTypeName}`)
+      if (target && this.settings.SCROLL_INTO_ENABLED) {
         target.scrollIntoView({
-          behavior: "smooth"
-        });
+          behavior: "smooth",
+        })
       }
     },
     resolveRootType(type) {
-      let t = type;
-      while (t.ofType != null) t = t.ofType;
-      return t;
+      let t = type
+      while (t.ofType != null) t = t.ofType
+      return t
     },
     copySchema() {
-      this.$refs.copySchemaCode.innerHTML = this.doneButton;
-      const aux = document.createElement("textarea");
-      aux.innerText = this.schemaString;
-      document.body.appendChild(aux);
-      aux.select();
-      document.execCommand("copy");
-      document.body.removeChild(aux);
+      this.$refs.copySchemaCode.innerHTML = this.doneButton
+      const aux = document.createElement("textarea")
+      aux.innerText = this.schema
+      document.body.appendChild(aux)
+      aux.select()
+      document.execCommand("copy")
+      document.body.removeChild(aux)
       this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done"
-      });
-      setTimeout(
-        () => (this.$refs.copySchemaCode.innerHTML = this.copyButton),
-        1000
-      );
+        icon: "done",
+      })
+      setTimeout(() => (this.$refs.copySchemaCode.innerHTML = this.copyButton), 1000)
     },
     copyQuery() {
-      this.$refs.copyQueryButton.innerHTML = this.doneButton;
-      const aux = document.createElement("textarea");
-      aux.innerText = this.gqlQueryString;
-      document.body.appendChild(aux);
-      aux.select();
-      document.execCommand("copy");
-      document.body.removeChild(aux);
+      this.$refs.copyQueryButton.innerHTML = this.doneButton
+      const aux = document.createElement("textarea")
+      aux.innerText = this.gqlQueryString
+      document.body.appendChild(aux)
+      aux.select()
+      document.execCommand("copy")
+      document.body.removeChild(aux)
       this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done"
-      });
-      setTimeout(
-        () => (this.$refs.copyQueryButton.innerHTML = this.copyButton),
-        1000
-      );
+        icon: "done",
+      })
+      setTimeout(() => (this.$refs.copyQueryButton.innerHTML = this.copyButton), 1000)
     },
     copyResponse() {
-      this.$refs.copyResponseButton.innerHTML = this.doneButton;
-      const aux = document.createElement("textarea");
-      aux.innerText = this.responseString;
-      document.body.appendChild(aux);
-      aux.select();
-      document.execCommand("copy");
-      document.body.removeChild(aux);
+      this.$refs.copyResponseButton.innerHTML = this.doneButton
+      const aux = document.createElement("textarea")
+      aux.innerText = this.response
+      document.body.appendChild(aux)
+      aux.select()
+      document.execCommand("copy")
+      document.body.removeChild(aux)
       this.$toast.success(this.$t("copied_to_clipboard"), {
-        icon: "done"
-      });
-      setTimeout(
-        () => (this.$refs.copyResponseButton.innerHTML = this.copyButton),
-        1000
-      );
+        icon: "done",
+      })
+      setTimeout(() => (this.$refs.copyResponseButton.innerHTML = this.copyButton), 1000)
     },
     async runQuery() {
-      const startTime = Date.now();
-
-      this.$nuxt.$loading.start();
-      this.scrollInto("response");
-
-      try {
-        let headers = {};
-        this.headers.forEach(header => {
-          headers[header.key] = header.value;
-        });
-
-        let variables = JSON.parse(this.variableString);
-
-        const gqlQueryString = this.gqlQueryString;
-
-        const reqOptions = {
-          method: "post",
-          url: this.url,
-          headers: {
-            ...headers,
-            "content-type": "application/json"
-          },
-          data: JSON.stringify({ query: gqlQueryString, variables })
-        };
-
-        const data = await sendNetworkRequest(reqOptions, this.$store);
-
-        this.responseString = JSON.stringify(data.data, null, 2);
-
-        this.$nuxt.$loading.finish();
-        const duration = Date.now() - startTime;
-        this.$toast.info(this.$t("finished_in", { duration }), {
-          icon: "done"
-        });
-      } catch (error) {
-        this.$nuxt.$loading.finish();
-
-        this.$toast.error(`${error} ${this.$t("f12_details")}`, {
-          icon: "error"
-        });
-        console.log("Error", error);
-      }
-    },
-    async getSchema() {
-      const startTime = Date.now();
-      this.schemaString = this.$t("loading");
-      this.scrollInto("schema");
+      const startTime = Date.now()
 
       // Start showing the loading bar as soon as possible.
       // The nuxt axios module will hide it when the request is made.
-      this.$nuxt.$loading.start();
+      this.$nuxt.$loading.start()
+
+      this.response = this.$t("loading")
+      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("response")
 
       try {
-        const query = JSON.stringify({
-          query: gql.getIntrospectionQuery()
-        });
+        let headers = {}
+        this.headers.forEach(({ key, value }) => {
+          headers[key] = value
+        })
 
-        let headers = {};
-        this.headers.forEach(header => {
-          headers[header.key] = header.value;
-        });
+        let variables = JSON.parse(this.variableString || "{}")
+
+        const gqlQueryString = this.gqlQueryString
 
         const reqOptions = {
           method: "post",
           url: this.url,
           headers: {
             ...headers,
-            "content-type": "application/json"
+            "content-type": "application/json",
           },
-          data: query
-        };
-
-        // console.log(reqOptions);
-
-        const reqConfig = this.$store.state.postwoman.settings.PROXY_ENABLED
-          ? {
-              method: "post",
-              url:
-                this.$store.state.postwoman.settings.PROXY_URL ||
-                `https://postwoman.apollotv.xyz/`,
-              data: reqOptions
-            }
-          : reqOptions;
-
-        const res = await axios(reqConfig);
-
-        const data = this.$store.state.postwoman.settings.PROXY_ENABLED
-          ? res.data
-          : res;
-
-        const schema = gql.buildClientSchema(data.data.data);
-        this.schemaString = gql.printSchema(schema, {
-          commentDescriptions: true
-        });
-
-        if (schema.getQueryType()) {
-          const fields = schema.getQueryType().getFields();
-          const qFields = [];
-          for (const field in fields) {
-            qFields.push(fields[field]);
-          }
-          this.queryFields = qFields;
+          data: JSON.stringify({ query: gqlQueryString, variables }),
         }
 
-        if (schema.getMutationType()) {
-          const fields = schema.getMutationType().getFields();
-          const mFields = [];
-          for (const field in fields) {
-            mFields.push(fields[field]);
-          }
-          this.mutationFields = mFields;
-        }
+        const res = await sendNetworkRequest(reqOptions, this.$store)
 
-        if (schema.getSubscriptionType()) {
-          const fields = schema.getSubscriptionType().getFields();
-          const sFields = [];
-          for (const field in fields) {
-            sFields.push(fields[field]);
-          }
-          this.subscriptionFields = sFields;
-        }
+        const responseText = new TextDecoder("utf-8").decode(res.data)
 
-        const typeMap = schema.getTypeMap();
-        const types = [];
+        this.response = JSON.stringify(JSON.parse(responseText), null, 2)
 
-        const queryTypeName = schema.getQueryType()
-          ? schema.getQueryType().name
-          : "";
-        const mutationTypeName = schema.getMutationType()
-          ? schema.getMutationType().name
-          : "";
-        const subscriptionTypeName = schema.getSubscriptionType()
-          ? schema.getSubscriptionType().name
-          : "";
-
-        for (const type in typeMap) {
-          if (
-            !typeMap[type].name.startsWith("__") &&
-            ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(
-              typeMap[type].name
-            ) &&
-            typeMap[type] instanceof gql.GraphQLObjectType
-          ) {
-            types.push(typeMap[type]);
-          }
-        }
-        this.gqlTypes = types;
-        this.$refs.queryEditor.setValidationSchema(schema);
-        this.$nuxt.$loading.finish();
-        const duration = Date.now() - startTime;
+        this.$nuxt.$loading.finish()
+        const duration = Date.now() - startTime
         this.$toast.info(this.$t("finished_in", { duration }), {
-          icon: "done"
-        });
+          icon: "done",
+        })
       } catch (error) {
-        this.$nuxt.$loading.finish();
-        this.schemaString = `${error}. ${this.$t("check_console_details")}`;
+        this.response = `${error}. ${this.$t("check_console_details")}`
+        this.$nuxt.$loading.finish()
+
         this.$toast.error(`${error} ${this.$t("f12_details")}`, {
-          icon: "error"
-        });
-        console.log("Error", error);
+          icon: "error",
+        })
+        console.log("Error", error)
+      }
+    },
+
+    // NOTE : schema required here is the GQL Schema document object, not the schema string
+    getDocsFromSchema(schema) {
+      if (schema.getQueryType()) {
+        const fields = schema.getQueryType().getFields()
+        const qFields = []
+        for (const field in fields) {
+          qFields.push(fields[field])
+        }
+        this.queryFields = qFields
+      }
+
+      if (schema.getMutationType()) {
+        const fields = schema.getMutationType().getFields()
+        const mFields = []
+        for (const field in fields) {
+          mFields.push(fields[field])
+        }
+        this.mutationFields = mFields
+      }
+
+      if (schema.getSubscriptionType()) {
+        const fields = schema.getSubscriptionType().getFields()
+        const sFields = []
+        for (const field in fields) {
+          sFields.push(fields[field])
+        }
+        this.subscriptionFields = sFields
+      }
+
+      const typeMap = schema.getTypeMap()
+      const types = []
+
+      const queryTypeName = schema.getQueryType() ? schema.getQueryType().name : ""
+      const mutationTypeName = schema.getMutationType() ? schema.getMutationType().name : ""
+      const subscriptionTypeName = schema.getSubscriptionType()
+        ? schema.getSubscriptionType().name
+        : ""
+
+      for (const type in typeMap) {
+        if (
+          !typeMap[type].name.startsWith("__") &&
+          ![queryTypeName, mutationTypeName, subscriptionTypeName].includes(typeMap[type].name) &&
+          typeMap[type] instanceof gql.GraphQLObjectType
+        ) {
+          types.push(typeMap[type])
+        }
+      }
+      this.gqlTypes = types
+    },
+    async getSchema() {
+      const startTime = Date.now()
+
+      // Start showing the loading bar as soon as possible.
+      // The nuxt axios module will hide it when the request is made.
+      this.$nuxt.$loading.start()
+
+      this.schema = this.$t("loading")
+      if (this.settings.SCROLL_INTO_ENABLED) this.scrollInto("schema")
+
+      try {
+        const query = JSON.stringify({
+          query: gql.getIntrospectionQuery(),
+        })
+
+        let headers = {}
+        this.headers.forEach(({ key, value }) => {
+          headers[key] = value
+        })
+
+        const reqOptions = {
+          method: "post",
+          url: this.url,
+          headers: {
+            ...headers,
+            "content-type": "application/json",
+          },
+          data: query,
+        }
+
+        const data = await sendNetworkRequest(reqOptions, this.$store)
+
+        const response = new TextDecoder("utf-8").decode(data.data)
+        const introspectResponse = JSON.parse(response)
+
+        const schema = gql.buildClientSchema(introspectResponse.data)
+
+        this.$store.commit("setGQLState", {
+          value: JSON.stringify(introspectResponse.data),
+          attribute: "schemaIntrospection",
+        })
+
+        this.schema = gql.printSchema(schema, {
+          commentDescriptions: true,
+        })
+
+        this.getDocsFromSchema(schema)
+
+        this.$refs.queryEditor.setValidationSchema(schema)
+        this.$nuxt.$loading.finish()
+        const duration = Date.now() - startTime
+        this.$toast.info(this.$t("finished_in", { duration }), {
+          icon: "done",
+        })
+      } catch (error) {
+        this.$nuxt.$loading.finish()
+
+        this.schema = `${error}. ${this.$t("check_console_details")}`
+        this.$toast.error(
+          `${this.$t("graphql_introspect_failed")} ${this.$t("check_graphql_valid")}`,
+          {
+            icon: "error",
+          }
+        )
+        console.log("Error", error)
       }
     },
     ToggleExpandResponse() {
-      this.expandResponse = !this.expandResponse;
-      this.responseBodyMaxLines =
-        this.responseBodyMaxLines == Infinity ? 16 : Infinity;
+      this.expandResponse = !this.expandResponse
+      this.responseBodyMaxLines = this.responseBodyMaxLines == Infinity ? 16 : Infinity
     },
     downloadResponse() {
-      const dataToWrite = JSON.stringify(this.schemaString, null, 2);
-      const file = new Blob([dataToWrite], { type: "application/json" });
-      const a = document.createElement("a");
-      const url = URL.createObjectURL(file);
-      a.href = url;
-      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]");
-      document.body.appendChild(a);
-      a.click();
-      this.$refs.downloadResponse.innerHTML = this.doneButton;
+      const dataToWrite = this.response
+      const file = new Blob([dataToWrite], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+      a.download = `Response ${this.url} on ${Date()}.json`.replace(/\./g, "[dot]")
+      document.body.appendChild(a)
+      a.click()
+      this.$refs.downloadResponse.innerHTML = this.doneButton
       this.$toast.success(this.$t("download_started"), {
-        icon: "done"
-      });
+        icon: "done",
+      })
       setTimeout(() => {
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        this.$refs.downloadResponse.innerHTML = this.downloadButton;
-      }, 1000);
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+        this.$refs.downloadResponse.innerHTML = this.downloadButton
+      }, 1000)
+    },
+    downloadSchema() {
+      const dataToWrite = JSON.stringify(this.schema, null, 2)
+      const file = new Blob([dataToWrite], { type: "application/json" })
+      const a = document.createElement("a")
+      const url = URL.createObjectURL(file)
+      a.href = url
+      a.download = `${this.url} on ${Date()}.graphql`.replace(/\./g, "[dot]")
+      document.body.appendChild(a)
+      a.click()
+      this.$refs.downloadSchema.innerHTML = this.doneButton
+      this.$toast.success(this.$t("download_started"), {
+        icon: "done",
+      })
+      setTimeout(() => {
+        document.body.removeChild(a)
+        window.URL.revokeObjectURL(url)
+        this.$refs.downloadSchema.innerHTML = this.downloadButton
+      }, 1000)
     },
     addRequestHeader(index) {
       this.$store.commit("addGQLHeader", {
         key: "",
-        value: ""
-      });
-      return false;
+        value: "",
+      })
+      return false
     },
     removeRequestHeader(index) {
       // .slice() is used so we get a separate array, rather than just a reference
-      const oldHeaders = this.headers.slice();
+      const oldHeaders = this.headers.slice()
 
-      this.$store.commit("removeGQLHeader", index);
+      this.$store.commit("removeGQLHeader", index)
       this.$toast.error(this.$t("deleted"), {
         icon: "delete",
         action: {
           text: this.$t("undo"),
           duration: 4000,
           onClick: (e, toastObject) => {
-            this.headers = oldHeaders;
-            toastObject.remove();
-          }
-        }
-      });
-      // console.log(oldHeaders);
+            this.headers = oldHeaders
+            toastObject.remove()
+          },
+        },
+      })
     },
     scrollInto(view) {
       this.$refs[view].$el.scrollIntoView({
-        behavior: "smooth"
-      });
+        behavior: "smooth",
+      })
+    },
+  },
+  head() {
+    return {
+      title: `GraphQL • ${this.$store.state.name}`,
     }
-  }
-};
+  },
+}
 </script>

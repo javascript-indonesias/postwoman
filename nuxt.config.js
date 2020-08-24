@@ -1,301 +1,197 @@
+require("dotenv").config()
 // Some helpful application constants.
 // TODO: Use these when rendering the pages (rather than just for head/meta tags...)
-export const meta = {
-  name: "Postwoman",
+export const options = {
+  name: "Hoppscotch",
   shortDescription: "A free, fast and beautiful API request builder",
-  description:
-    "Web alternative to Postman - Helps you create requests faster, saving precious time on development."
-};
-// Sets the base path for the router.
-// Important for deploying to GitHub pages.
-// -- Travis includes the author in the repo slug,
-//    so if there's a /, we need to get everything after it.
-let repoName = (process.env.TRAVIS_REPO_SLUG || "").split("/").pop();
-export const routerBase =
-  process.env.DEPLOY_ENV === "GH_PAGES"
-    ? {
-        router: {
-          base: `/${repoName}/`
-        }
-      }
-    : {
-        router: {
-          base: "/"
-        }
-      };
+  description: "Helps you create requests faster, saving precious time on development.",
+  loading: {
+    color: "#50fa7b",
+    background: "#202124",
+  },
+  app: {
+    color: "#ffffff",
+    background: "#202124",
+    accent: "#50fa7b",
+  },
+  social: {
+    twitter: "@liyasthomas",
+  },
+}
 export default {
   mode: "spa",
+  target: "static",
+  server: {
+    host: "0.0.0.0", // default: localhost
+  },
   /*
    ** Headers of the page
    */
-  server: {
-    host: "0.0.0.0" // default: localhost
-  },
-  render: {
-    bundleRenderer: {
-      shouldPreload: (file, type) => {
-        return ["script", "style", "font"].includes(type);
-      }
-    }
-  },
   head: {
-    title: `${meta.name} \u2022 ${meta.shortDescription}`,
+    title: `${options.name} • ${options.shortDescription}`,
     meta: [
-      {
-        charset: "utf-8"
-      },
-      {
-        name: "viewport",
-        content:
-          "width=device-width, initial-scale=1, minimum-scale=1, viewport-fit=cover, minimal-ui"
-      },
-      {
-        hid: "description",
-        name: "description",
-        content: meta.description || ""
-      },
       {
         name: "keywords",
         content:
-          "postwoman, postwoman chrome, postwoman online, postwoman for mac, postwoman app, postwoman for windows, postwoman google chrome, postwoman chrome app, get postwoman, postwoman web, postwoman android, postwoman app for chrome, postwoman mobile app, postwoman web app, api, request, testing, tool, rest, websocket, sse, graphql"
+          "hoppscotch, hopp scotch, hoppscotch online, hoppscotch app, postwoman, postwoman chrome, postwoman online, postwoman for mac, postwoman app, postwoman for windows, postwoman google chrome, postwoman chrome app, get postwoman, postwoman web, postwoman android, postwoman app for chrome, postwoman mobile app, postwoman web app, api, request, testing, tool, rest, websocket, sse, graphql, socketio",
       },
       {
         name: "X-UA-Compatible",
-        content: "IE=edge, chrome=1"
+        content: "IE=edge, chrome=1",
       },
       {
         itemprop: "name",
-        content: `${meta.name} \u2022 ${meta.shortDescription}`
+        content: `${options.name} • ${options.shortDescription}`,
       },
       {
         itemprop: "description",
-        content: meta.description
+        content: options.description,
       },
       {
         itemprop: "image",
-        content: `https://postwoman.io/logo.jpg`
+        content: `${process.env.BASE_URL}banner.jpg`,
+      },
+      {
+        property: "og:image",
+        content: `${process.env.BASE_URL}banner.jpg`,
       },
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
       {
         name: "application-name",
-        content: meta.name
-      },
-      // Add to homescreen for Safari on iOS
-      {
-        name: "apple-mobile-web-app-capable",
-        content: "yes"
-      },
-      {
-        name: "apple-mobile-web-app-status-bar-style",
-        content: "black-translucent"
-      },
-      {
-        name: "apple-mobile-web-app-title",
-        content: meta.name
+        content: options.name,
       },
       // Windows phone tile icon
       {
         name: "msapplication-TileImage",
-        content: `${routerBase.router.base}icons/icon-144x144.png`
+        content: `/icon.png`,
       },
       {
         name: "msapplication-TileColor",
-        content: "#202124"
+        content: options.app.background,
       },
       {
         name: "msapplication-tap-highlight",
-        content: "no"
+        content: "no",
       },
-      // OpenGraph
-      {
-        property: "og:site_name",
-        content: meta.name
-      },
-      {
-        property: "og:url",
-        content: "https://postwoman.io"
-      },
-      {
-        property: "og:type",
-        content: "website"
-      },
-      {
-        property: "og:title",
-        content: `${meta.name} \u2022 ${meta.shortDescription}`
-      },
-      {
-        property: "og:description",
-        content: meta.description
-      },
-      {
-        property: "og:image",
-        content: `https://postwoman.io/logo.jpg`
-      },
-      // Twitter
-      {
-        name: "twitter:card",
-        content: "summary_large_image"
-      },
-      {
-        name: "twitter:site",
-        content: "@liyasthomas"
-      },
-      {
-        name: "twitter:creator",
-        content: "@liyasthomas"
-      },
-      {
-        name: "twitter:url",
-        content: "https://postwoman.io"
-      },
-      {
-        name: "twitter:title",
-        content: `${meta.name} \u2022 ${meta.shortDescription}`
-      },
-      {
-        name: "twitter:description",
-        content: meta.description
-      },
-      {
-        name: "twitter:image",
-        content: "https://postwoman.io/logo.jpg"
-      }
     ],
     link: [
       {
-        rel: "icon",
-        type: "image/x-icon",
-        href: `${routerBase.router.base}favicon.ico`
-      },
-      // Home-screen icons (iOS)
-      {
         rel: "apple-touch-icon",
-        href: `${routerBase.router.base}icons/icon-48x48.png`
+        href: "/icon.png",
       },
       {
-        rel: "apple-touch-icon",
-        sizes: "72x72",
-        href: `${routerBase.router.base}icons/icon-72x72.png`
+        rel: "apple-touch-startup-image",
+        href: "/icon.png",
       },
-      {
-        rel: "apple-touch-icon",
-        sizes: "96x96",
-        href: `${routerBase.router.base}icons/icon-96x96.png`
-      },
-      {
-        rel: "apple-touch-icon",
-        sizes: "144x144",
-        href: `${routerBase.router.base}icons/icon-144x144.png`
-      },
-      {
-        rel: "apple-touch-icon",
-        sizes: "192x192",
-        href: `${routerBase.router.base}icons/icon-192x192.png`
-      }
-    ]
+    ],
   },
   /*
    ** Customize the progress-bar color
    */
   loading: {
-    color: "var(--ac-color)"
+    color: "var(--ac-color)",
+    continuous: true,
   },
   /*
    ** Customize the loading indicator
    */
   loadingIndicator: {
     name: "pulse",
-    color: "var(--ac-color)",
-    background: "var(--bg-color)"
+    color: options.loading.color,
+    background: options.loading.background,
   },
   /*
    ** Global CSS
    */
-  css: [
-    "~/assets/css/styles.scss",
-    "~/assets/css/themes.scss",
-    "~/assets/css/fonts.scss"
-  ],
+  css: ["~/assets/css/styles.scss", "~/assets/css/themes.scss", "~/assets/css/fonts.scss"],
   /*
    ** Plugins to load before mounting the App
    */
-  plugins: [
-    {
-      src: "~/plugins/vuex-persist"
-    },
-    {
-      src: "~/plugins/v-tooltip"
-    }
-  ],
+  plugins: ["~/plugins/vuex-persist", "~/plugins/v-tooltip"],
+  /*
+   ** Auto import components
+   ** See https://nuxtjs.org/api/configuration-components
+   */
+  components: true,
   /*
    ** Nuxt.js dev-modules
    */
-  buildModules: [],
+  buildModules: [
+    // https://pwa.nuxtjs.org
+    "@nuxtjs/pwa",
+    // Doc: https://github.com/nuxt-community/dotenv-module
+    "@nuxtjs/dotenv",
+    // Doc: https://github.com/nuxt-community/analytics-module
+    "@nuxtjs/google-analytics",
+    // Doc: https://github.com/nuxt-community/gtm-module
+    "@nuxtjs/gtm",
+    // Doc: https://github.com/nuxt-community/svg-module
+    "@nuxtjs/svg",
+  ],
   /*
    ** Nuxt.js modules
    */
   modules: [
-    // See https://goo.gl/OOhYW5
-    ["@nuxtjs/pwa"],
-    ["@nuxtjs/axios"],
-    ["@nuxtjs/toast"],
-    ["@nuxtjs/google-analytics"],
-    ["@nuxtjs/sitemap"],
-    [
-      "@nuxtjs/google-tag-manager",
-      {
-        id: process.env.GTM_ID || "GTM-MXWD8NQ"
-      }
-    ],
-    ["@nuxtjs/robots"],
-    ["nuxt-i18n"]
+    // https://axios.nuxtjs.org
+    "@nuxtjs/axios",
+    // https://github.com/nuxt-community/modules/tree/master/packages/toast
+    "@nuxtjs/toast",
+    // Doc: https://github.com/nuxt-community/nuxt-i18n
+    "nuxt-i18n",
+    // Doc: https://github.com/nuxt-community/robots-module
+    "@nuxtjs/robots",
+    // Doc: https://github.com/nuxt-community/sitemap-module
+    "@nuxtjs/sitemap",
   ],
   pwa: {
-    manifest: {
-      name: meta.name,
-      short_name: meta.name,
-
-      display: "standalone",
-
-      theme_color: "#202124",
-      background_color: "#202124",
-      start_url: `${routerBase.router.base}`
-    },
-
     meta: {
-      description: meta.shortDescription,
-      theme_color: "#202124"
+      ogHost: process.env.BASE_URL,
+      twitterCard: "summary_large_image",
+      twitterSite: options.social.twitter,
+      twitterCreator: options.social.twitter,
+      description: options.shortDescription,
+      theme_color: options.app.background,
     },
-
-    icons: (sizes => {
-      let icons = [];
-      for (let size of sizes) {
-        icons.push({
-          src: `${routerBase.router.base}icons/icon-${size}x${size}.png`,
-          type: "image/png",
-          sizes: `${size}x${size}`
-        });
-      }
-      return icons;
-    })([48, 72, 96, 144, 192, 512])
+    manifest: {
+      name: options.name,
+      short_name: options.name,
+      description: options.shortDescription,
+      start_url: "/",
+      background_color: options.app.background,
+      theme_color: options.app.background,
+    },
   },
   toast: {
     position: "bottom-center",
     duration: 3000,
     theme: "bubble",
-    keepOnHover: true
+    keepOnHover: true,
   },
   googleAnalytics: {
-    id: process.env.GA_ID || "UA-61422507-2"
+    id: process.env.GA_ID || "UA-61422507-4",
+  },
+  gtm: {
+    id: process.env.GTM_ID || "GTM-NMKVBMV",
   },
   sitemap: {
-    hostname: "https://postwoman.io"
+    hostname: process.env.BASE_URL || "https://hoppscotch.io/",
   },
   robots: {
     UserAgent: "*",
     Disallow: "",
     Allow: "/",
-    Sitemap: "https://postwoman.io/sitemap.xml"
+    Sitemap: `${process.env.BASE_URL}sitemap.xml`,
+  },
+  env: {
+    API_KEY: process.env.API_KEY,
+    AUTH_DOMAIN: process.env.AUTH_DOMAIN,
+    DATABASE_URL: process.env.DATABASE_URL,
+    PROJECT_ID: process.env.PROJECT_ID,
+    STORAGE_BUCKET: process.env.STORAGE_BUCKET,
+    MESSAGING_SENDER_ID: process.env.MESSAGING_SENDER_ID,
+    APP_ID: process.env.APP_ID,
+    MEASUREMENT_ID: process.env.MEASUREMENT_ID,
+    BASE_URL: process.env.BASE_URL,
   },
   i18n: {
     locales: [
@@ -303,69 +199,87 @@ export default {
         code: "en",
         name: "English",
         iso: "en-US",
-        file: "en-US.js"
+        file: "en-US.json",
       },
       {
         code: "es",
         name: "Español",
         iso: "es-ES",
-        file: "es-ES.js"
+        file: "es-ES.json",
       },
       {
         code: "fr",
         name: "Français",
         iso: "fr-FR",
-        file: "fr-FR.js"
+        file: "fr-FR.json",
       },
       {
         code: "fa",
         name: "Farsi",
         iso: "fa-IR",
-        file: "fa-IR.js"
+        file: "fa-IR.json",
       },
       {
         code: "pt",
+        name: "Português",
+        iso: "pt-PT",
+        file: "pt-PT.json",
+      },
+      {
+        code: "pt-br",
         name: "Português Brasileiro",
         iso: "pt-BR",
-        file: "pt-BR.js"
+        file: "pt-BR.json",
       },
       {
         code: "cn",
         name: "简体中文",
         iso: "zh-CN",
-        file: "zh-CN.js"
+        file: "zh-CN.json",
+      },
+      {
+        code: "tw",
+        name: "繁體中文",
+        iso: "zh-TW",
+        file: "zh-TW.json",
       },
       {
         code: "id",
         name: "Bahasa Indonesia",
         iso: "id-ID",
-        file: "id-ID.js"
+        file: "id-ID.json",
       },
       {
         code: "tr",
         name: "Türkçe",
         iso: "tr-TR",
-        file: "tr-TR.js"
+        file: "tr-TR.json",
       },
       {
         code: "de",
         name: "Deutsch",
         iso: "de-DE",
-        file: "de-DE.js"
+        file: "de-DE.json",
       },
       {
         code: "ja",
         name: "日本語",
         iso: "ja-JP",
-        file: "ja-JP.js"
-      }
+        file: "ja-JP.json",
+      },
+      {
+        code: "ko",
+        name: "한국어",
+        iso: "ko-KR",
+        file: "ko-KR.json",
+      },
     ],
     defaultLocale: "en",
     vueI18n: {
-      fallbackLocale: "en"
+      fallbackLocale: "en",
     },
     lazy: true,
-    langDir: "lang/"
+    langDir: "lang/",
   },
   /*
    ** Build configuration
@@ -374,16 +288,23 @@ export default {
     /*
      ** You can extend webpack config here
      */
-    extend(config, ctx) {}
+    extend(config, ctx) {
+      // Sets webpack's mode to development if `isDev` is true.
+      if (ctx.isDev) {
+        config.mode = "development"
+      }
+      config.node = {
+        fs: "empty",
+      }
+    },
+    parallel: true,
+    cache: true,
+    // hardSource: true,
   },
   /*
    ** Generate configuration
    */
   generate: {
-    fallback: true
+    fallback: true,
   },
-  /*
-   ** Router configuration
-   */
-  ...routerBase
-};
+}

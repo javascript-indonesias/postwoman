@@ -14,12 +14,14 @@
 .color {
   display: inline-flex;
   align-items: center;
+  position: relative;
   justify-content: center;
   margin: 8px;
   padding: 16px;
   border-radius: 100%;
   border: 3px solid var(--bg-dark-color);
   cursor: pointer;
+  transition: all 0.2s ease-in-out;
 
   &.fg {
     color: var(--act-color);
@@ -35,6 +37,11 @@
 
   .activeTick {
     position: absolute;
+    margin: auto;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
   }
 }
 </style>
@@ -44,15 +51,15 @@ export default {
   props: {
     color: {
       type: String,
-      required: true
+      required: true,
     },
     name: {
-      type: String
+      type: String,
     },
     active: {
       type: Boolean,
-      default: false
-    }
-  }
-};
+      default: false,
+    },
+  },
+}
 </script>

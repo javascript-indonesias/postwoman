@@ -114,11 +114,30 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "dmitryyankowski",
+      "name": "Dmitry Yankowski",
+      "avatar_url": "https://avatars0.githubusercontent.com/u/20114263?v=4",
+      "profile": "https://dmitryyankowski.com",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "sboulema",
+      "name": "Samir Boulema",
+      "avatar_url": "https://avatars2.githubusercontent.com/u/1820661?v=4",
+      "profile": "http://www.sboulema.nl",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
-  "projectName": "postwoman",
-  "projectOwner": "liyasthomas",
+  "projectName": "hoppscotch",
+  "projectOwner": "hoppscotch",
   "repoType": "github",
-  "repoHost": "https://github.com"
+  "repoHost": "https://github.com",
+  "skipCi": true
 }

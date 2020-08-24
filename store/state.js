@@ -1,6 +1,7 @@
 export default () => ({
   request: {
     method: "GET",
+    uri: "",
     url: "https://httpbin.org",
     path: "/get",
     label: "",
@@ -15,13 +16,24 @@ export default () => ({
     rawParams: "",
     rawInput: false,
     requestType: "",
-    contentType: ""
+    contentType: "",
   },
   gql: {
     url: "https://rickandmortyapi.com/graphql",
     headers: [],
-    variablesJSONString: "",
-    query: ""
+    schema: "",
+    variablesJSONString: '{ "id": "1" }',
+    query: `query GetCharacter($id: ID) {
+  character(id: $id) {
+    id
+    name
+  }
+}`,
+    response: "",
+    schemaIntrospection: "",
+  },
+  theme: {
+    collapsedSections: [],
   },
   oauth2: {
     tokens: [],
@@ -33,6 +45,7 @@ export default () => ({
     authUrl: "",
     accessTokenUrl: "",
     clientId: "",
-    scope: ""
-  }
-});
+    scope: "",
+  },
+  name: "Hoppscotch",
+})

@@ -10,7 +10,7 @@
         </button>
       </div>
       <v-popover>
-        <button class="tooltip-target icon" v-tooltip="$t('more')">
+        <button class="tooltip-target icon" v-tooltip.left="$t('more')">
           <i class="material-icons">more_vert</i>
         </button>
         <template slot="popover">
@@ -22,7 +22,7 @@
           </div>
           <div>
             <button class="icon" @click="removeFolder" v-close-popover>
-              <i class="material-icons">delete</i>
+              <deleteIcon class="material-icons" />
               <span>{{ $t("delete") }}</span>
             </button>
           </div>
@@ -38,12 +38,13 @@
             :collection-index="collectionIndex"
             :folder-index="folderIndex"
             :request-index="index"
+            :doc="doc"
             @edit-request="
               $emit('edit-request', {
                 request,
                 collectionIndex,
                 folderIndex,
-                requestIndex: index
+                requestIndex: index,
               })
             "
           />
@@ -70,37 +71,50 @@ ul li {
 </style>
 
 <script>
+import { fb } from "~/helpers/fb"
+import deleteIcon from "~/static/icons/delete-24px.svg?inline"
+
 export default {
+  components: { deleteIcon },
   props: {
     folder: Object,
     collectionIndex: Number,
-    folderIndex: Number
-  },
-  components: {
-    request: () => import("./request")
+    folderIndex: Number,
+    doc: Boolean,
   },
   data() {
     return {
-      showChildren: false
-    };
+      showChildren: false,
+    }
   },
   methods: {
+    syncCollections() {
+      if (fb.currentUser !== null) {
+        if (fb.currentSettings[0].value) {
+          fb.writeCollections(JSON.parse(JSON.stringify(this.$store.state.postwoman.collections)))
+        }
+      }
+    },
     toggleShowChildren() {
-      this.showChildren = !this.showChildren;
+      this.showChildren = !this.showChildren
     },
     selectRequest(request) {
-      this.$store.commit("postwoman/selectRequest", { request });
+      this.$store.commit("postwoman/selectRequest", { request })
     },
     removeFolder() {
-      if (!confirm("Are you sure you want to remove this folder?")) return;
+      if (!confirm(this.$t("are_you_sure_remove_folder"))) return
       this.$store.commit("postwoman/removeFolder", {
         collectionIndex: this.collectionIndex,
-        folderIndex: this.folderIndex
-      });
+        folderIndex: this.folderIndex,
+      })
+      this.syncCollections()
+      this.$toast.error(this.$t("deleted"), {
+        icon: "delete",
+      })
     },
     editFolder() {
-      this.$emit("edit-folder");
-    }
-  }
-};
+      this.$emit("edit-folder")
+    },
+  },
+}
 </script>
