@@ -29,7 +29,7 @@
         <pw-section class="orange" :label="$t('headers')" ref="headers">
           <ul v-if="headers.length !== 0">
             <li>
-              <div class="flex-wrap">
+              <div class="row-wrapper">
                 <label for="headerList">{{ $t("header_list") }}</label>
                 <div>
                   <button class="icon" @click="headers = []" v-tooltip.bottom="$t('clear')">
@@ -93,7 +93,7 @@
         </pw-section>
 
         <pw-section class="green" :label="$t('schema')" ref="schema">
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <label>{{ $t("schema") }}</label>
             <div v-if="schema">
               <button
@@ -152,8 +152,8 @@
           />
         </pw-section>
 
-        <pw-section class="cyan" :label="$t('query')" ref="query">
-          <div class="flex-wrap gqlRunQuery">
+        <pw-section class="teal" :label="$t('query')" ref="query">
+          <div class="row-wrapper gqlRunQuery">
             <label for="gqlQuery">{{ $t("query") }}</label>
             <div>
               <button
@@ -210,7 +210,7 @@
         </pw-section>
 
         <pw-section class="purple" label="Response" ref="response">
-          <div class="flex-wrap">
+          <div class="row-wrapper">
             <label for="responseField">{{ $t("response") }}</label>
             <div>
               <button
@@ -260,9 +260,10 @@
           />
         </pw-section>
       </div>
-      <aside class="sticky-inner inner-right">
+      <aside class="sticky-inner inner-right lg:max-w-md">
         <pw-section class="purple" :label="$t('docs')" ref="docs">
-          <section>
+          <section class="flex-col">
+            <input type="text" :placeholder="$t('search')" v-model="graphqlFieldsFilterText" />
             <tabs ref="gqlTabs">
               <div class="gqlTabs">
                 <tab
@@ -271,13 +272,13 @@
                   :label="$t('queries')"
                   :selected="true"
                 >
-                  <div v-for="field in queryFields" :key="field.name">
+                  <div v-for="field in filteredQueryFields" :key="field.name">
                     <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
 
                 <tab v-if="mutationFields.length > 0" :id="'mutations'" :label="$t('mutations')">
-                  <div v-for="field in mutationFields" :key="field.name">
+                  <div v-for="field in filteredMutationFields" :key="field.name">
                     <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
@@ -287,14 +288,19 @@
                   :id="'subscriptions'"
                   :label="$t('subscriptions')"
                 >
-                  <div v-for="field in subscriptionFields" :key="field.name">
+                  <div v-for="field in filteredSubscriptionFields" :key="field.name">
                     <field :gqlField="field" :jumpTypeCallback="handleJumpToType" />
                   </div>
                 </tab>
 
                 <tab v-if="gqlTypes.length > 0" :id="'types'" :label="$t('types')" ref="typesTab">
-                  <div v-for="type in gqlTypes" :key="type.name" :id="`type_${type.name}`">
-                    <type :gqlType="type" :jumpTypeCallback="handleJumpToType" />
+                  <div v-for="type in filteredGqlTypes" :key="type.name" :id="`type_${type.name}`">
+                    <type
+                      :gqlType="type"
+                      :isHighlighted="isGqlTypeHighlighted({ gqlType: type })"
+                      :highlightedFields="getGqlTypeHighlightedFields({ gqlType: type })"
+                      :jumpTypeCallback="handleJumpToType"
+                    />
                   </div>
                 </tab>
               </div>
@@ -321,15 +327,14 @@
 <style scoped lang="scss">
 .gqlTabs {
   max-height: calc(100vh - 192px);
-  overflow: auto;
+  @apply overflow-auto;
 }
 .gqlRunQuery {
-  margin-bottom: 12px;
+  @apply mb-8;
 }
 </style>
 
 <script>
-import axios from "axios"
 import * as gql from "graphql"
 import { commonHeaders } from "~/helpers/headers"
 import { getPlatformSpecialKey } from "~/helpers/platformutils"
@@ -350,6 +355,7 @@ export default {
       doneButton: '<i class="material-icons">done</i>',
       expandResponse: false,
       responseBodyMaxLines: 16,
+      graphqlFieldsFilterText: undefined,
 
       settings: {
         SCROLL_INTO_ENABLED:
@@ -360,6 +366,30 @@ export default {
     }
   },
   computed: {
+    filteredQueryFields() {
+      return this.getFilteredGraphqlFields({
+        filterText: this.graphqlFieldsFilterText,
+        fields: this.queryFields,
+      })
+    },
+    filteredMutationFields() {
+      return this.getFilteredGraphqlFields({
+        filterText: this.graphqlFieldsFilterText,
+        fields: this.mutationFields,
+      })
+    },
+    filteredSubscriptionFields() {
+      return this.getFilteredGraphqlFields({
+        filterText: this.graphqlFieldsFilterText,
+        fields: this.subscriptionFields,
+      })
+    },
+    filteredGqlTypes() {
+      return this.getFilteredGraphqlTypes({
+        filterText: this.graphqlFieldsFilterText,
+        types: this.gqlTypes,
+      })
+    },
     url: {
       get() {
         return this.$store.state.gql.url
@@ -426,6 +456,70 @@ export default {
     }
   },
   methods: {
+    isGqlTypeHighlighted({ gqlType }) {
+      if (!this.graphqlFieldsFilterText) return false
+
+      return this.isTextFoundInGraphqlFieldObject({
+        text: this.graphqlFieldsFilterText,
+        graphqlFieldObject: gqlType,
+      })
+    },
+    getGqlTypeHighlightedFields({ gqlType }) {
+      if (!this.graphqlFieldsFilterText) return []
+
+      const fields = Object.values(gqlType._fields || {})
+
+      if (!fields || fields.length === 0) return []
+
+      return fields.filter((field) => {
+        return this.isTextFoundInGraphqlFieldObject({
+          text: this.graphqlFieldsFilterText,
+          graphqlFieldObject: field,
+        })
+      })
+    },
+    isTextFoundInGraphqlFieldObject({ text, graphqlFieldObject }) {
+      const normalizedText = text.toLowerCase()
+
+      const isFilterTextFoundInDescription = graphqlFieldObject.description
+        .toLowerCase()
+        .includes(normalizedText)
+      const isFilterTextFoundInName = graphqlFieldObject.name.toLowerCase().includes(normalizedText)
+
+      return isFilterTextFoundInDescription || isFilterTextFoundInName
+    },
+    getFilteredGraphqlFields({ filterText, fields }) {
+      if (!filterText) return fields
+
+      return fields.filter((field) => {
+        return this.isTextFoundInGraphqlFieldObject({ text: filterText, graphqlFieldObject: field })
+      })
+    },
+    getFilteredGraphqlTypes({ filterText, types }) {
+      if (!filterText) return types
+
+      return types.filter((type) => {
+        const isFilterTextMatching = this.isTextFoundInGraphqlFieldObject({
+          text: filterText,
+          graphqlFieldObject: type,
+        })
+
+        if (isFilterTextMatching) {
+          return true
+        }
+
+        const isFilterTextMatchingAtLeastOneField = Object.values(type._fields || {}).some(
+          (field) => {
+            return this.isTextFoundInGraphqlFieldObject({
+              text: filterText,
+              graphqlFieldObject: field,
+            })
+          }
+        )
+
+        return isFilterTextMatchingAtLeastOneField
+      })
+    },
     getSpecialKey: getPlatformSpecialKey,
     doPrettifyQuery() {
       this.$refs.queryEditor.prettifyQuery()

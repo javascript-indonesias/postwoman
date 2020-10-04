@@ -5,21 +5,18 @@ export const options = {
   shortDescription: "A free, fast and beautiful API request builder",
   description: "Helps you create requests faster, saving precious time on development.",
   loading: {
-    color: "#50fa7b",
-    background: "#202124",
+    color: "var(--ac-color)",
+    background: "var(--bg-color)",
   },
   app: {
-    color: "#ffffff",
     background: "#202124",
-    accent: "#50fa7b",
   },
   social: {
     twitter: "@liyasthomas",
   },
 }
 export default {
-  mode: "spa",
-  target: "static",
+  ssr: false,
   server: {
     host: "0.0.0.0", // default: localhost
   },
@@ -88,7 +85,7 @@ export default {
    ** Customize the progress-bar color
    */
   loading: {
-    color: "var(--ac-color)",
+    color: options.loading.color,
     continuous: true,
   },
   /*
@@ -102,7 +99,7 @@ export default {
   /*
    ** Global CSS
    */
-  css: ["~/assets/css/styles.scss", "~/assets/css/themes.scss", "~/assets/css/fonts.scss"],
+  css: ["~/assets/scss/styles.scss", "~/assets/scss/themes.scss", "~/assets/scss/fonts.scss"],
   /*
    ** Plugins to load before mounting the App
    */
@@ -124,6 +121,10 @@ export default {
     "@nuxtjs/gtm",
     // Doc: https://github.com/nuxt-community/svg-module
     "@nuxtjs/svg",
+    // Doc: https://tailwindcss.nuxtjs.org
+    "@nuxtjs/tailwindcss",
+    // Doc: https://color-mode.nuxtjs.org
+    "@nuxtjs/color-mode",
   ],
   /*
    ** Nuxt.js modules
@@ -178,6 +179,11 @@ export default {
     Disallow: "",
     Allow: "/",
     Sitemap: `${process.env.BASE_URL}sitemap.xml`,
+  },
+  colorMode: {
+    classSuffix: "",
+    preference: "dark",
+    fallback: "dark",
   },
   i18n: {
     locales: [
