@@ -1,48 +1,47 @@
 <template>
-  <ul>
-    <li>
-      <div class="row-wrapper">
-        <label for="body">{{ $t("response") }}</label>
-        <div>
-          <button
-            class="icon"
-            @click="downloadResponse"
-            ref="downloadResponse"
-            v-if="response.body"
-            v-tooltip="$t('download_file')"
-          >
-            <i class="material-icons">save_alt</i>
-          </button>
-        </div>
+  <div>
+    <div class="row-wrapper">
+      <label for="body">{{ $t("response_body") }}</label>
+      <div>
+        <button
+          v-if="response.body"
+          ref="downloadResponse"
+          v-tooltip="$t('download_file')"
+          class="icon button"
+          @click="downloadResponse"
+        >
+          <i class="material-icons">{{ downloadIcon }}</i>
+        </button>
       </div>
-      <div id="response-details-wrapper">
-        <img class="max-w-full" :src="imageSource" />
-      </div>
-    </li>
-  </ul>
+    </div>
+    <div id="response-details-wrapper">
+      <img class="max-w-full" :src="imageSource" />
+    </div>
+  </div>
 </template>
 
 <script>
 export default {
   props: {
-    response: {},
+    response: { type: Object, default: () => {} },
   },
   data() {
     return {
       imageSource: "",
-      doneButton: '<i class="material-icons">done</i>',
-      downloadButton: '<i class="material-icons">save_alt</i>',
+      downloadIcon: "save_alt",
     }
   },
   computed: {
     responseType() {
-      return (this.response.headers["content-type"] || "").split(";")[0].toLowerCase()
+      return (this.response.headers["content-type"] || "")
+        .split(";")[0]
+        .toLowerCase()
     },
   },
   watch: {
     response: {
       immediate: true,
-      handler(newValue) {
+      handler() {
         this.imageSource = ""
 
         const buf = this.response.body
@@ -50,8 +49,8 @@ export default {
         const blob = new Blob([bytes.buffer])
 
         const reader = new FileReader()
-        reader.onload = (e) => {
-          this.imageSource = e.target.result
+        reader.onload = ({ target }) => {
+          this.imageSource = target.result
         }
         reader.readAsDataURL(blob)
       },
@@ -65,8 +64,8 @@ export default {
     const blob = new Blob([bytes.buffer])
 
     const reader = new FileReader()
-    reader.onload = (e) => {
-      this.imageSource = e.target.result
+    reader.onload = ({ target }) => {
+      this.imageSource = target.result
     }
     reader.readAsDataURL(blob)
   },
@@ -78,17 +77,17 @@ export default {
       const url = URL.createObjectURL(file)
       a.href = url
       // TODO get uri from meta
-      a.download = `response on ${Date()}`.replace(/\./g, "[dot]")
+      a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
       document.body.appendChild(a)
       a.click()
-      this.$refs.downloadResponse.innerHTML = this.doneButton
+      this.downloadIcon = "done"
       this.$toast.success(this.$t("download_started"), {
         icon: "done",
       })
       setTimeout(() => {
         document.body.removeChild(a)
         window.URL.revokeObjectURL(url)
-        this.$refs.downloadResponse.innerHTML = this.downloadButton
+        this.downloadIcon = "save_alt"
       }, 1000)
     },
   },

@@ -1,5 +1,6 @@
 import axios from "axios"
 import { decodeB64StringToArrayBuffer } from "../utils/b64"
+import { settingsStore } from "~/newstore/settings"
 
 let cancelSource = axios.CancelToken.source()
 
@@ -10,10 +11,10 @@ export const cancelRunningAxiosRequest = () => {
   cancelSource = axios.CancelToken.source()
 }
 
-const axiosWithProxy = async (req, { state }) => {
+const axiosWithProxy = async (req) => {
   try {
     const { data } = await axios.post(
-      state.postwoman.settings.PROXY_URL || "https://postwoman.apollosoftware.xyz/",
+      settingsStore.value.PROXY_URL || "https://proxy.hoppscotch.io",
       {
         ...req,
         wantsBinary: true,
@@ -35,6 +36,7 @@ const axiosWithProxy = async (req, { state }) => {
   } catch (e) {
     // Check if the throw is due to a cancellation
     if (axios.isCancel(e)) {
+      // eslint-disable-next-line no-throw-literal
       throw "cancellation"
     } else {
       throw e
@@ -53,6 +55,7 @@ const axiosWithoutProxy = async (req, _store) => {
     return res
   } catch (e) {
     if (axios.isCancel(e)) {
+      // eslint-disable-next-line no-throw-literal
       throw "cancellation"
     } else {
       throw e
@@ -60,11 +63,11 @@ const axiosWithoutProxy = async (req, _store) => {
   }
 }
 
-const axiosStrategy = (req, store) => {
-  if (store.state.postwoman.settings.PROXY_ENABLED) {
-    return axiosWithProxy(req, store)
+const axiosStrategy = (req) => {
+  if (settingsStore.value.PROXY_ENABLED) {
+    return axiosWithProxy(req)
   }
-  return axiosWithoutProxy(req, store)
+  return axiosWithoutProxy(req)
 }
 
 export const testables = {

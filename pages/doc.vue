@@ -2,350 +2,179 @@
   <div class="page">
     <div class="content">
       <div class="page-columns inner-left">
-        <pw-section class="blue" :label="$t('import')" ref="import">
-          <ul>
-            <li>
-              <p class="info">
-                {{ $t("generate_docs_message") }}
-              </p>
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <div class="row-wrapper">
-                <label for="collectionUpload">
-                  <button
-                    class="icon"
-                    @click="$refs.collectionUpload.click()"
-                    v-tooltip="$t('json')"
-                  >
-                    <folderIcon class="material-icons" />
-                    <span>{{ $t("import_collections") }}</span>
-                  </button>
-                </label>
-                <input
-                  ref="collectionUpload"
-                  name="collectionUpload"
-                  type="file"
-                  @change="uploadCollection"
-                />
-                <div>
-                  <button
-                    class="icon"
-                    @click="collectionJSON = '[]'"
-                    v-tooltip.bottom="$t('clear')"
-                  >
-                    <i class="material-icons">clear_all</i>
-                  </button>
-                </div>
-              </div>
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <ace-editor
-                v-model="collectionJSON"
-                :lang="'json'"
-                :lint="false"
-                :options="{
-                  maxLines: '16',
-                  minLines: '8',
-                  fontSize: '16px',
-                  autoScrollEditorIntoView: true,
-                  showPrintMargin: false,
-                  useWorker: false,
-                }"
+        <AppSection label="import">
+          <div class="flex flex-col">
+            <label>{{ $t("collection") }}</label>
+            <p class="info">
+              {{ $t("generate_docs_message") }}
+            </p>
+            <div class="row-wrapper">
+              <label for="collectionUpload">
+                <button
+                  v-tooltip="'JSON'"
+                  class="icon button"
+                  @click="$refs.collectionUpload.click()"
+                >
+                  <i class="material-icons">folder</i>
+                  <span>{{ $t("import_collections") }}</span>
+                </button>
+              </label>
+              <input
+                ref="collectionUpload"
+                class="input"
+                name="collectionUpload"
+                type="file"
+                @change="uploadCollection"
               />
-            </li>
-          </ul>
-          <ul>
-            <li>
-              <button class="icon" @click="getDoc">
-                <i class="material-icons">topic</i>
-                <span>{{ $t("generate_docs") }}</span>
-              </button>
-            </li>
-          </ul>
-        </pw-section>
-
-        <pw-section class="green" :label="$t('documentation')" ref="documentation">
-          <p v-if="this.items.length === 0" class="info">
-            {{ $t("generate_docs_first") }}
-          </p>
-          <div>
-            <span class="collection" v-for="(collection, index) in this.items" :key="index">
-              <h2>
-                <folderIcon class="material-icons" />
-                {{ collection.name || $t("none") }}
-              </h2>
-              <span class="folder" v-for="(folder, index) in collection.folders" :key="index">
-                <h3>
-                  <i class="material-icons">folder_open</i>
-                  {{ folder.name || $t("none") }}
-                </h3>
-                <span class="request" v-for="(request, index) in folder.requests" :key="index">
-                  <h4>
-                    <i class="material-icons">insert_drive_file</i>
-                    {{ request.name || $t("none") }}
-                  </h4>
-                  <p class="doc-desc" v-if="request.url">
-                    <span>
-                      {{ $t("url") }}: <code>{{ request.url || $t("none") }}</code>
-                    </span>
-                  </p>
-                  <p class="doc-desc" v-if="request.path">
-                    <span>
-                      {{ $t("path") }}:
-                      <code>{{ request.path || $t("none") }}</code>
-                    </span>
-                  </p>
-                  <p class="doc-desc" v-if="request.method">
-                    <span>
-                      {{ $t("method") }}:
-                      <code>{{ request.method || $t("none") }}</code>
-                    </span>
-                  </p>
-                  <p class="doc-desc" v-if="request.auth">
-                    <span>
-                      {{ $t("authentication") }}:
-                      <code>{{ request.auth || $t("none") }}</code>
-                    </span>
-                  </p>
-                  <p class="doc-desc" v-if="request.httpUser">
-                    <span>
-                      {{ $t("username") }}:
-                      <code>{{ request.httpUser || $t("none") }}</code>
-                    </span>
-                  </p>
-                  <p class="doc-desc" v-if="request.httpPassword">
-                    <span>
-                      {{ $t("password") }}:
-                      <code>{{ request.httpPassword || $t("none") }}</code>
-                    </span>
-                  </p>
-                  <p class="doc-desc" v-if="request.bearerToken">
-                    <span>
-                      {{ $t("token") }}:
-                      <code>{{ request.bearerToken || $t("none") }}</code>
-                    </span>
-                  </p>
-                  <h4 v-if="request.headers.length > 0">{{ $t("headers") }}</h4>
-                  <span v-if="request.headers">
-                    <p v-for="header in request.headers" :key="header.key" class="doc-desc">
-                      <span>
-                        {{ header.key || $t("none") }}:
-                        <code>{{ header.value || $t("none") }}</code>
-                      </span>
-                    </p>
-                  </span>
-                  <h4 v-if="request.params.length > 0">{{ $t("parameters") }}</h4>
-                  <span v-if="request.params">
-                    <p v-for="parameter in request.params" :key="parameter.key" class="doc-desc">
-                      <span>
-                        {{ parameter.key || $t("none") }}:
-                        <code>{{ parameter.value || $t("none") }}</code>
-                      </span>
-                    </p>
-                  </span>
-                  <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
-                  <span v-if="request.bodyParam">
-                    <p v-for="payload in request.bodyParam" :key="payload.key" class="doc-desc">
-                      <span>
-                        {{ payload.key || $t("none") }}:
-                        <code>{{ payload.value || $t("none") }}</code>
-                      </span>
-                    </p>
-                  </span>
-                  <p class="doc-desc" v-if="request.rawParams">
-                    <span>
-                      {{ $t("parameters") }}:
-                      <code>{{ request.rawParams || $t("none") }}</code>
-                    </span>
-                  </p>
-                  <p class="doc-desc" v-if="request.contentType">
-                    <span>
-                      {{ $t("content_type") }}:
-                      <code>{{ request.contentType || $t("none") }}</code>
-                    </span>
-                  </p>
-                  <p class="doc-desc" v-if="request.requestType">
-                    <span>
-                      {{ $t("request_type") }}:
-                      <code>{{ request.requestType || $t("none") }}</code>
-                    </span>
-                  </p>
-                </span>
-              </span>
-              <span
-                class="request"
-                v-for="(request, index) in collection.requests"
-                :key="`request-${index}`"
-              >
-                <h4>
-                  <i class="material-icons">insert_drive_file</i>
-                  {{ request.name || $t("none") }}
-                </h4>
-                <p class="doc-desc" v-if="request.url">
-                  <span>
-                    {{ $t("url") }}: <code>{{ request.url || $t("none") }}</code>
-                  </span>
-                </p>
-                <p class="doc-desc" v-if="request.path">
-                  <span>
-                    {{ $t("path") }}: <code>{{ request.path || $t("none") }}</code>
-                  </span>
-                </p>
-                <p class="doc-desc" v-if="request.method">
-                  <span>
-                    {{ $t("method") }}:
-                    <code>{{ request.method || $t("none") }}</code>
-                  </span>
-                </p>
-                <p class="doc-desc" v-if="request.auth">
-                  <span>
-                    {{ $t("authentication") }}:
-                    <code>{{ request.auth || $t("none") }}</code>
-                  </span>
-                </p>
-                <p class="doc-desc" v-if="request.httpUser">
-                  <span>
-                    {{ $t("username") }}:
-                    <code>{{ request.httpUser || $t("none") }}</code>
-                  </span>
-                </p>
-                <p class="doc-desc" v-if="request.httpPassword">
-                  <span>
-                    {{ $t("password") }}:
-                    <code>{{ request.httpPassword || $t("none") }}</code>
-                  </span>
-                </p>
-                <p class="doc-desc" v-if="request.bearerToken">
-                  <span>
-                    {{ $t("token") }}:
-                    <code>{{ request.bearerToken || $t("none") }}</code>
-                  </span>
-                </p>
-                <h4 v-if="request.headers.length > 0">{{ $t("headers") }}</h4>
-                <span v-if="request.headers">
-                  <p v-for="header in request.headers" :key="header.key" class="doc-desc">
-                    <span>
-                      {{ header.key || $t("none") }}:
-                      <code>{{ header.value || $t("none") }}</code>
-                    </span>
-                  </p>
-                </span>
-                <h4 v-if="request.params.length > 0">{{ $t("parameters") }}</h4>
-                <span v-if="request.params">
-                  <p v-for="parameter in request.params" :key="parameter.key" class="doc-desc">
-                    <span>
-                      {{ parameter.key || $t("none") }}:
-                      <code>{{ parameter.value || $t("none") }}</code>
-                    </span>
-                  </p>
-                </span>
-                <h4 v-if="request.bodyParam">{{ $t("payload") }}</h4>
-                <span v-if="request.bodyParam">
-                  <p v-for="payload in request.bodyParam" :key="payload.key" class="doc-desc">
-                    <span>
-                      {{ payload.key || $t("none") }}:
-                      <code>{{ payload.value || $t("none") }}</code>
-                    </span>
-                  </p>
-                </span>
-                <p class="doc-desc" v-if="request.rawParams">
-                  <span>
-                    {{ $t("parameters") }}:
-                    <code>{{ request.rawParams || $t("none") }}</code>
-                  </span>
-                </p>
-                <p class="doc-desc" v-if="request.contentType">
-                  <span>
-                    {{ $t("content_type") }}:
-                    <code>{{ request.contentType || $t("none") }}</code>
-                  </span>
-                </p>
-                <p class="doc-desc" v-if="request.requestType">
-                  <span>
-                    {{ $t("request_type") }}:
-                    <code>{{ request.requestType || $t("none") }}</code>
-                  </span>
-                </p>
-              </span>
-            </span>
+              <div>
+                <button
+                  v-tooltip.bottom="$t('clear')"
+                  class="icon button"
+                  @click="collectionJSON = '[]'"
+                >
+                  <i class="material-icons">clear_all</i>
+                </button>
+              </div>
+            </div>
+            <SmartAceEditor
+              v-model="collectionJSON"
+              :lang="'json'"
+              :lint="false"
+              :options="{
+                maxLines: '16',
+                minLines: '8',
+                fontSize: '15px',
+                autoScrollEditorIntoView: true,
+                showPrintMargin: false,
+                useWorker: false,
+              }"
+            />
+            <button class="icon button" @click="getDoc">
+              <i class="material-icons">topic</i>
+              <span>{{ $t("generate_docs") }}</span>
+            </button>
           </div>
-        </pw-section>
+        </AppSection>
+
+        <AppSection label="documentation">
+          <div class="flex flex-col">
+            <label>{{ $t("documentation") }}</label>
+            <p v-if="items.length === 0" class="info">
+              {{ $t("generate_docs_first") }}
+            </p>
+            <div v-else class="row-wrapper">
+              <div
+                v-tooltip.bottom="{
+                  content: !currentUser
+                    ? $t('login_with_github_to') + $t('create_secret_gist')
+                    : currentUser.provider !== 'github.com'
+                    ? $t('login_with_github_to') + $t('create_secret_gist')
+                    : null,
+                }"
+              >
+                <button
+                  :disabled="
+                    !currentUser
+                      ? true
+                      : currentUser.provider !== 'github.com'
+                      ? true
+                      : false
+                  "
+                  class="icon button"
+                  @click="createDocsGist"
+                >
+                  <i class="material-icons">assignment</i>
+                  <span>{{ $t("create_secret_gist") }}</span>
+                </button>
+              </div>
+            </div>
+            <div>
+              <span
+                v-for="(collection, index) in items"
+                :key="`collection-${index}`"
+              >
+                <DocsCollection :collection="collection" />
+              </span>
+            </div>
+          </div>
+        </AppSection>
       </div>
 
       <aside class="sticky-inner inner-right lg:max-w-md">
-        <collections @use-collection="useSelectedCollection($event)" :doc="true" />
+        <Collections
+          :selected="selected"
+          :doc="true"
+          @use-collection="useSelectedCollection($event)"
+          @remove-collection="removeSelectedCollection($event)"
+        />
       </aside>
     </div>
   </div>
 </template>
 
-<style scoped lang="scss">
-.collection,
-.doc-desc,
-.folder,
-.request {
-  @apply flex;
-  @apply flex-col;
-  @apply justify-center;
-  @apply flex-1;
-  @apply p-8;
-
-  .material-icons {
-    @apply mr-8;
-  }
-}
-
-.folder {
-  @apply border-l;
-  @apply border-brdColor;
-  @apply mt-8;
-}
-
-.request {
-  @apply border;
-  @apply border-brdColor;
-  @apply rounded-lg;
-  @apply mt-8;
-
-  h4 {
-    @apply mt-8;
-  }
-}
-
-.doc-desc {
-  @apply text-fgLightColor;
-  @apply border-b;
-  @apply border-dashed;
-  @apply border-brdColor;
-  @apply m-0;
-
-  &:last-child {
-    @apply border-b-0;
-  }
-}
-</style>
-
 <script>
-import folderIcon from "~/static/icons/folder-24px.svg?inline"
+import Mustache from "mustache"
+import { currentUser$ } from "~/helpers/fb/auth"
+import DocsTemplate from "~/assets/md/docs.md"
+import folderContents from "~/assets/md/folderContents.md"
+import folderBody from "~/assets/md/folderBody.md"
 
 export default {
-  components: { folderIcon },
   data() {
     return {
       collectionJSON: "[]",
       items: [],
+      docsMarkdown: "",
+      selected: [],
+    }
+  },
+  subscriptions() {
+    return {
+      currentUser: currentUser$,
+    }
+  },
+  head() {
+    return {
+      title: `Documentation • Hoppscotch`,
     }
   },
   methods: {
+    async createDocsGist() {
+      await this.$axios
+        .$post(
+          "https://api.github.com/gists",
+          {
+            files: {
+              "api-docs.md": {
+                content: this.docsMarkdown,
+              },
+            },
+          },
+          {
+            headers: {
+              Authorization: `token ${this.currentUser.accessToken}`,
+              Accept: "application/vnd.github.v3+json",
+            },
+          }
+        )
+        .then((res) => {
+          this.$toast.success(this.$t("gist_created"), {
+            icon: "done",
+          })
+          window.open(res.html_url)
+        })
+        .catch((error) => {
+          this.$toast.error(this.$t("something_went_wrong"), {
+            icon: "error",
+          })
+          console.log(error)
+        })
+    },
+
     uploadCollection() {
-      this.rawInput = true
-      let file = this.$refs.collectionUpload.files[0]
+      const file = this.$refs.collectionUpload.files[0]
       if (file !== undefined && file !== null) {
-        let reader = new FileReader()
+        const reader = new FileReader()
         reader.onload = ({ target }) => {
           this.collectionJSON = target.result
         }
@@ -361,13 +190,73 @@ export default {
       this.$refs.collectionUpload.value = ""
     },
 
+    assignIDs(items, pref, nestingLevel) {
+      for (let i = 0; i < items.length; ++i) {
+        items[i].id = `&emsp;${pref}${i + 1}.`
+        items[i].ref = `${items[i].name.split(" ").join("-")}`
+        items[i].nestingLevel = nestingLevel
+        items[i].folders = this.assignIDs(
+          items[i].folders,
+          items[i].id,
+          nestingLevel + "#"
+        )
+        for (let j = 0; j < items[i].requests.length; ++j) {
+          items[i].requests[j].id = `&emsp;${items[i].id}${i + 1}`
+          items[i].requests[j].ref = `${items[i].requests[j].name
+            .split(" ")
+            .join("-")}`
+          items[i].requests[j].nestingLevel = nestingLevel + "#"
+        }
+      }
+      return items
+    },
+
     getDoc() {
       try {
         this.items = JSON.parse(this.collectionJSON)
+        this.assignIDs(this.items, "", "#")
         this.$toast.clear()
         this.$toast.info(this.$t("docs_generated"), {
           icon: "book",
         })
+        const docsMarkdown = Mustache.render(
+          DocsTemplate,
+          {
+            collections: this.items,
+            isHeaders() {
+              return this.headers.length
+            },
+            isParams() {
+              return this.params.length
+            },
+            isAuth() {
+              return this.auth !== "None"
+            },
+            isAuthBasic() {
+              return this.httpUser && this.httpPassword
+            },
+            isRawParams() {
+              return this.rawParams && this.rawParams !== "{}"
+            },
+            isPreRequestScript() {
+              return (
+                this.preRequestScript &&
+                this.preRequestScript !== `// pw.env.set('variable', 'value');`
+              )
+            },
+            isTestScript() {
+              return (
+                this.testScript &&
+                this.testScript !== `// pw.expect('variable').toBe('value');`
+              )
+            },
+          },
+          {
+            folderContents,
+            folderBody,
+          }
+        )
+        this.docsMarkdown = docsMarkdown.replace(/^\s*[\r\n]/gm, "\n\n")
       } catch (e) {
         this.$toast.error(e, {
           icon: "code",
@@ -376,14 +265,27 @@ export default {
     },
 
     useSelectedCollection(collection) {
-      let importCollection = `[${JSON.stringify(collection, null, 2)}]`
-      this.collectionJSON = JSON.stringify(JSON.parse(importCollection), null, 2)
+      if (this.selected.find((coll) => coll === collection)) {
+        return
+      }
+      this.selected.push(collection)
+      const importCollection = JSON.stringify(this.selected, null, 2)
+      this.collectionJSON = JSON.stringify(
+        JSON.parse(importCollection),
+        null,
+        2
+      )
     },
-  },
-  head() {
-    return {
-      title: `Documentation • Hoppscotch`,
-    }
+
+    removeSelectedCollection(collection) {
+      this.selected = this.selected.filter((coll) => coll !== collection)
+      const importCollection = JSON.stringify(this.selected, null, 2)
+      this.collectionJSON = JSON.stringify(
+        JSON.parse(importCollection),
+        null,
+        2
+      )
+    },
   },
 }
 </script>

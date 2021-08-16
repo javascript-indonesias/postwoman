@@ -1,47 +1,57 @@
-import { JSXHRCodegen } from "./generators/js-xhr"
-import { JSFetchCodegen } from "./generators/js-fetch"
+import { CLibcurlCodegen } from "./generators/c-libcurl"
+import { CsRestsharpCodegen } from "./generators/cs-restsharp"
 import { CurlCodegen } from "./generators/curl"
-import { JSAxiosCodegen } from "./generators/js-axios"
 import { GoNativeCodegen } from "./generators/go-native"
-import { NodeJsRequestCodegen } from "./generators/nodejs-request"
-import { NodeJsNativeCodegen } from "./generators/nodejs-native"
-import { JSjQueryCodegen } from "./generators/js-jQuery"
-import { PowerShellRestMethod } from "./generators/powershell"
+import { JavaOkhttpCodegen } from "./generators/java-okhttp"
+import { JavaUnirestCodegen } from "./generators/java-unirest"
+import { JavascriptFetchCodegen } from "./generators/javascript-fetch"
+import { JavascriptJqueryCodegen } from "./generators/javascript-jquery"
+import { JavascriptXhrCodegen } from "./generators/javascript-xhr"
+import { NodejsAxiosCodegen } from "./generators/nodejs-axios"
+import { NodejsNativeCodegen } from "./generators/nodejs-native"
+import { NodejsRequestCodegen } from "./generators/nodejs-request"
+import { NodejsUnirestCodegen } from "./generators/nodejs-unirest"
 import { PhpCurlCodegen } from "./generators/php-curl"
-import { PythonRequestsCodegen } from "./generators/python-requests"
+import { PowershellRestmethodCodegen } from "./generators/powershell-restmethod"
 import { PythonHttpClientCodegen } from "./generators/python-http-client"
-import { WgetCodegen } from "./generators/wget"
-import { CsRestSharpCodegen } from "./generators/cs-restsharp"
+import { PythonRequestsCodegen } from "./generators/python-requests"
 import { RubyNetHttpCodeGen } from "./generators/ruby-net-http"
 import { SalesforceApexCodegen } from "./generators/salesforce-apex"
-import { ShellHTTPie } from "./generators/shell-httpie"
+import { ShellHttpieCodegen } from "./generators/shell-httpie"
+import { ShellWgetCodegen } from "./generators/shell-wget"
 
 /* Register code generators here.
  * A code generator is defined as an object with the following structure.
  *
  * id: string
  * name: string
+ * language: string // a string identifier used in ace editor for syntax highlighting
+ *                  // see node_modules/ace-builds/src-noconflict/mode-** files for valid value
  * generator: (ctx) => string
  *
  */
 export const codegens = [
+  CLibcurlCodegen,
+  CsRestsharpCodegen,
   CurlCodegen,
-  CsRestSharpCodegen,
   GoNativeCodegen,
-  JSAxiosCodegen,
-  JSFetchCodegen,
-  JSjQueryCodegen,
-  JSXHRCodegen,
-  NodeJsRequestCodegen,
-  NodeJsNativeCodegen,
+  JavaOkhttpCodegen,
+  JavaUnirestCodegen,
+  JavascriptFetchCodegen,
+  JavascriptJqueryCodegen,
+  JavascriptXhrCodegen,
+  NodejsAxiosCodegen,
+  NodejsNativeCodegen,
+  NodejsRequestCodegen,
+  NodejsUnirestCodegen,
   PhpCurlCodegen,
-  PowerShellRestMethod,
-  PythonRequestsCodegen,
+  PowershellRestmethodCodegen,
   PythonHttpClientCodegen,
+  PythonRequestsCodegen,
   RubyNetHttpCodeGen,
   SalesforceApexCodegen,
-  ShellHTTPie,
-  WgetCodegen,
+  ShellHttpieCodegen,
+  ShellWgetCodegen,
 ]
 
 export function generateCodeWithGenerator(codegenID, context) {

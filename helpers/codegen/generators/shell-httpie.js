@@ -1,6 +1,7 @@
-export const ShellHTTPie = {
+export const ShellHttpieCodegen = {
   id: "shell-httpie",
   name: "Shell HTTPie",
+  language: "sh",
   generator: ({
     url,
     pathName,
@@ -17,7 +18,7 @@ export const ShellHTTPie = {
     headers,
   }) => {
     const methodsWithBody = ["POST", "PUT", "PATCH", "DELETE"]
-    const includeBody = methodsWithBody.indexOf(method) >= 0
+    const includeBody = methodsWithBody.includes(method)
     const requestString = []
 
     let requestBody = rawInput ? rawParams : rawRequestBody
@@ -47,7 +48,9 @@ export const ShellHTTPie = {
 
     if (headers) {
       headers.forEach(({ key, value }) => {
-        requestString.push(` $'${key.replace(/'/g, "\\'")}:${value.replace(/'/g, "\\'")}'`)
+        requestString.push(
+          ` $'${key.replace(/'/g, "\\'")}:${value.replace(/'/g, "\\'")}'`
+        )
       })
     }
 

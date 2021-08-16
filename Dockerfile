@@ -1,6 +1,6 @@
-FROM node:12.10.0-alpine
+FROM node:12-alpine
 
-LABEL maintainer="Liyas Thomas (liyascthomas@gmail.com)"
+LABEL maintainer="Hoppscotch (support@hoppscotch.io)"
 
 # Add git as the prebuild target requires it to parse version information
 RUN apk add --update --no-cache \
@@ -8,17 +8,18 @@ RUN apk add --update --no-cache \
 
 # Create app directory
 WORKDIR /app
-ADD . /app/
 
 COPY package*.json ./
 
 RUN npm install
 
-COPY . .
+ADD . /app/
 
-RUN npm run generate
+COPY . .
 
 ENV HOST 0.0.0.0
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+RUN mv .env.example .env
+
+CMD ["npm", "run", "dev"]

@@ -11,6 +11,7 @@ const printHeaders = (headers) => {
 export const PythonRequestsCodegen = {
   id: "python-requests",
   name: "Python Requests",
+  language: "python",
   generator: ({
     url,
     pathName,
@@ -27,7 +28,7 @@ export const PythonRequestsCodegen = {
     headers,
   }) => {
     const requestString = []
-    let genHeaders = []
+    const genHeaders = []
 
     requestString.push(`import requests\n\n`)
     requestString.push(`url = '${url}${pathName}${queryString}'\n`)
@@ -36,7 +37,9 @@ export const PythonRequestsCodegen = {
     if (auth === "Basic Auth") {
       const basic = `${httpUser}:${httpPassword}`
       genHeaders.push(
-        `'Authorization': 'Basic ${window.btoa(unescape(encodeURIComponent(basic)))}'`
+        `'Authorization': 'Basic ${window.btoa(
+          unescape(encodeURIComponent(basic))
+        )}'`
       )
     } else if (auth === "Bearer Token" || auth === "OAuth 2.0") {
       genHeaders.push(`'Authorization': 'Bearer ${bearerToken}'`)
@@ -51,7 +54,7 @@ export const PythonRequestsCodegen = {
 
     // initial request setup
     let requestBody = rawInput ? rawParams : rawRequestBody
-    if (method == "GET") {
+    if (method === "GET") {
       requestString.push(...printHeaders(genHeaders))
       requestString.push(`response = requests.request(\n`)
       requestString.push(`  '${method}',\n`)
@@ -66,7 +69,7 @@ export const PythonRequestsCodegen = {
         requestString.push(`data = ${requestBody}\n`)
       } else if (contentType.includes("x-www-form-urlencoded")) {
         const formData = []
-        if (requestBody.indexOf("=") > -1) {
+        if (requestBody.includes("=")) {
           requestBody.split("&").forEach((rq) => {
             const [key, val] = rq.split("=")
             formData.push(`('${key}', '${val}')`)

@@ -1,10 +1,10 @@
 export default () => ({
   request: {
+    name: "Untitled request",
     method: "GET",
     uri: "",
     url: "https://httpbin.org",
     path: "/get",
-    label: "",
     auth: "None",
     httpUser: "",
     httpPassword: "",
@@ -15,8 +15,8 @@ export default () => ({
     bodyParams: [],
     rawParams: "",
     rawInput: false,
-    requestType: "",
-    contentType: "",
+    requestType: "curl",
+    contentType: "application/json",
   },
   gql: {
     url: "https://rickandmortyapi.com/graphql",

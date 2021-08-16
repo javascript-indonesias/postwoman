@@ -1,30 +1,37 @@
-// Some helpful application constants.
-// TODO: Use these when rendering the pages (rather than just for head/meta tags...)
+require("dotenv").config()
+
+// Common options
 export const options = {
   name: "Hoppscotch",
-  shortDescription: "A free, fast and beautiful API request builder",
-  description: "Helps you create requests faster, saving precious time on development.",
+  shortDescription: "Open source API development ecosystem",
+  description:
+    "Helps you create requests faster, saving precious time on development.",
   loading: {
-    color: "var(--ac-color)",
-    background: "var(--bg-color)",
+    color: "var(--accent-color)",
+    background: "var(--primary-color)",
   },
   app: {
     background: "#202124",
   },
   social: {
-    twitter: "@liyasthomas",
+    twitter: "@hoppscotch_io",
   },
 }
+
 export default {
+  // Disable server-side rendering (https://go.nuxtjs.dev/ssr-mode)
   ssr: false,
+
+  // Target (https://go.nuxtjs.dev/config-target)
+  target: "static",
+
+  // Default: localhost
   server: {
-    host: "0.0.0.0", // default: localhost
+    host: "0.0.0.0",
   },
-  /*
-   ** Headers of the page
-   */
+
+  // Global page headers (https://go.nuxtjs.dev/config-head)
   head: {
-    title: `${options.name} • ${options.shortDescription}`,
     meta: [
       {
         name: "keywords",
@@ -45,11 +52,7 @@ export default {
       },
       {
         itemprop: "image",
-        content: `${process.env.BASE_URL}banner.jpg`,
-      },
-      {
-        property: "og:image",
-        content: `${process.env.BASE_URL}banner.jpg`,
+        content: `${process.env.BASE_URL}/banner.jpg`,
       },
       // Add to homescreen for Chrome on Android. Fallback for PWA (handled by nuxt)
       {
@@ -70,122 +73,152 @@ export default {
         content: "no",
       },
     ],
-    link: [
-      {
-        rel: "apple-touch-icon",
-        href: "/icon.png",
-      },
-      {
-        rel: "apple-touch-startup-image",
-        href: "/icon.png",
-      },
-    ],
   },
-  /*
-   ** Customize the progress-bar color
-   */
+
+  // Customize the progress-bar color (https://nuxtjs.org/api/configuration-loading/#customizing-the-progress-bar)
   loading: {
     color: options.loading.color,
     continuous: true,
   },
-  /*
-   ** Customize the loading indicator
-   */
+
+  // Customize the loading indicator (https://nuxtjs.org/api/configuration-loading-indicator)
   loadingIndicator: {
     name: "pulse",
     color: options.loading.color,
     background: options.loading.background,
   },
-  /*
-   ** Global CSS
-   */
-  css: ["~/assets/scss/styles.scss", "~/assets/scss/themes.scss", "~/assets/scss/fonts.scss"],
-  /*
-   ** Plugins to load before mounting the App
-   */
-  plugins: ["~/plugins/vuex-persist", "~/plugins/v-tooltip"],
-  /*
-   ** Auto import components
-   ** See https://nuxtjs.org/api/configuration-components
-   */
-  components: true,
-  /*
-   ** Nuxt.js dev-modules
-   */
-  buildModules: [
-    // https://pwa.nuxtjs.org
-    "@nuxtjs/pwa",
-    // Doc: https://github.com/nuxt-community/analytics-module
-    "@nuxtjs/google-analytics",
-    // Doc: https://github.com/nuxt-community/gtm-module
-    "@nuxtjs/gtm",
-    // Doc: https://github.com/nuxt-community/svg-module
-    "@nuxtjs/svg",
-    // Doc: https://tailwindcss.nuxtjs.org
-    "@nuxtjs/tailwindcss",
-    // Doc: https://color-mode.nuxtjs.org
-    "@nuxtjs/color-mode",
+
+  // Global CSS (https://go.nuxtjs.dev/config-css)
+  css: ["~/assets/scss/styles.scss", "~/assets/scss/themes.scss"],
+
+  // Plugins to run before rendering page (https://go.nuxtjs.dev/config-plugins)
+  plugins: [
+    "~/plugins/vuex-persist",
+    "~/plugins/v-tooltip",
+    "~/plugins/vue-rx",
+    "~/plugins/vue-apollo",
+    { src: "~/plugins/web-worker", ssr: false },
   ],
-  /*
-   ** Nuxt.js modules
-   */
+
+  // Auto import components (https://go.nuxtjs.dev/config-components)
+  components: true,
+
+  // Modules for dev and build (recommended) (https://go.nuxtjs.dev/config-modules)
+  buildModules: [
+    // https://github.com/nuxt-community/pwa-module
+    "@nuxtjs/pwa",
+    // https://github.com/nuxt-community/eslint-module
+    "@nuxtjs/eslint-module",
+    // https://github.com/nuxt-community/stylelint-module
+    "@nuxtjs/stylelint-module",
+    // https://github.com/nuxt-community/analytics-module
+    "@nuxtjs/google-analytics",
+    // https://github.com/nuxt-community/gtm-module
+    "@nuxtjs/gtm",
+    // https://github.com/windicss/windicss
+    "nuxt-windicss",
+    // https://github.com/nuxt-community/color-mode-module
+    "@nuxtjs/color-mode",
+    // https: //github.com/nuxt-community/google-fonts-module
+    "@nuxtjs/google-fonts",
+    // https://github.com/nuxt/typescript
+    "@nuxt/typescript-build",
+    // https://github.com/nuxt-community/dotenv-module
+    "@nuxtjs/dotenv",
+  ],
+
+  // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
-    // https://axios.nuxtjs.org
+    // https://github.com/nuxt-community/axios-module
     "@nuxtjs/axios",
     // https://github.com/nuxt-community/modules/tree/master/packages/toast
     "@nuxtjs/toast",
-    // Doc: https://github.com/nuxt-community/nuxt-i18n
+    // https://github.com/nuxt-community/i18n-module
     "nuxt-i18n",
-    // Doc: https://github.com/nuxt-community/robots-module
+    // https://github.com/nuxt-community/robots-module
     "@nuxtjs/robots",
-    // Doc: https://github.com/nuxt-community/sitemap-module
+    // https://github.com/nuxt-community/sitemap-module
     "@nuxtjs/sitemap",
   ],
+
+  // PWA module configuration (https://pwa.nuxtjs.org/setup)
   pwa: {
     meta: {
+      name: `${options.name} - ${options.shortDescription}`,
+      description: options.description,
       ogHost: process.env.BASE_URL,
+      ogImage: `${process.env.BASE_URL}/banner.jpg`,
       twitterCard: "summary_large_image",
       twitterSite: options.social.twitter,
       twitterCreator: options.social.twitter,
-      description: options.shortDescription,
       theme_color: options.app.background,
     },
     manifest: {
       name: options.name,
       short_name: options.name,
       description: options.shortDescription,
-      start_url: "/",
+      start_url: "/?source=pwa",
       background_color: options.app.background,
-      theme_color: options.app.background,
     },
-    workbox: false,
   },
+
+  // ESLint module configuration (https://github.com/nuxt-community/eslint-module)
+  eslint: {
+    fix: true,
+    emitWarning: true,
+    quiet: true,
+  },
+
+  // Toast module configuration (https://github.com/nuxt-community/modules/tree/master/packages/toast)
   toast: {
     position: "bottom-center",
     duration: 3000,
     theme: "bubble",
     keepOnHover: true,
   },
+
+  // Google Analytics module configuration (https://github.com/nuxt-community/analytics-module)
   googleAnalytics: {
     id: process.env.GA_ID,
   },
+
+  // Google Tag Manager module configuration (https://github.com/nuxt-community/gtm-module)
   gtm: {
     id: process.env.GTM_ID,
   },
+
+  // Sitemap module configuration (https://github.com/nuxt-community/sitemap-module)
   sitemap: {
-    hostname: process.env.BASE_URL || "https://hoppscotch.io/",
+    hostname: process.env.BASE_URL || "https://hoppscotch.io",
   },
+
+  // Robots module configuration (https://github.com/nuxt-community/robots-module)
   robots: {
     UserAgent: "*",
     Disallow: "",
     Allow: "/",
-    Sitemap: `${process.env.BASE_URL}sitemap.xml`,
+    Sitemap: `${process.env.BASE_URL}/sitemap.xml`,
   },
+
+  // Color Mode module configuration (https://github.com/nuxt-community/color-mode-module)
   colorMode: {
     classSuffix: "",
     preference: "dark",
     fallback: "dark",
   },
+
+  // Google Fonts module configuration (https://github.com/nuxt-community/google-fonts-module)
+  googleFonts: {
+    download: true,
+    display: "swap",
+    families: {
+      "Material+Icons": true,
+      Poppins: [400, 500, 600, 700, 800],
+      "Roboto+Mono": true,
+    },
+  },
+
+  // i18n module configuration (https://github.com/nuxt-community/i18n-module)
   i18n: {
     locales: [
       {
@@ -267,6 +300,12 @@ export default {
         file: "ko-KR.json",
       },
       {
+        code: "in",
+        name: "हिंदी",
+        iso: "in-IN",
+        file: "in-IN.json",
+      },
+      {
         code: "bn",
         name: "Bengali",
         iso: "bn-BD",
@@ -274,7 +313,7 @@ export default {
       },
       {
         code: "ml",
-        name: "Malayalam",
+        name: "മലയാളം",
         iso: "ml-ML",
         file: "ml-ML.json",
       },
@@ -283,6 +322,18 @@ export default {
         name: "Vietnamese",
         iso: "vi-VN",
         file: "vi-VN.json",
+      },
+      {
+        code: "nl",
+        name: "Dutch",
+        iso: "nl-BE",
+        file: "nl-BE.json",
+      },
+      {
+        code: "nb",
+        name: "Norwegian (Bokmål)",
+        iso: "nb-NO",
+        file: "nb-NO.json",
       },
     ],
     defaultLocale: "en",
@@ -296,38 +347,68 @@ export default {
       fallbackLocale: "en",
     },
   },
-  /*
-   ** Build configuration
-   */
+
+  // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
-    /*
-     ** You can extend webpack config here
-     */
-    extend(config, ctx) {
+    // You can extend webpack config here
+    extend(config, { isDev, isClient }) {
       // Sets webpack's mode to development if `isDev` is true.
-      if (ctx.isDev) {
+      if (isDev) {
         config.mode = "development"
       }
+
       config.node = {
         fs: "empty",
+      }
+
+      if (isClient) {
+        config.module.rules.unshift({
+          test: /\.worker\.(c|m)?js$/i,
+          use: { loader: "worker-loader" },
+          exclude: /(node_modules)/,
+        })
+
+        config.module.rules.push({
+          test: /\.md$/i,
+          use: { loader: "raw-loader" },
+          exclude: /(node_modules)/,
+        })
+
+        config.module.rules.push({
+          test: /\.mjs$/,
+          include: /node_modules/,
+          type: "javascript/auto",
+        })
+
+        config.module.rules.push({
+          test: /\.js$/,
+          include: /(node_modules)/,
+          exclude: /(node_modules)\/(ace-builds)|(@firebase)/,
+          loader: "babel-loader",
+          options: {
+            plugins: [
+              "@babel/plugin-proposal-class-properties",
+              "@babel/plugin-proposal-nullish-coalescing-operator",
+              "@babel/plugin-proposal-optional-chaining",
+            ],
+          },
+        })
       }
     },
     parallel: true,
     cache: true,
     // hardSource: true,
   },
-  /*
-   ** Generate configuration
-   */
+
+  // Generate configuration (https://nuxtjs.org/api/configuration-generate)
   generate: {
     fallback: true,
   },
-  publicRuntimeConfig: {
-    GA_ID: process.env.GA_ID || "UA-61422507-4",
-    GTM_ID: process.env.GTM_ID || "GTM-NMKVBMV",
-    BASE_URL: process.env.BASE_URL || "https://hoppscotch.io/",
-  },
-  privateRuntimeConfig: {
+
+  // dotenv configuration (https://github.com/nuxt-community/dotenv-module)
+  env: {
+    GA_ID: process.env.GA_ID,
+    GTM_ID: process.env.GTM_ID,
     API_KEY: process.env.API_KEY,
     AUTH_DOMAIN: process.env.AUTH_DOMAIN,
     DATABASE_URL: process.env.DATABASE_URL,
@@ -336,5 +417,6 @@ export default {
     MESSAGING_SENDER_ID: process.env.MESSAGING_SENDER_ID,
     APP_ID: process.env.APP_ID,
     MEASUREMENT_ID: process.env.MEASUREMENT_ID,
+    BASE_URL: process.env.BASE_URL,
   },
 }

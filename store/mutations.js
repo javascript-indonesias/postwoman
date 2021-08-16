@@ -1,3 +1,5 @@
+import Vue from "vue"
+
 export default {
   setState({ request }, { attribute, value }) {
     request[attribute] = value
@@ -9,12 +11,22 @@ export default {
 
   setCollapsedSection({ theme }, value) {
     theme.collapsedSections.includes(value)
-      ? (theme.collapsedSections = theme.collapsedSections.filter((section) => section !== value))
+      ? (theme.collapsedSections = theme.collapsedSections.filter(
+          (section) => section !== value
+        ))
       : theme.collapsedSections.push(value)
   },
 
   addGQLHeader({ gql }, object) {
     gql.headers.push(object)
+  },
+
+  setActiveGQLHeader({ gql }, { index, value }) {
+    if (!Object.prototype.hasOwnProperty.call(gql.headers[index], "active")) {
+      Vue.set(gql.headers[index], "active", value)
+    } else {
+      gql.headers[index].active = value
+    }
   },
 
   removeGQLHeader({ gql }, index) {
@@ -45,6 +57,16 @@ export default {
     request.headers[index].value = value
   },
 
+  setActiveHeader({ request }, { index, value }) {
+    if (
+      !Object.prototype.hasOwnProperty.call(request.headers[index], "active")
+    ) {
+      Vue.set(request.headers[index], "active", value)
+    } else {
+      request.headers[index].active = value
+    }
+  },
+
   addParams({ request }, value) {
     request.params.push(value)
   },
@@ -58,11 +80,21 @@ export default {
   },
 
   setValueParams({ request }, { index, value }) {
-    request.params[index].value = encodeURI(value)
+    request.params[index].value = value
   },
 
   setTypeParams({ request }, { index, value }) {
     request.params[index].type = value
+  },
+
+  setActiveParams({ request }, { index, value }) {
+    if (
+      !Object.prototype.hasOwnProperty.call(request.params[index], "active")
+    ) {
+      Vue.set(request.params[index], "active", value)
+    } else {
+      request.params[index].active = value
+    }
   },
 
   addBodyParams({ request }, value) {
@@ -79,6 +111,32 @@ export default {
 
   setValueBodyParams({ request }, { index, value }) {
     request.bodyParams[index].value = value
+  },
+
+  setBodyParams({ request }, { params }) {
+    request.bodyParams = params
+  },
+
+  // While this mutation is same as the setValueBodyParams above, it is excluded
+  // from vuex-persist. We will commit this mutation while adding a file
+  // param as there is no way to serialize File objects and thus we cannot
+  // persist file objects in localStorage
+  setFilesBodyParams({ request }, { index, value }) {
+    request.bodyParams[index].value = value
+  },
+
+  removeFile({ request }, { index, fileIndex }) {
+    request.bodyParams[index].value.splice(fileIndex, 1)
+  },
+
+  setActiveBodyParams({ request }, { index, value }) {
+    if (
+      !Object.prototype.hasOwnProperty.call(request.bodyParams[index], "active")
+    ) {
+      Vue.set(request.bodyParams[index], "active", value)
+    } else {
+      request.bodyParams[index].active = value
+    }
   },
 
   setOAuth2({ oauth2 }, { attribute, value }) {
