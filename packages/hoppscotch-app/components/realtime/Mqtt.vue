@@ -1,23 +1,23 @@
 <template>
   <Splitpanes
     class="smart-splitter"
-    :dbl-click-splitter="false"
+    :rtl="SIDEBAR_ON_LEFT && windowInnerWidth.x.value >= 768"
+    :class="{
+      '!flex-row-reverse': SIDEBAR_ON_LEFT && windowInnerWidth.x.value >= 768,
+    }"
     :horizontal="!(windowInnerWidth.x.value >= 768)"
   >
-    <Pane class="hide-scrollbar !overflow-auto">
-      <Splitpanes
-        class="smart-splitter"
-        :dbl-click-splitter="false"
-        :horizontal="COLUMN_LAYOUT"
-      >
+    <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
+      <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
         <Pane class="hide-scrollbar !overflow-auto">
           <AppSection label="request">
-            <div class="bg-primary flex p-4 top-0 z-10 sticky">
+            <div
+              class="bg-primary flex flex-col space-y-4 p-4 top-0 z-10 sticky"
+            >
               <div class="space-x-2 flex-1 inline-flex">
                 <input
                   id="mqtt-url"
                   v-model="url"
-                  v-focus
                   type="url"
                   autocomplete="off"
                   spellcheck="false"
@@ -35,6 +35,7 @@
                   "
                   :placeholder="$t('mqtt.url')"
                   :disabled="connectionState"
+                  @keyup.enter="validUrl ? toggleConnection() : null"
                 />
                 <ButtonPrimary
                   id="connect"
@@ -49,6 +50,24 @@
                   @click.native="toggleConnection"
                 />
               </div>
+              <div class="flex space-x-4">
+                <input
+                  id="mqtt-username"
+                  v-model="username"
+                  type="text"
+                  spellcheck="false"
+                  class="input"
+                  :placeholder="$t('authorization.username')"
+                />
+                <input
+                  id="mqtt-password"
+                  v-model="password"
+                  type="password"
+                  spellcheck="false"
+                  class="input"
+                  :placeholder="$t('authorization.password')"
+                />
+              </div>
             </div>
           </AppSection>
         </Pane>
@@ -60,8 +79,7 @@
       </Splitpanes>
     </Pane>
     <Pane
-      v-if="RIGHT_SIDEBAR"
-      max-size="35"
+      v-if="SIDEBAR"
       size="25"
       min-size="20"
       class="hide-scrollbar !overflow-auto"
@@ -160,8 +178,9 @@ export default defineComponent({
   setup() {
     return {
       windowInnerWidth: useWindowSize(),
-      RIGHT_SIDEBAR: useSetting("RIGHT_SIDEBAR"),
+      SIDEBAR: useSetting("SIDEBAR"),
       COLUMN_LAYOUT: useSetting("COLUMN_LAYOUT"),
+      SIDEBAR_ON_LEFT: useSetting("SIDEBAR_ON_LEFT"),
     }
   },
   data() {
@@ -177,6 +196,8 @@ export default defineComponent({
       log: null,
       manualDisconnect: false,
       subscriptionState: false,
+      username: "",
+      password: "",
     }
   },
   computed: {
@@ -195,7 +216,7 @@ export default defineComponent({
       this.debouncer()
     },
   },
-  mounted() {
+  created() {
     if (process.browser) {
       this.worker = this.$worker.createRejexWorker()
       this.worker.addEventListener("message", this.workerResponseHandler)
@@ -227,11 +248,18 @@ export default defineComponent({
         parseUrl.port !== "" ? Number(parseUrl.port) : 8081,
         "hoppscotch"
       )
-      this.client.connect({
+      const connectOptions = {
         onSuccess: this.onConnectionSuccess,
         onFailure: this.onConnectionFailure,
-        useSSL: true,
-      })
+        useSSL: parseUrl.protocol !== "ws:",
+      }
+      if (this.username !== "") {
+        connectOptions.userName = this.username
+      }
+      if (this.password !== "") {
+        connectOptions.password = this.password
+      }
+      this.client.connect(connectOptions)
       this.client.onConnectionLost = this.onConnectionLost
       this.client.onMessageArrived = this.onMessageArrived
 

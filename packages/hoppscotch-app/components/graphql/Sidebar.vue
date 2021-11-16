@@ -42,9 +42,21 @@
             justify-center
           "
         >
-          <i class="opacity-75 pb-2 material-icons">link</i>
-          <span class="text-center">
-            {{ $t("empty.schema") }}
+          <img
+            :src="`/images/states/${$colorMode.value}/add_comment.svg`"
+            loading="lazy"
+            class="
+              flex-col
+              my-4
+              object-contain object-center
+              h-16
+              w-16
+              inline-flex
+            "
+            :alt="$t('empty.documentation')"
+          />
+          <span class="text-center mb-4">
+            {{ $t("empty.documentation") }}
           </span>
         </div>
         <div v-else>
@@ -198,8 +210,20 @@
             justify-center
           "
         >
-          <i class="opacity-75 pb-2 material-icons">link</i>
-          <span class="text-center">
+          <img
+            :src="`/images/states/${$colorMode.value}/blockchain.svg`"
+            loading="lazy"
+            class="
+              flex-col
+              my-4
+              object-contain object-center
+              h-16
+              w-16
+              inline-flex
+            "
+            :alt="$t('empty.schema')"
+          />
+          <span class="text-center mb-4">
             {{ $t("empty.schema") }}
           </span>
         </div>
@@ -230,7 +254,6 @@ import {
   setGQLURL,
   setGQLVariables,
 } from "~/newstore/GQLSession"
-import "~/helpers/editor/modes/graphql"
 
 function isTextFoundInGraphqlFieldObject(
   text: string,

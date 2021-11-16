@@ -72,11 +72,6 @@ import { useCodemirror } from "~/helpers/editor/codemirror"
 import { getEditorLangForMimeType } from "~/helpers/editorutils"
 import { pluckRef } from "~/helpers/utils/composables"
 import { useRESTRequestBody } from "~/newstore/RESTSession"
-import "codemirror/mode/yaml/yaml"
-import "codemirror/mode/xml/xml"
-import "codemirror/mode/css/css"
-import "codemirror/mode/htmlmixed/htmlmixed"
-import "codemirror/mode/javascript/javascript"
 
 const props = defineProps<{
   contentType: string
@@ -89,7 +84,7 @@ const {
 const t = i18n.t.bind(i18n)
 
 const rawParamsBody = pluckRef(useRESTRequestBody(), "body")
-const prettifyIcon = ref("align-left")
+const prettifyIcon = ref("wand")
 
 const rawInputEditorLang = computed(() =>
   getEditorLangForMimeType(props.contentType)
@@ -137,7 +132,7 @@ const prettifyRequestBody = () => {
     const jsonObj = JSON.parse(rawParamsBody.value)
     rawParamsBody.value = JSON.stringify(jsonObj, null, 2)
     prettifyIcon.value = "check"
-    setTimeout(() => (prettifyIcon.value = "align-left"), 1000)
+    setTimeout(() => (prettifyIcon.value = "wand"), 1000)
   } catch (e) {
     console.error(e)
     $toast.error(`${t("error.json_prettify_invalid_body")}`, {

@@ -82,13 +82,26 @@
               justify-center
             "
           >
-            <SmartIcon class="opacity-75 pb-2" name="layers" />
+            <img
+              :src="`/images/states/${$colorMode.value}/blockchain.svg`"
+              loading="lazy"
+              class="
+                flex-col
+                my-4
+                object-contain object-center
+                h-16
+                w-16
+                inline-flex
+              "
+              :alt="$t('empty.environments')"
+            />
             <span class="text-center pb-4">
               {{ $t("empty.environments") }}
             </span>
             <ButtonSecondary
               :label="`${$t('add.new')}`"
               filled
+              class="mb-4"
               @click.native="addEnvironmentVariable"
             />
           </div>

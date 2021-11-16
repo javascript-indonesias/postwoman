@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex flex-col flex-1">
     <div
       class="
         bg-primary
@@ -58,6 +58,7 @@
       ref="previewFrame"
       class="covers-response"
       src="about:blank"
+      loading="lazy"
     ></iframe>
   </div>
 </template>
@@ -66,10 +67,6 @@
 import { computed, ref, useContext, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
-import "codemirror/mode/xml/xml"
-import "codemirror/mode/javascript/javascript"
-import "codemirror/mode/css/css"
-import "codemirror/mode/htmlmixed/htmlmixed"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 
 const props = defineProps<{
@@ -172,7 +169,6 @@ const togglePreview = () => {
 <style lang="scss" scoped>
 .covers-response {
   @apply bg-white;
-  @apply min-h-64;
   @apply h-full;
   @apply w-full;
   @apply border;

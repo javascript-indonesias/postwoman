@@ -28,8 +28,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="$t('action.clear_all')"
           svg="trash-2"
-          :disabled="bulkMode"
-          @click.native="clearContent"
+          @click.native="bulkMode ? clearBulkEditor() : clearContent()"
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -137,6 +136,19 @@
           justify-center
         "
       >
+        <img
+          :src="`/images/states/${$colorMode.value}/add_files.svg`"
+          loading="lazy"
+          class="
+            flex-col
+            my-4
+            object-contain object-center
+            h-16
+            w-16
+            inline-flex
+          "
+          :alt="$t('empty.parameters')"
+        />
         <span class="text-center pb-4">
           {{ $t("empty.parameters") }}
         </span>
@@ -144,6 +156,7 @@
           :label="`${$t('add.new')}`"
           svg="plus"
           filled
+          class="mb-4"
           @click.native="addParam"
         />
       </div>
@@ -152,7 +165,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useContext, watch } from "@nuxtjs/composition-api"
+import { ref, useContext, watch, onBeforeUpdate } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import { HoppRESTParam } from "~/helpers/types/HoppRESTRequest"
 import { useReadonlyStream } from "~/helpers/utils/composables"
@@ -164,7 +177,6 @@ import {
   deleteAllRESTParams,
   setRESTParams,
 } from "~/newstore/RESTSession"
-import "codemirror/mode/yaml/yaml"
 
 const {
   $toast,
@@ -217,19 +229,46 @@ watch(
   { deep: true }
 )
 
+onBeforeUpdate(() => editBulkParamsLine(-1, null))
+
+const editBulkParamsLine = (index: number, item?: HoppRESTParam) => {
+  const params = params$.value
+
+  bulkParams.value = params
+    .reduce((all, param, pIndex) => {
+      const current =
+        index === pIndex && item !== null
+          ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
+          : `${param.active ? "" : "//"}${param.key}: ${param.value}`
+      return [...all, current]
+    }, [])
+    .join("\n")
+}
+
+const clearBulkEditor = () => {
+  bulkParams.value = ""
+}
+
 const addParam = () => {
-  addRESTParam({ key: "", value: "", active: true })
+  const empty = { key: "", value: "", active: true }
+  const index = params$.value.length
+
+  addRESTParam(empty)
+  editBulkParamsLine(index, empty)
 }
 
 const updateParam = (index: number, item: HoppRESTParam) => {
   updateRESTParam(index, item)
+  editBulkParamsLine(index, item)
 }
 
 const deleteParam = (index: number) => {
   deleteRESTParam(index)
+  editBulkParamsLine(index, null)
 }
 
 const clearContent = () => {
   deleteAllRESTParams()
+  clearBulkEditor()
 }
 </script>

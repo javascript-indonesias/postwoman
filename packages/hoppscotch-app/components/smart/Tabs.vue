@@ -18,7 +18,6 @@
               :key="`tab-${index}`"
               class="tab"
               :class="[{ active: tab.active }, { vertical: vertical }]"
-              tabindex="0"
               :aria-label="tab.label"
               @keyup.enter="selectTab(tab)"
               @click="selectTab(tab)"
@@ -34,6 +33,10 @@
               <span v-if="tab.info && tab.info !== 'null'" class="tab-info">
                 {{ tab.info }}
               </span>
+              <span
+                v-if="tab.indicator"
+                class="bg-accentLight h-1 w-1 ml-2 rounded-full"
+              ></span>
             </button>
           </div>
           <div class="flex justify-center items-center">

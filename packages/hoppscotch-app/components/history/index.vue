@@ -60,8 +60,13 @@
       v-if="history.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="opacity-75 pb-2 material-icons">schedule</i>
-      <span class="text-center">
+      <img
+        :src="`/images/states/${$colorMode.value}/history.svg`"
+        loading="lazy"
+        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        :alt="$t('empty.history')"
+      />
+      <span class="text-center mb-4">
         {{ $t("empty.history") }}
       </span>
     </div>

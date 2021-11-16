@@ -100,6 +100,7 @@ export default {
     "~/plugins/v-focus",
     "~/plugins/v-textarea",
     "~/plugins/vue-apollo",
+    "~/plugins/init-fb.ts",
     "~/plugins/crisp",
     { src: "~/plugins/web-worker", ssr: false },
   ],
@@ -298,6 +299,14 @@ export default {
     parallel: true,
     cache: true,
     // hardSource: true,
+    terser: {
+      terserOptions: {
+        // https://github.com/terser/terser#compress-options
+        compress: {
+          pure_funcs: ["console.log", "console.debug", "console.warn"],
+        },
+      },
+    },
   },
 
   // Generate configuration (https://nuxtjs.org/api/configuration-generate)

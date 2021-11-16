@@ -62,6 +62,7 @@
         @add-folder="addFolder($event)"
         @edit-folder="editFolder($event)"
         @edit-request="editRequest($event)"
+        @duplicate-request="duplicateRequest($event)"
         @select-collection="$emit('use-collection', collection)"
         @select="$emit('select', $event)"
       />
@@ -70,6 +71,12 @@
       v-if="collections.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
+      <img
+        :src="`/images/states/${$colorMode.value}/pack.svg`"
+        loading="lazy"
+        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        :alt="$t('empty.collections')"
+      />
       <span class="text-center pb-4">
         {{ $t("empty.collections") }}
       </span>
@@ -130,7 +137,11 @@
 import { defineComponent } from "@nuxtjs/composition-api"
 import clone from "lodash/clone"
 import { useReadonlyStream } from "~/helpers/utils/composables"
-import { graphqlCollections$, addGraphqlFolder } from "~/newstore/collections"
+import {
+  graphqlCollections$,
+  addGraphqlFolder,
+  saveGraphqlRequestAs,
+} from "~/newstore/collections"
 
 export default defineComponent({
   props: {
@@ -276,6 +287,12 @@ export default defineComponent({
       this.$data.editingFolderIndex = undefined
       this.$data.editingRequest = undefined
       this.$data.editingRequestIndex = undefined
+    },
+    duplicateRequest({ folderPath, request }) {
+      saveGraphqlRequestAs(folderPath, {
+        ...request,
+        name: `${request.name} - ${this.$t("action.duplicate")}`,
+      })
     },
   },
 })

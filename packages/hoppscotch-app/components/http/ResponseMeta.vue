@@ -9,7 +9,7 @@
         justify-center
       "
     >
-      <div class="flex space-x-2 pb-4">
+      <div class="flex space-x-2 pb-4 my-4">
         <div class="flex flex-col space-y-4 text-right items-end">
           <span class="flex flex-1 items-center">
             {{ $t("shortcut.request.send_request") }}
@@ -55,34 +55,33 @@
         v-if="response.type === 'loading'"
         class="flex flex-col items-center justify-center"
       >
-        <SmartSpinner class="mb-4" />
+        <SmartSpinner class="my-4" />
         <span class="text-secondaryLight">{{ $t("state.loading") }}</span>
       </div>
       <div
         v-if="response.type === 'network_fail'"
-        class="
-          flex flex-col flex-1
-          text-secondaryLight
-          p-4
-          items-center
-          justify-center
-        "
+        class="flex flex-col flex-1 p-4 items-center justify-center"
       >
-        <i class="opacity-75 pb-2 material-icons">cloud_off</i>
-        <span class="text-center pb-2">
+        <img
+          :src="`/images/states/${$colorMode.value}/youre_lost.svg`"
+          loading="lazy"
+          class="
+            flex-col
+            my-4
+            object-contain object-center
+            h-32
+            w-32
+            inline-flex
+          "
+          :alt="$t('empty.network_fail')"
+        />
+        <span class="text-center font-semibold mb-2">
           {{ $t("error.network_fail") }}
         </span>
-        <span class="text-center pb-4">
+        <span class="text-center text-secondaryLight mb-4 max-w-sm">
           {{ $t("helpers.network_fail") }}
         </span>
-        <ButtonSecondary
-          outline
-          :label="$t('action.learn_more')"
-          to="https://docs.hoppscotch.io"
-          blank
-          svg="external-link"
-          reverse
-        />
+        <AppInterceptor />
       </div>
       <div
         v-if="response.type === 'success' || 'fail'"

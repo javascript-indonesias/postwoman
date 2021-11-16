@@ -6,6 +6,7 @@
       :key="`lens-${index}`"
       :label="$t(lens.lensName)"
       :selected="index === 0"
+      class="flex flex-col flex-1"
     >
       <component :is="lens.renderer" :response="response" />
     </SmartTab>
@@ -14,10 +15,21 @@
       id="headers"
       :label="$t('response.headers')"
       :info="`${headerLength}`"
+      class="flex flex-col flex-1"
     >
       <LensesHeadersRenderer :headers="response.headers" />
     </SmartTab>
-    <SmartTab id="results" :label="$t('test.results')">
+    <SmartTab
+      id="results"
+      :label="$t('test.results')"
+      :indicator="
+        testResults &&
+        (testResults.expectResults.length || testResults.tests.length)
+          ? true
+          : false
+      "
+      class="flex flex-col flex-1"
+    >
       <HttpTestResult />
     </SmartTab>
   </SmartTabs>
@@ -26,6 +38,8 @@
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
 import { getSuitableLenses, getLensRenderers } from "~/helpers/lenses/lenses"
+import { useReadonlyStream } from "~/helpers/utils/composables"
+import { restTestResults$ } from "~/newstore/RESTSession"
 
 export default defineComponent({
   components: {
@@ -34,6 +48,12 @@ export default defineComponent({
   },
   props: {
     response: { type: Object, default: () => {} },
+  },
+  setup() {
+    const testResults = useReadonlyStream(restTestResults$, null)
+    return {
+      testResults,
+    }
   },
   computed: {
     headerLength() {

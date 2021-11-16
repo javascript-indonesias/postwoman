@@ -24,7 +24,7 @@
             >
               <Pane class="flex flex-1 hide-scrollbar !overflow-auto">
                 <main class="flex flex-1 w-full">
-                  <nuxt class="flex overflow-y-auto flex-1" />
+                  <nuxt class="flex flex-1" style="overflow-y: overlay" />
                 </main>
               </Pane>
             </Splitpanes>
@@ -52,7 +52,6 @@ import { setupLocalPersistence } from "~/newstore/localpersistence"
 import { performMigrations } from "~/helpers/migrations"
 import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
 import { registerApolloAuthUpdate } from "~/helpers/apollo"
-import { initializeFirebase } from "~/helpers/fb"
 import { useSetting } from "~/newstore/settings"
 import { logPageView } from "~/helpers/fb/analytics"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
@@ -60,7 +59,7 @@ import { defineActionHandler } from "~/helpers/actions"
 import useWindowSize from "~/helpers/utils/useWindowSize"
 
 function appLayout() {
-  const rightSidebar = useSetting("RIGHT_SIDEBAR")
+  const rightSidebar = useSetting("SIDEBAR")
   const columnLayout = useSetting("COLUMN_LAYOUT")
   const windowInnerWidth = useWindowSize()
 
@@ -158,11 +157,11 @@ export default defineComponent({
   },
   async mounted() {
     performMigrations()
-    console.log(
+    console.info(
       "%cWe ❤︎ open source!",
       "background-color:white;padding:8px 16px;border-radius:8px;font-size:32px;color:red;"
     )
-    console.log(
+    console.info(
       "%cContribute: https://github.com/hoppscotch/hoppscotch",
       "background-color:black;padding:4px 8px;border-radius:8px;font-size:16px;color:white;"
     )
@@ -176,8 +175,13 @@ export default defineComponent({
             duration: 0,
             action: [
               {
+                text: `${this.$t("action.dismiss")}`,
+                onClick: (_, toastObject) => {
+                  toastObject.goAway(0)
+                },
+              },
+              {
                 text: `${this.$t("app.reload")}`,
-                class: "!ml-auto",
                 onClick: (_, toastObject) => {
                   toastObject.goAway(0)
                   window.location.reload()
@@ -189,7 +193,6 @@ export default defineComponent({
       })
     }
 
-    initializeFirebase()
     initUserInfo()
 
     logPageView(this.$router.currentRoute.fullPath)

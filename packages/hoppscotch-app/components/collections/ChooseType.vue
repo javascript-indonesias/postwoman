@@ -7,7 +7,7 @@
         :selected="true"
       />
       <SmartTab
-        v-if="currentUser && currentUser.eaInvited && !doc"
+        v-if="currentUser && !doc"
         :id="'team-collections'"
         :label="`${$t('collection.team_collections')}`"
       >
@@ -23,7 +23,7 @@
                 border-t border-dividerLight
                 cursor-pointer
                 flex
-                font-medium
+                font-semibold
                 w-full
                 py-2
                 px-4

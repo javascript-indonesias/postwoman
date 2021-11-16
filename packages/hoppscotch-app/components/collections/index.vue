@@ -95,6 +95,7 @@
         @add-folder="addFolder($event)"
         @edit-folder="editFolder($event)"
         @edit-request="editRequest($event)"
+        @duplicate-request="duplicateRequest($event)"
         @update-team-collections="updateTeamCollections"
         @select-collection="$emit('use-collection', collection)"
         @unselect-collection="$emit('remove-collection', collection)"
@@ -108,6 +109,12 @@
       v-if="filteredCollections.length === 0 && filterText.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
+      <img
+        :src="`/images/states/${$colorMode.value}/pack.svg`"
+        loading="lazy"
+        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        :alt="$t('empty.collections')"
+      />
       <span class="text-center pb-4">
         {{ $t("empty.collections") }}
       </span>
@@ -120,12 +127,14 @@
         v-tippy="{ theme: 'tooltip' }"
         :title="$t('team.no_access')"
         :label="$t('add.new')"
+        class="mb-4"
         filled
       />
       <ButtonSecondary
         v-else
         :label="$t('add.new')"
         filled
+        class="mb-4"
         @click.native="displayModalAdd(true)"
       />
     </div>
@@ -195,6 +204,7 @@ import {
   editRESTFolder,
   removeRESTRequest,
   editRESTRequest,
+  saveRESTRequestAs,
 } from "~/newstore/collections"
 import {
   useReadonlyStream,
@@ -675,6 +685,12 @@ export default defineComponent({
             console.error(e)
           })
       }
+    },
+    duplicateRequest({ folderPath, request }) {
+      saveRESTRequestAs(folderPath, {
+        ...request,
+        name: `${request.name} - ${this.$t("action.duplicate")}`,
+      })
     },
   },
 })

@@ -37,9 +37,9 @@ const dispatchers = defineDispatchers({
     { newIndex }: { newIndex: number }
   ) {
     if (newIndex >= environments.length || newIndex <= -2) {
-      console.log(
-        `Ignoring possibly invalid current environment index assignment (value: ${newIndex})`
-      )
+      // console.log(
+      //   `Ignoring possibly invalid current environment index assignment (value: ${newIndex})`
+      // )
       return {}
     }
 
@@ -87,14 +87,12 @@ const dispatchers = defineDispatchers({
         environments,
       }
     }
-    const index =
-      environments.filter((env) => env.name === newEnvironment.name).length + 1
     return {
       environments: [
         ...environments,
         {
           ...cloneDeep(newEnvironment),
-          name: `${newEnvironment.name} ${index}`,
+          name: `${newEnvironment.name} - Duplicate`,
         },
       ],
     }

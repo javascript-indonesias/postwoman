@@ -45,15 +45,15 @@
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.copy')"
-                :svg="`${copyQueryIcon}`"
-                @click.native="copyQuery"
-              />
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.prettify')"
                 :svg="`${prettifyQueryIcon}`"
                 @click.native="prettifyQuery"
+              />
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="$t('action.copy')"
+                :svg="`${copyQueryIcon}`"
+                @click.native="copyQuery"
               />
             </div>
           </div>
@@ -129,8 +129,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('action.clear_all')"
                 svg="trash-2"
-                :disabled="Boolean(bulkMode)"
-                @click.native="headers = []"
+                @click.native="bulkMode ? clearBulkEditor() : clearContent()"
               />
               <ButtonSecondary
                 v-tippy="{ theme: 'tooltip' }"
@@ -143,7 +142,7 @@
                 v-tippy="{ theme: 'tooltip' }"
                 :title="$t('add.new')"
                 svg="plus"
-                :disabled="Boolean(bulkMode)"
+                :disabled="bulkMode"
                 @click.native="addRequestHeader"
               />
             </div>
@@ -172,10 +171,10 @@
                   py-1
                   px-4
                   truncate
-                  focus:outline-none
                 "
+                class="!flex flex-1"
                 @input="
-                  updateGQLHeader(index, {
+                  updateRequestHeader(index, {
                     key: $event,
                     value: header.value,
                     active: header.active,
@@ -189,7 +188,7 @@
                 :value="header.value"
                 autofocus
                 @change="
-                  updateGQLHeader(index, {
+                  updateRequestHeader(index, {
                     key: header.key,
                     value: $event.target.value,
                     active: header.active,
@@ -215,7 +214,7 @@
                   "
                   color="green"
                   @click.native="
-                    updateGQLHeader(index, {
+                    updateRequestHeader(index, {
                       key: header.key,
                       value: header.value,
                       active: !header.active,
@@ -243,6 +242,19 @@
                 justify-center
               "
             >
+              <img
+                :src="`/images/states/${$colorMode.value}/add_category.svg`"
+                loading="lazy"
+                class="
+                  flex-col
+                  my-4
+                  object-contain object-center
+                  h-16
+                  w-16
+                  inline-flex
+                "
+                :alt="$t('empty.headers')"
+              />
               <span class="text-center pb-4">
                 {{ $t("empty.headers") }}
               </span>
@@ -250,6 +262,7 @@
                 :label="`${$t('add.new')}`"
                 filled
                 svg="plus"
+                class="mb-4"
                 @click.native="addRequestHeader"
               />
             </div>
@@ -260,7 +273,7 @@
 
     <CollectionsSaveRequest
       mode="graphql"
-      :show="Boolean(showSaveRequestModal)"
+      :show="showSaveRequestModal"
       @hide-modal="hideRequestModal"
     />
   </div>
@@ -297,8 +310,6 @@ import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { getCurrentStrategyID } from "~/helpers/network"
 import { makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
 import { useCodemirror } from "~/helpers/editor/codemirror"
-import "codemirror/mode/javascript/javascript"
-import "~/helpers/editor/modes/graphql"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
 import queryCompleter from "~/helpers/editor/completion/gqlQuery"
@@ -373,7 +384,7 @@ useCodemirror(queryEditor, gqlQueryString, {
 })
 
 const copyQueryIcon = ref("copy")
-const prettifyQueryIcon = ref("align-left")
+const prettifyQueryIcon = ref("wand")
 const copyVariablesIcon = ref("copy")
 
 const showSaveRequestModal = ref(false)
@@ -390,6 +401,29 @@ watch(
   },
   { deep: true }
 )
+
+const editBulkHeadersLine = (
+  index: number,
+  item?: {
+    key: string
+    value: string
+    active: boolean
+  }
+) => {
+  bulkHeaders.value = headers.value
+    .reduce((all, header, pIndex) => {
+      const current =
+        index === pIndex && item !== null
+          ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
+          : `${header.active ? "" : "//"}${header.key}: ${header.value}`
+      return [...all, current]
+    }, [])
+    .join("\n")
+}
+
+const clearBulkEditor = () => {
+  bulkHeaders.value = ""
+}
 
 onMounted(() => {
   if (!headers.value?.length) {
@@ -478,7 +512,7 @@ const prettifyQuery = () => {
     })
   }
   prettifyQueryIcon.value = "check"
-  setTimeout(() => (prettifyQueryIcon.value = "align-left"), 1000)
+  setTimeout(() => (prettifyQueryIcon.value = "wand"), 1000)
 }
 
 const saveRequest = () => {
@@ -492,14 +526,28 @@ const copyVariables = () => {
 }
 
 const addRequestHeader = () => {
-  addGQLHeader({
-    key: "",
-    value: "",
-    active: true,
-  })
+  const empty = { key: "", value: "", active: true }
+  const index = headers.value.length
+
+  addGQLHeader(empty)
+  editBulkHeadersLine(index, empty)
+}
+
+const updateRequestHeader = (
+  index: number,
+  item: { key: string; value: string; active: boolean }
+) => {
+  updateGQLHeader(index, item)
+  editBulkHeadersLine(index, item)
 }
 
 const removeRequestHeader = (index: number) => {
   removeGQLHeader(index)
+  editBulkHeadersLine(index, null)
+}
+
+const clearContent = () => {
+  headers.value = []
+  clearBulkEditor()
 }
 </script>

@@ -63,19 +63,19 @@
         </tippy>
       </span>
       <div class="flex">
-        <!-- <SmartToggle
+        <!-- <SmartCheckbox
           :on="!URLExcludes.auth"
           @change="setExclude('auth', !$event)"
         >
           {{ $t("authorization.include_in_url") }}
-        </SmartToggle> -->
-        <SmartToggle
+        </SmartCheckbox> -->
+        <SmartCheckbox
           :on="authActive"
           class="px-2"
           @change="authActive = !authActive"
         >
           {{ $t("state.enabled") }}
-        </SmartToggle>
+        </SmartCheckbox>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
           to="https://docs.hoppscotch.io/features/authorization"
@@ -95,6 +95,12 @@
       v-if="authType === 'none'"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
+      <img
+        :src="`/images/states/${$colorMode.value}/login.svg`"
+        loading="lazy"
+        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        :alt="$t('empty.authorization')"
+      />
       <span class="text-center pb-4">
         {{ $t("empty.authorization") }}
       </span>
@@ -105,6 +111,7 @@
         blank
         svg="external-link"
         reverse
+        class="mb-4"
       />
     </div>
     <div v-if="authType === 'basic'" class="border-b border-dividerLight flex">
@@ -247,7 +254,6 @@ export default defineComponent({
       { authType: "none", authActive: true },
       setRESTAuth
     )
-
     const authType = pluckRef(auth, "authType")
     const authName = computed(() => {
       if (authType.value === "basic") return "Basic Auth"
@@ -256,23 +262,17 @@ export default defineComponent({
       else return "None"
     })
     const authActive = pluckRef(auth, "authActive")
-
     const basicUsername = pluckRef(auth as Ref<HoppRESTAuthBasic>, "username")
     const basicPassword = pluckRef(auth as Ref<HoppRESTAuthBasic>, "password")
-
     const bearerToken = pluckRef(auth as Ref<HoppRESTAuthBearer>, "token")
-
     const oauth2Token = pluckRef(auth as Ref<HoppRESTAuthOAuth2>, "token")
-
     const URLExcludes = useSetting("URL_EXCLUDES")
-
     const clearContent = () => {
       auth.value = {
         authType: "none",
         authActive: true,
       }
     }
-
     return {
       auth,
       authType,

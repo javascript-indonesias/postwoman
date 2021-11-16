@@ -153,6 +153,12 @@
       v-if="bodyParams.length === 0"
       class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
+      <img
+        :src="`/images/states/${$colorMode.value}/upload_single_file.svg`"
+        loading="lazy"
+        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        :alt="$t('empty.body')"
+      />
       <span class="text-center pb-4">
         {{ $t("empty.body") }}
       </span>
@@ -160,6 +166,7 @@
         :label="`${$t('add.new')}`"
         filled
         svg="plus"
+        class="mb-4"
         @click.native="addBodyParam"
       />
     </div>

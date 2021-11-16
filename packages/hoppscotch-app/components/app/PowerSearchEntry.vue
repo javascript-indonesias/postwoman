@@ -1,41 +1,28 @@
 <template>
-  <div
+  <button
     class="
       cursor-pointer
-      flex
+      flex flex-1
       py-2
       px-6
       transition
       items-center
-      group
-      hover:bg-primaryLight
-      focus:outline-none
-      focus-visible:bg-primaryLight
       search-entry
+      focus:outline-none
     "
-    tabindex="0"
+    :class="{ active: active }"
+    tabindex="-1"
     @click="$emit('action', shortcut.action)"
     @keydown.enter="$emit('action', shortcut.action)"
   >
     <SmartIcon
-      class="
-        mr-4
-        opacity-50
-        transition
-        svg-icons
-        group-hover:text-secondaryDark group-hover:opacity-100
-        group-focus:opacity-100
-      "
+      class="mr-4 opacity-50 transition svg-icons"
+      :class="{ 'opacity-100 text-secondaryDark': active }"
       :name="shortcut.icon"
     />
     <span
-      class="
-        flex flex-1
-        mr-4
-        transition
-        group-hover:text-secondaryDark
-        group-focus:text-secondaryDark
-      "
+      class="flex flex-1 mr-4 font-medium transition"
+      :class="{ 'text-secondaryDark': active }"
     >
       {{ $t(shortcut.label) }}
     </span>
@@ -46,12 +33,13 @@
     >
       {{ key }}
     </span>
-  </div>
+  </button>
 </template>
 
 <script setup lang="ts">
 defineProps<{
   shortcut: Object
+  active: Boolean
 }>()
 </script>
 
@@ -72,9 +60,13 @@ defineProps<{
     content: "";
   }
 
-  &:hover::after,
-  &:focus::after {
-    @apply bg-accentLight;
+  &.active {
+    @apply outline-none;
+    @apply bg-primaryLight;
+
+    &::after {
+      @apply bg-accentLight;
+    }
   }
 }
 
