@@ -1,7 +1,7 @@
 <template>
-  <div class="flex items-center group">
+  <div class="group flex items-center">
     <span
-      class="cursor-pointer flex px-2 w-16 justify-center items-center truncate"
+      class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
       :class="entryStatus.className"
       data-testid="restore_history_entry"
       :title="`${duration}`"
@@ -10,15 +10,7 @@
       {{ entry.request.method }}
     </span>
     <span
-      class="
-        cursor-pointer
-        flex flex-1
-        min-w-0
-        py-2
-        pr-2
-        transition
-        group-hover:text-secondaryDark
-      "
+      class="group-hover:text-secondaryDark flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer"
       data-testid="restore_history_entry"
       :title="`${duration}`"
       @click="$emit('use-entry')"
@@ -32,7 +24,7 @@
       svg="trash"
       color="red"
       :title="$t('action.remove')"
-      class="hidden group-hover:inline-flex"
+      class="group-hover:inline-flex hidden"
       data-testid="delete_history_entry"
       @click.native="$emit('delete-entry')"
     />
@@ -49,13 +41,9 @@
 </template>
 
 <script lang="ts">
-import {
-  computed,
-  defineComponent,
-  PropType,
-  useContext,
-} from "@nuxtjs/composition-api"
+import { computed, defineComponent, PropType } from "@nuxtjs/composition-api"
 import findStatusGroup from "~/helpers/findStatusGroup"
+import { useI18n } from "~/helpers/utils/composables"
 import { RESTHistoryEntry } from "~/newstore/history"
 
 export default defineComponent({
@@ -64,10 +52,7 @@ export default defineComponent({
     showMore: Boolean,
   },
   setup(props) {
-    const {
-      app: { i18n },
-    } = useContext()
-    const $t = i18n.t.bind(i18n)
+    const t = useI18n()
 
     const duration = computed(() => {
       if (props.entry.responseMeta.duration) {
@@ -75,9 +60,9 @@ export default defineComponent({
         if (!responseDuration) return ""
 
         return responseDuration > 0
-          ? `${$t("request.duration")}: ${responseDuration}ms`
-          : $t("error.no_duration")
-      } else return $t("error.no_duration")
+          ? `${t("request.duration")}: ${responseDuration}ms`
+          : t("error.no_duration")
+      } else return t("error.no_duration")
     })
 
     const entryStatus = computed(() => {

@@ -2,51 +2,35 @@
   <AppSlideOver :show="show" @close="close()">
     <template #content>
       <div
-        class="
-          bg-primary
-          border-b border-dividerLight
-          flex
-          p-2
-          top-0
-          z-10
-          items-center
-          sticky
-          justify-between
-        "
+        class="bg-primary border-dividerLight sticky top-0 z-10 flex items-center justify-between p-2 border-b"
       >
-        <h3 class="ml-4 heading">{{ $t("app.shortcuts") }}</h3>
+        <h3 class="heading ml-4">{{ t("app.shortcuts") }}</h3>
         <div class="flex">
           <ButtonSecondary svg="x" class="rounded" @click.native="close()" />
         </div>
       </div>
-      <div class="bg-primary border-b border-dividerLight">
-        <div class="flex flex-col my-4 mx-6">
+      <div class="bg-primary border-dividerLight border-b">
+        <div class="flex flex-col mx-6 my-4">
           <input
             v-model="filterText"
             type="search"
             autocomplete="off"
-            class="
-              bg-primaryLight
-              border border-dividerLight
-              rounded
-              flex
-              w-full
-              py-2
-              px-4
-              focus-visible:border-divider
-            "
-            :placeholder="`${$t('action.search')}`"
+            class="bg-primaryLight border-dividerLight focus-visible:border-divider flex w-full px-4 py-2 border rounded"
+            :placeholder="`${t('action.search')}`"
           />
         </div>
       </div>
-      <div v-if="filterText">
+      <div
+        v-if="filterText"
+        class="divide-dividerLight hide-scrollbar flex flex-col flex-1 overflow-auto divide-y"
+      >
         <div
           v-for="(map, mapIndex) in searchResults"
           :key="`map-${mapIndex}`"
-          class="space-y-4 py-4 px-6"
+          class="px-6 py-4 space-y-4"
         >
-          <h1 class="font-semibold text-secondaryDark">
-            {{ $t(map.item.section) }}
+          <h1 class="text-secondaryDark font-semibold">
+            {{ t(map.item.section) }}
           </h1>
           <AppShortcutsEntry
             v-for="(shortcut, index) in map.item.shortcuts"
@@ -56,36 +40,25 @@
         </div>
         <div
           v-if="searchResults.length === 0"
-          class="
-            flex flex-col
-            text-secondaryLight
-            p-4
-            items-center
-            justify-center
-          "
+          class="text-secondaryLight flex flex-col items-center justify-center p-4"
         >
-          <i class="opacity-75 pb-2 material-icons">manage_search</i>
+          <i class="material-icons pb-2 opacity-75">manage_search</i>
           <span class="text-center">
-            {{ $t("state.nothing_found") }} "{{ filterText }}"
+            {{ t("state.nothing_found") }} "{{ filterText }}"
           </span>
         </div>
       </div>
       <div
         v-else
-        class="
-          divide-y divide-dividerLight
-          flex flex-col flex-1
-          overflow-auto
-          hide-scrollbar
-        "
+        class="divide-dividerLight hide-scrollbar flex flex-col flex-1 overflow-auto divide-y"
       >
         <div
           v-for="(map, mapIndex) in mappings"
           :key="`map-${mapIndex}`"
-          class="space-y-4 py-4 px-6"
+          class="px-6 py-4 space-y-4"
         >
-          <h1 class="font-semibold text-secondaryDark">
-            {{ $t(map.section) }}
+          <h1 class="text-secondaryDark font-semibold">
+            {{ t(map.section) }}
           </h1>
           <AppShortcutsEntry
             v-for="(shortcut, shortcutIndex) in map.shortcuts"
@@ -102,6 +75,9 @@
 import { computed, ref } from "@nuxtjs/composition-api"
 import Fuse from "fuse.js"
 import mappings from "~/helpers/shortcuts"
+import { useI18n } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 defineProps<{
   show: boolean

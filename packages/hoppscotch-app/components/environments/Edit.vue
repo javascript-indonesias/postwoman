@@ -6,7 +6,7 @@
   >
     <template #body>
       <div class="flex flex-col px-2">
-        <div class="flex relative">
+        <div class="relative flex">
           <input
             id="selectLabelEnvEdit"
             v-model="name"
@@ -22,7 +22,7 @@
             {{ $t("action.label") }}
           </label>
         </div>
-        <div class="flex flex-1 justify-between items-center">
+        <div class="flex items-center justify-between flex-1">
           <label for="variableList" class="p-4">
             {{ $t("environment.variable_list") }}
           </label>
@@ -43,21 +43,21 @@
             />
           </div>
         </div>
-        <div class="divide-y divide-dividerLight border-divider border rounded">
+        <div class="divide-dividerLight border-divider border divide-y rounded">
           <div
             v-for="(variable, index) in vars"
             :key="`variable-${index}`"
-            class="divide-x divide-dividerLight flex"
+            class="divide-dividerLight flex divide-x"
           >
             <input
               v-model="variable.key"
-              class="bg-transparent flex flex-1 py-2 px-4"
+              class="flex flex-1 px-4 py-2 bg-transparent"
               :placeholder="`${$t('count.variable', { count: index + 1 })}`"
               :name="'param' + index"
             />
             <input
               v-model="variable.value"
-              class="bg-transparent flex flex-1 py-2 px-4"
+              class="flex flex-1 px-4 py-2 bg-transparent"
               :placeholder="`${$t('count.value', { count: index + 1 })}`"
               :name="'value' + index"
             />
@@ -74,28 +74,15 @@
           </div>
           <div
             v-if="vars.length === 0"
-            class="
-              flex flex-col
-              text-secondaryLight
-              p-4
-              items-center
-              justify-center
-            "
+            class="text-secondaryLight flex flex-col items-center justify-center p-4"
           >
             <img
               :src="`/images/states/${$colorMode.value}/blockchain.svg`"
               loading="lazy"
-              class="
-                flex-col
-                my-4
-                object-contain object-center
-                h-16
-                w-16
-                inline-flex
-              "
+              class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
               :alt="$t('empty.environments')"
             />
-            <span class="text-center pb-4">
+            <span class="pb-4 text-center">
               {{ $t("empty.environments") }}
             </span>
             <ButtonSecondary
@@ -177,9 +164,7 @@ export default defineComponent({
     clearContent() {
       this.vars = []
       this.clearIcon = "check"
-      this.$toast.success(`${this.$t("state.cleared")}`, {
-        icon: "clear_all",
-      })
+      this.$toast.success(`${this.$t("state.cleared")}`)
       setTimeout(() => (this.clearIcon = "trash-2"), 1000)
     },
     addEnvironmentVariable() {
@@ -193,9 +178,7 @@ export default defineComponent({
     },
     saveEnvironment() {
       if (!this.name) {
-        this.$toast.error(`${this.$t("environment.invalid_name")}`, {
-          icon: "error_outline",
-        })
+        this.$toast.error(`${this.$t("environment.invalid_name")}`)
         return
       }
 

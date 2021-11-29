@@ -1,20 +1,10 @@
 <template>
   <div>
     <div
-      class="
-        bg-primary
-        border-b border-dividerLight
-        flex flex-1
-        top-upperSecondaryStickyFold
-        pl-4
-        z-10
-        sticky
-        items-center
-        justify-between
-      "
+      class="bg-primary border-dividerLight top-upperSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
     >
       <span class="flex items-center">
-        <label class="font-semibold text-secondaryLight">
+        <label class="text-secondaryLight font-semibold">
           {{ $t("authorization.type") }}
         </label>
         <tippy
@@ -27,7 +17,7 @@
           <template #trigger>
             <span class="select-wrapper">
               <ButtonSecondary
-                class="rounded-none ml-2 pr-8"
+                class="pr-8 ml-2 rounded-none"
                 :label="authName"
               />
             </span>
@@ -93,37 +83,37 @@
     </div>
     <div
       v-if="authType === 'none'"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="text-secondaryLight flex flex-col items-center justify-center p-4"
     >
       <img
         :src="`/images/states/${$colorMode.value}/login.svg`"
         loading="lazy"
-        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="$t('empty.authorization')"
       />
-      <span class="text-center pb-4">
+      <span class="pb-4 text-center">
         {{ $t("empty.authorization") }}
       </span>
       <ButtonSecondary
         outline
         :label="$t('app.documentation')"
-        to="https://docs.hoppscotch.io"
+        to="https://docs.hoppscotch.io/features/authorization"
         blank
         svg="external-link"
         reverse
         class="mb-4"
       />
     </div>
-    <div v-if="authType === 'basic'" class="border-b border-dividerLight flex">
-      <div class="border-r border-dividerLight w-2/3">
-        <div class="border-b border-dividerLight flex">
+    <div v-if="authType === 'basic'" class="border-dividerLight flex border-b">
+      <div class="border-dividerLight w-2/3 border-r">
+        <div class="border-dividerLight flex border-b">
           <SmartEnvInput
             v-model="basicUsername"
             :placeholder="$t('authorization.username')"
             styles="bg-transparent flex flex-1 py-1 px-4"
           />
         </div>
-        <div class="border-b border-dividerLight flex">
+        <div class="border-dividerLight flex border-b">
           <SmartEnvInput
             v-model="basicPassword"
             :placeholder="$t('authorization.password')"
@@ -132,17 +122,7 @@
         </div>
       </div>
       <div
-        class="
-          bg-primary
-          h-full
-          top-upperTertiaryStickyFold
-          min-w-46
-          max-w-1/3
-          p-4
-          z-9
-          sticky
-          overflow-auto
-        "
+        class="bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9 sticky h-full p-4 overflow-auto"
       >
         <div class="p-2">
           <div class="text-secondaryLight pb-2">
@@ -151,15 +131,15 @@
           <SmartAnchor
             class="link"
             :label="`${$t('authorization.learn')} \xA0 →`"
-            to="https://docs.hoppscotch.io/"
+            to="https://docs.hoppscotch.io/features/authorization"
             blank
           />
         </div>
       </div>
     </div>
-    <div v-if="authType === 'bearer'" class="border-b border-dividerLight flex">
-      <div class="border-r border-dividerLight w-2/3">
-        <div class="border-b border-dividerLight flex">
+    <div v-if="authType === 'bearer'" class="border-dividerLight flex border-b">
+      <div class="border-dividerLight w-2/3 border-r">
+        <div class="border-dividerLight flex border-b">
           <SmartEnvInput
             v-model="bearerToken"
             placeholder="Token"
@@ -168,17 +148,7 @@
         </div>
       </div>
       <div
-        class="
-          bg-primary
-          h-full
-          top-upperTertiaryStickyFold
-          min-w-46
-          max-w-1/3
-          p-4
-          z-9
-          sticky
-          overflow-auto
-        "
+        class="bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9 sticky h-full p-4 overflow-auto"
       >
         <div class="p-2">
           <div class="text-secondaryLight pb-2">
@@ -187,7 +157,7 @@
           <SmartAnchor
             class="link"
             :label="`${$t('authorization.learn')} \xA0 →`"
-            to="https://docs.hoppscotch.io/"
+            to="https://docs.hoppscotch.io/features/authorization"
             blank
           />
         </div>
@@ -195,10 +165,10 @@
     </div>
     <div
       v-if="authType === 'oauth-2'"
-      class="border-b border-dividerLight flex"
+      class="border-dividerLight flex border-b"
     >
-      <div class="border-r border-dividerLight w-2/3">
-        <div class="border-b border-dividerLight flex">
+      <div class="border-dividerLight w-2/3 border-r">
+        <div class="border-dividerLight flex border-b">
           <SmartEnvInput
             v-model="oauth2Token"
             placeholder="Token"
@@ -208,17 +178,7 @@
         <HttpOAuth2Authorization />
       </div>
       <div
-        class="
-          bg-primary
-          h-full
-          top-upperTertiaryStickyFold
-          min-w-46
-          max-w-1/3
-          p-4
-          z-9
-          sticky
-          overflow-auto
-        "
+        class="bg-primary top-upperTertiaryStickyFold min-w-46 max-w-1/3 z-9 sticky h-full p-4 overflow-auto"
       >
         <div class="p-2">
           <div class="text-secondaryLight pb-2">
@@ -227,7 +187,7 @@
           <SmartAnchor
             class="link"
             :label="`${$t('authorization.learn')} \xA0 →`"
-            to="https://docs.hoppscotch.io/"
+            to="https://docs.hoppscotch.io/features/authorization"
             blank
           />
         </div>

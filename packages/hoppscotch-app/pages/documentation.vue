@@ -9,36 +9,23 @@
   >
     <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 45 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="import">
-            <div class="flex p-4 items-start justify-between">
+            <div class="flex items-start justify-between p-4">
               <label>
                 {{ $t("documentation.generate_message") }}
               </label>
               <span
-                class="
-                  bg-accentDark
-                  rounded
-                  text-accentContrast
-                  py-1
-                  px-2
-                  inline-flex
-                "
+                class="bg-accentDark text-accentContrast inline-flex px-2 py-1 rounded"
               >
                 BETA
               </span>
             </div>
             <div
-              class="
-                bg-primary
-                border-b border-dividerLight
-                flex
-                top-0
-                z-10
-                items-start
-                justify-between
-                sticky
-              "
+              class="bg-primary border-dividerLight sticky top-0 z-10 flex items-start justify-between border-b"
             >
               <label for="collectionUpload">
                 <ButtonSecondary
@@ -67,22 +54,12 @@
             <textarea-autosize
               id="import-curl"
               v-model="collectionJSON"
-              class="font-mono p-4 bg-primary"
+              class="bg-primary p-4 font-mono"
               autofocus
               rows="8"
             />
             <div
-              class="
-                bg-primary
-                border-t border-b border-dividerLight
-                flex
-                p-4
-                bottom-0
-                z-10
-                justify-between
-                items-start
-                sticky
-              "
+              class="bg-primary border-dividerLight sticky bottom-0 z-10 flex items-start justify-between p-4 border-t border-b"
             >
               <ButtonPrimary
                 :label="$t('documentation.generate')"
@@ -91,35 +68,24 @@
             </div>
           </AppSection>
         </Pane>
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 65 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="documentation">
             <div class="flex flex-col">
               <div
                 v-if="items.length === 0"
-                class="
-                  flex flex-col
-                  text-secondaryLight
-                  p-4
-                  items-center
-                  justify-center
-                "
+                class="text-secondaryLight flex flex-col items-center justify-center p-4"
               >
-                <i class="opacity-75 pb-2 material-icons">topic</i>
+                <i class="material-icons pb-2 opacity-75">topic</i>
                 <span class="text-center">
                   {{ $t("helpers.generate_documentation_first") }}
                 </span>
               </div>
               <div
                 v-else
-                class="
-                  bg-primary
-                  border-b border-dividerLight
-                  flex flex-1
-                  p-4
-                  top-0
-                  z-10
-                  sticky
-                "
+                class="bg-primary border-dividerLight sticky top-0 z-10 flex flex-1 p-4 border-b"
               >
                 <span
                   v-tippy="{ theme: 'tooltip' }"
@@ -230,15 +196,11 @@ export default defineComponent({
           }
         )
         .then((res) => {
-          this.$toast.success(this.$t("export.gist_created"), {
-            icon: "done",
-          })
+          this.$toast.success(this.$t("export.gist_created"))
           window.open(res.html_url)
         })
         .catch((e) => {
-          this.$toast.error(this.$t("error.something_went_wrong"), {
-            icon: "error_outline",
-          })
+          this.$toast.error(this.$t("error.something_went_wrong"))
           console.error(e)
         })
     },
@@ -251,13 +213,9 @@ export default defineComponent({
           this.collectionJSON = target.result
         }
         reader.readAsText(file)
-        this.$toast.success(this.$t("state.file_imported"), {
-          icon: "attach_file",
-        })
+        this.$toast.success(this.$t("state.file_imported"))
       } else {
-        this.$toast.error(this.$t("action.choose_file"), {
-          icon: "attach_file",
-        })
+        this.$toast.error(this.$t("action.choose_file"))
       }
       this.$refs.collectionUpload.value = ""
     },
@@ -288,9 +246,7 @@ export default defineComponent({
         this.items = JSON.parse(this.collectionJSON)
         this.assignIDs(this.items, "", "#")
         this.$toast.clear()
-        this.$toast.success(this.$t("state.docs_generated"), {
-          icon: "book",
-        })
+        this.$toast.success(this.$t("state.docs_generated"))
         const docsMarkdown = Mustache.render(
           DocsTemplate,
           {
@@ -325,9 +281,7 @@ export default defineComponent({
         this.docsMarkdown = docsMarkdown.replace(/^\s*[\r\n]/gm, "\n\n")
       } catch (e) {
         console.error(e)
-        this.$toast.error(this.$t("error.something_went_wrong"), {
-          icon: "error_outline",
-        })
+        this.$toast.error(this.$t("error.something_went_wrong"))
       }
     },
 

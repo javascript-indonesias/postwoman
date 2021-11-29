@@ -1,26 +1,18 @@
 <template>
-  <SmartModal v-if="show" :title="$t('team.invite')" @close="hideModal">
+  <SmartModal v-if="show" :title="t('team.invite')" @close="hideModal">
     <template #body>
       <div v-if="sendInvitesResult.length" class="flex flex-col px-4">
-        <div class="flex flex-col max-w-md justify-center items-center">
-          <SmartIcon class="h-6 text-accent w-6" name="users" />
-          <h3 class="my-2 text-center text-lg">
-            {{ $t("team.we_sent_invite_link") }}
+        <div class="flex flex-col items-center justify-center max-w-md">
+          <SmartIcon class="text-accent w-6 h-6" name="users" />
+          <h3 class="my-2 text-lg text-center">
+            {{ t("team.we_sent_invite_link") }}
           </h3>
           <p class="text-center">
-            {{ $t("team.we_sent_invite_link_description") }}
+            {{ t("team.we_sent_invite_link_description") }}
           </p>
         </div>
         <div
-          class="
-            flex
-            border border-dividerLight
-            mt-8
-            rounded
-            flex-col
-            space-y-6
-            p-4
-          "
+          class="border-dividerLight flex flex-col p-4 mt-8 space-y-6 border rounded"
         >
           <div
             v-for="(invitee, index) in sendInvitesResult"
@@ -41,7 +33,7 @@
               </i>
               <span class="truncate">{{ invitee.email }}</span>
             </p>
-            <p v-if="invitee.status === 'error'" class="ml-8 text-red-500 mt-2">
+            <p v-if="invitee.status === 'error'" class="mt-2 ml-8 text-red-500">
               {{ getErrorMessage(invitee.error) }}
             </p>
           </div>
@@ -49,20 +41,20 @@
       </div>
       <div
         v-else-if="sendingInvites"
-        class="flex p-4 items-center justify-center"
+        class="flex items-center justify-center p-4"
       >
         <SmartSpinner />
       </div>
       <div v-else class="flex flex-col px-2">
-        <div class="flex flex-1 justify-between items-center">
-          <label for="memberList" class="pb-4 px-4">
-            {{ $t("team.pending_invites") }}
+        <div class="flex items-center justify-between flex-1">
+          <label for="memberList" class="px-4 pb-4">
+            {{ t("team.pending_invites") }}
           </label>
         </div>
-        <div class="divide-y divide-dividerLight border-divider border rounded">
+        <div class="divide-dividerLight border-divider border divide-y rounded">
           <div
             v-if="pendingInvites.loading"
-            class="flex p-4 items-center justify-center"
+            class="flex items-center justify-center p-4"
           >
             <SmartSpinner />
           </div>
@@ -74,31 +66,19 @@
                 v-for="(invitee, index) in pendingInvites.data.right.team
                   .teamInvitations"
                 :key="`invitee-${index}`"
-                class="divide-x divide-dividerLight flex"
+                class="divide-dividerLight flex divide-x"
               >
                 <input
                   v-if="invitee"
-                  class="
-                    bg-transparent
-                    flex flex-1
-                    text-secondaryLight
-                    py-2
-                    px-4
-                  "
-                  :placeholder="`${$t('team.email')}`"
+                  class="text-secondaryLight flex flex-1 px-4 py-2 bg-transparent"
+                  :placeholder="`${t('team.email')}`"
                   :name="'param' + index"
                   :value="invitee.inviteeEmail"
                   readonly
                 />
                 <input
-                  class="
-                    bg-transparent
-                    flex flex-1
-                    text-secondaryLight
-                    py-2
-                    px-4
-                  "
-                  :placeholder="`${$t('team.permissions')}`"
+                  class="text-secondaryLight flex flex-1 px-4 py-2 bg-transparent"
+                  :placeholder="`${t('team.permissions')}`"
                   :name="'value' + index"
                   :value="
                     typeof invitee.inviteeRole === 'string'
@@ -110,7 +90,7 @@
                 <div class="flex">
                   <ButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
-                    :title="$t('action.remove')"
+                    :title="t('action.remove')"
                     svg="trash"
                     color="red"
                     @click.native="removeInvitee(invitee.id)"
@@ -123,50 +103,44 @@
                 E.isRight(pendingInvites.data) &&
                 pendingInvites.data.right.team.teamInvitations.length === 0
               "
-              class="
-                flex flex-col
-                text-secondaryLight
-                p-4
-                items-center
-                justify-center
-              "
+              class="text-secondaryLight flex flex-col items-center justify-center p-4"
             >
               <span class="text-center">
-                {{ $t("empty.pending_invites") }}
+                {{ t("empty.pending_invites") }}
               </span>
             </div>
             <div
               v-if="!pendingInvites.loading && E.isLeft(pendingInvites.data)"
-              class="flex flex-col p-4 items-center"
+              class="flex flex-col items-center p-4"
             >
-              <i class="mb-4 material-icons">help_outline</i>
-              {{ $t("error.something_went_wrong") }}
+              <i class="material-icons mb-4">help_outline</i>
+              {{ t("error.something_went_wrong") }}
             </div>
           </div>
         </div>
-        <div class="flex pt-4 flex-1 justify-between items-center">
+        <div class="flex items-center justify-between flex-1 pt-4">
           <label for="memberList" class="p-4">
-            {{ $t("team.invite_tooltip") }}
+            {{ t("team.invite_tooltip") }}
           </label>
           <div class="flex">
             <ButtonSecondary
               svg="plus"
-              :label="$t('add.new')"
+              :label="t('add.new')"
               filled
               @click.native="addNewInvitee"
             />
           </div>
         </div>
-        <div class="divide-y divide-dividerLight border-divider border rounded">
+        <div class="divide-dividerLight border-divider border divide-y rounded">
           <div
             v-for="(invitee, index) in newInvites"
             :key="`new-invitee-${index}`"
-            class="divide-x divide-dividerLight flex"
+            class="divide-dividerLight flex divide-x"
           >
             <input
               v-model="invitee.key"
-              class="bg-transparent flex flex-1 py-2 px-4"
-              :placeholder="$t('team.email')"
+              class="flex flex-1 px-4 py-2 bg-transparent"
+              :placeholder="`${t('team.email')}`"
               :name="'invitee' + index"
               autofocus
             />
@@ -181,14 +155,8 @@
                 <template #trigger>
                   <span class="select-wrapper">
                     <input
-                      class="
-                        bg-transparent
-                        cursor-pointer
-                        flex flex-1
-                        py-2
-                        px-4
-                      "
-                      :placeholder="$t('team.permissions')"
+                      class="flex flex-1 px-4 py-2 bg-transparent cursor-pointer"
+                      :placeholder="`${t('team.permissions')}`"
                       :name="'value' + index"
                       :value="
                         typeof invitee.value === 'string'
@@ -232,7 +200,7 @@
               <ButtonSecondary
                 id="member"
                 v-tippy="{ theme: 'tooltip' }"
-                :title="$t('action.remove')"
+                :title="t('action.remove')"
                 svg="trash"
                 color="red"
                 @click.native="removeNewInvitee(index)"
@@ -241,32 +209,19 @@
           </div>
           <div
             v-if="newInvites.length === 0"
-            class="
-              flex flex-col
-              text-secondaryLight
-              p-4
-              items-center
-              justify-center
-            "
+            class="text-secondaryLight flex flex-col items-center justify-center p-4"
           >
             <img
               :src="`/images/states/${$colorMode.value}/add_group.svg`"
               loading="lazy"
-              class="
-                flex-col
-                mb-4
-                object-contain object-center
-                h-16
-                w-16
-                inline-flex
-              "
-              :alt="$t('empty.invites')"
+              class="inline-flex flex-col object-contain object-center w-16 h-16 mb-4"
+              :alt="`${t('empty.invites')}`"
             />
-            <span class="text-center pb-4">
-              {{ $t("empty.invites") }}
+            <span class="pb-4 text-center">
+              {{ t("empty.invites") }}
             </span>
             <ButtonSecondary
-              :label="$t('add.new')"
+              :label="t('add.new')"
               filled
               @click.native="addNewInvitee"
             />
@@ -274,88 +229,48 @@
         </div>
         <div
           v-if="newInvites.length"
-          class="
-            px-4
-            mt-4
-            py-4
-            rounded
-            border border-dividerLight
-            flex flex-col
-            items-start
-          "
+          class="border-dividerLight flex flex-col items-start px-4 py-4 mt-4 border rounded"
         >
           <span
-            class="
-              mb-4
-              px-2
-              py-1
-              flex
-              justify-center
-              items-center
-              font-semibold
-              rounded-full
-              bg-primaryDark
-              border border-divider
-            "
+            class="bg-primaryDark border-divider flex items-center justify-center px-2 py-1 mb-4 font-semibold border rounded-full"
           >
-            <i class="text-secondaryLight mr-2 material-icons">help_outline</i>
-            {{ $t("profile.roles") }}
+            <i class="text-secondaryLight material-icons mr-2">help_outline</i>
+            {{ t("profile.roles") }}
           </span>
           <p>
             <span class="text-secondaryLight">
-              {{ $t("profile.roles_description") }}
+              {{ t("profile.roles_description") }}
             </span>
           </p>
           <ul class="mt-4 space-y-4">
             <li class="flex">
               <span
-                class="
-                  font-semibold
-                  text-secondaryDark
-                  uppercase
-                  truncate
-                  max-w-16
-                  w-1/4
-                "
+                class="text-secondaryDark max-w-16 w-1/4 font-semibold uppercase truncate"
               >
-                {{ $t("profile.owner") }}
+                {{ t("profile.owner") }}
               </span>
               <span class="flex flex-1">
-                {{ $t("profile.owner_description") }}
+                {{ t("profile.owner_description") }}
               </span>
             </li>
             <li class="flex">
               <span
-                class="
-                  font-semibold
-                  text-secondaryDark
-                  uppercase
-                  truncate
-                  max-w-16
-                  w-1/4
-                "
+                class="text-secondaryDark max-w-16 w-1/4 font-semibold uppercase truncate"
               >
-                {{ $t("profile.editor") }}
+                {{ t("profile.editor") }}
               </span>
               <span class="flex flex-1">
-                {{ $t("profile.editor_description") }}
+                {{ t("profile.editor_description") }}
               </span>
             </li>
             <li class="flex">
               <span
-                class="
-                  font-semibold
-                  text-secondaryDark
-                  uppercase
-                  truncate
-                  max-w-16
-                  w-1/4
-                "
+                class="text-secondaryDark max-w-16 w-1/4 font-semibold uppercase truncate"
               >
-                {{ $t("profile.viewer") }}
+                {{ t("profile.viewer") }}
               </span>
               <span class="flex flex-1">
-                {{ $t("profile.viewer_description") }}
+                {{ t("profile.viewer_description") }}
               </span>
             </li>
           </ul>
@@ -365,11 +280,11 @@
     <template #footer>
       <p
         v-if="sendInvitesResult.length"
-        class="flex flex-1 text-secondaryLight justify-between"
+        class="text-secondaryLight flex justify-between flex-1"
       >
         <SmartAnchor
           class="link"
-          :label="`← \xA0 ${$t('team.invite_more')}`"
+          :label="`← \xA0 ${t('team.invite_more')}`"
           @click.native="
             () => {
               sendInvitesResult = []
@@ -384,14 +299,14 @@
         />
         <SmartAnchor
           class="link"
-          :label="`${$t('action.dismiss')}`"
+          :label="`${t('action.dismiss')}`"
           @click.native="hideModal"
         />
       </p>
       <span v-else>
-        <ButtonPrimary :label="$t('team.invite')" @click.native="sendInvites" />
+        <ButtonPrimary :label="t('team.invite')" @click.native="sendInvites" />
         <ButtonSecondary
-          :label="$t('action.cancel')"
+          :label="t('action.cancel')"
           @click.native="hideModal"
         />
       </span>
@@ -400,13 +315,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  watch,
-  ref,
-  reactive,
-  useContext,
-  computed,
-} from "@nuxtjs/composition-api"
+import { watch, ref, reactive, computed } from "@nuxtjs/composition-api"
 import * as T from "fp-ts/Task"
 import * as E from "fp-ts/Either"
 import * as A from "fp-ts/Array"
@@ -427,12 +336,11 @@ import {
   revokeTeamInvitation,
 } from "../../helpers/backend/mutations/TeamInvitation"
 import { GQLError, useGQLQuery } from "~/helpers/backend/GQLClient"
+import { useI18n, useToast } from "~/helpers/utils/composables"
 
-const {
-  $toast,
-  app: { i18n },
-} = useContext()
-const t = i18n.t.bind(i18n)
+const t = useI18n()
+
+const toast = useToast()
 
 const newInviteeOptions = ref<any | null>(null)
 
@@ -491,13 +399,9 @@ watch(
 const removeInvitee = async (id: string) => {
   const result = await revokeTeamInvitation(id)()
   if (E.isLeft(result)) {
-    $toast.error(`${t("error.something_went_wrong")}`, {
-      icon: "error_outline",
-    })
+    toast.error(`${t("error.something_went_wrong")}`)
   } else {
-    $toast.success(`${t("team.member_removed")}`, {
-      icon: "person",
-    })
+    toast.success(`${t("team.member_removed")}`)
   }
 }
 
@@ -557,9 +461,7 @@ const sendInvites = async () => {
 
   if (O.isNone(validationResult)) {
     // Error handling for no validation
-    $toast.error(`${t("error.incorrect_email")}`, {
-      icon: "error_outline",
-    })
+    toast.error(`${t("error.incorrect_email")}`)
     return
   }
 

@@ -1,21 +1,13 @@
 <template>
-  <div class="flex items-center group">
+  <div class="group flex items-center">
     <span
-      class="cursor-pointer flex px-4 justify-center items-center"
+      class="flex items-center justify-center px-4 cursor-pointer"
       @click="$emit('edit-environment')"
     >
       <SmartIcon class="svg-icons" name="layers" />
     </span>
     <span
-      class="
-        cursor-pointer
-        flex flex-1
-        min-w-0
-        py-2
-        pr-2
-        transition
-        group-hover:text-secondaryDark
-      "
+      class="group-hover:text-secondaryDark flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer"
       @click="$emit('edit-environment')"
     >
       <span class="truncate">
@@ -102,9 +94,7 @@ export default defineComponent({
     removeEnvironment() {
       if (this.environmentIndex !== "Global")
         deleteEnvironment(this.environmentIndex)
-      this.$toast.success(`${this.$t("state.deleted")}`, {
-        icon: "delete",
-      })
+      this.$toast.success(`${this.$t("state.deleted")}`)
     },
     duplicateEnvironment() {
       if (this.environmentIndex === "Global") {

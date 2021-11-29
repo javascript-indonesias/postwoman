@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-screen w-screen">
+  <div class="flex w-screen h-screen">
     <Splitpanes class="no-splitter" :dbl-click-splitter="false" horizontal>
       <Pane v-if="!ZEN_MODE" style="height: auto">
         <AppHeader />
@@ -24,7 +24,7 @@
             >
               <Pane class="flex flex-1 hide-scrollbar !overflow-auto">
                 <main class="flex flex-1 w-full">
-                  <nuxt class="flex flex-1" style="overflow-y: overlay" />
+                  <nuxt class="flex flex-1" />
                 </main>
               </Pane>
             </Splitpanes>
@@ -171,7 +171,6 @@ export default defineComponent({
       workbox.addEventListener("installed", (event: any) => {
         if (event.isUpdate) {
           this.$toast.show(`${this.$t("app.new_version_found")}`, {
-            icon: "download_for_offline",
             duration: 0,
             action: [
               {

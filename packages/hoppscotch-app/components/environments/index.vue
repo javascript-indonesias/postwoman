@@ -1,27 +1,22 @@
 <template>
   <AppSection :label="`${$t('environment.title')}`">
-    <div class="bg-primary rounded-t flex flex-col top-0 z-10 sticky">
+    <div class="bg-primary sticky top-0 z-10 flex flex-col rounded-t">
       <tippy ref="options" interactive trigger="click" theme="popover" arrow>
         <template #trigger>
           <span
             v-tippy="{ theme: 'tooltip' }"
             :title="`${$t('environment.select')}`"
-            class="
-              bg-transparent
-              border-b border-dividerLight
-              flex-1
-              select-wrapper
-            "
+            class="border-dividerLight select-wrapper flex-1 bg-transparent border-b"
           >
             <ButtonSecondary
               v-if="selectedEnvironmentIndex !== -1"
               :label="environments[selectedEnvironmentIndex].name"
-              class="rounded-none flex-1 pr-8"
+              class="flex-1 pr-8 rounded-none"
             />
             <ButtonSecondary
               v-else
               :label="`${$t('environment.no_environment')}`"
-              class="rounded-none flex-1 pr-8"
+              class="flex-1 pr-8 rounded-none"
             />
           </span>
         </template>
@@ -50,7 +45,7 @@
           "
         />
       </tippy>
-      <div class="border-b border-dividerLight flex flex-1 justify-between">
+      <div class="border-dividerLight flex justify-between flex-1 border-b">
         <ButtonSecondary
           svg="plus"
           :label="`${$t('action.new')}`"
@@ -91,7 +86,7 @@
       <EnvironmentsEnvironment
         environment-index="Global"
         :environment="globalEnvironment"
-        class="border-b border-dashed border-dividerLight"
+        class="border-dividerLight border-b border-dashed"
         @edit-environment="editEnvironment('Global')"
       />
       <EnvironmentsEnvironment
@@ -104,15 +99,15 @@
     </div>
     <div
       v-if="environments.length === 0"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="text-secondaryLight flex flex-col items-center justify-center p-4"
     >
       <img
         :src="`/images/states/${$colorMode.value}/blockchain.svg`"
         loading="lazy"
-        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
+        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="$t('empty.environments')"
       />
-      <span class="text-center pb-4">
+      <span class="pb-4 text-center">
         {{ $t("empty.environments") }}
       </span>
       <ButtonSecondary

@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
-      class="flex items-center group"
+      class="group flex items-center"
       draggable="true"
       @dragstart="dragStart"
       @dragover.stop
@@ -9,15 +9,7 @@
       @dragend="dragging = false"
     >
       <span
-        class="
-          cursor-pointer
-          flex
-          px-2
-          w-16
-          justify-center
-          items-center
-          truncate
-        "
+        class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
         :class="getRequestLabelColor(request.method)"
         @click="!doc ? selectRequest() : {}"
       >
@@ -32,16 +24,7 @@
         </span>
       </span>
       <span
-        class="
-          cursor-pointer
-          flex flex-1
-          min-w-0
-          py-2
-          pr-2
-          transition
-          items-center
-          group-hover:text-secondaryDark
-        "
+        class="group-hover:text-secondaryDark flex items-center flex-1 min-w-0 py-2 pr-2 transition cursor-pointer"
         @click="!doc ? selectRequest() : {}"
       >
         <span class="truncate"> {{ request.name }} </span>
@@ -61,7 +44,7 @@
           v-tippy="{ theme: 'tooltip' }"
           svg="rotate-ccw"
           :title="$t('action.restore')"
-          class="hidden group-hover:inline-flex"
+          class="group-hover:inline-flex hidden"
           @click.native="!doc ? selectRequest() : {}"
         />
         <span>

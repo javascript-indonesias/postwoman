@@ -1,5 +1,5 @@
 <template>
-  <AppSection :label="`${$t('test.results')}`">
+  <AppSection :label="`${t('test.results')}`">
     <div
       v-if="
         testResults &&
@@ -7,24 +7,14 @@
       "
     >
       <div
-        class="
-          bg-primary
-          border-dividerLight border-b
-          flex flex-1
-          top-lowerSecondaryStickyFold
-          pl-4
-          z-10
-          sticky
-          items-center
-          justify-between
-        "
+        class="bg-primary border-dividerLight top-lowerSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
       >
-        <label class="font-semibold text-secondaryLight">
-          {{ $t("test.report") }}
+        <label class="text-secondaryLight font-semibold">
+          {{ t("test.report") }}
         </label>
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
-          :title="$t('action.clear')"
+          :title="t('action.clear')"
           svg="trash-2"
           @click.native="clearContent()"
         />
@@ -48,10 +38,10 @@
           <div
             v-for="(result, index) in testResults.expectResults"
             :key="`result-${index}`"
-            class="flex py-2 px-4 items-center"
+            class="flex items-center px-4 py-2"
           >
             <i
-              class="mr-4 material-icons"
+              class="material-icons mr-4"
               :class="
                 result.status === 'pass' ? 'text-green-500' : 'text-red-500'
               "
@@ -64,9 +54,7 @@
             <span class="text-secondaryLight">
               {{
                 ` \xA0 — \xA0 ${
-                  result.status === "pass"
-                    ? $t("test.passed")
-                    : $t("test.failed")
+                  result.status === "pass" ? t("test.passed") : t("test.failed")
                 }`
               }}
             </span>
@@ -76,24 +64,24 @@
     </div>
     <div
       v-else
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="text-secondaryLight flex flex-col items-center justify-center p-4"
     >
       <img
         :src="`/images/states/${$colorMode.value}/validation.svg`"
         loading="lazy"
-        class="flex-col my-4 object-contain object-center h-16 w-16 inline-flex"
-        :alt="$t('empty.tests')"
+        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+        :alt="`${t('empty.tests')}`"
       />
-      <span class="text-center pb-2">
-        {{ $t("empty.tests") }}
+      <span class="pb-2 text-center">
+        {{ t("empty.tests") }}
       </span>
-      <span class="text-center pb-4">
-        {{ $t("helpers.tests") }}
+      <span class="pb-4 text-center">
+        {{ t("helpers.tests") }}
       </span>
       <ButtonSecondary
         outline
-        :label="`${$t('action.learn_more')}`"
-        to="https://docs.hoppscotch.io"
+        :label="`${t('action.learn_more')}`"
+        to="https://docs.hoppscotch.io/features/tests"
         blank
         svg="external-link"
         reverse
@@ -104,8 +92,10 @@
 </template>
 
 <script setup lang="ts">
-import { useReadonlyStream } from "~/helpers/utils/composables"
+import { useReadonlyStream, useI18n } from "~/helpers/utils/composables"
 import { restTestResults$, setRESTTestResults } from "~/newstore/RESTSession"
+
+const t = useI18n()
 
 const testResults = useReadonlyStream(restTestResults$, null)
 

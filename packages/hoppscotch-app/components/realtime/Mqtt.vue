@@ -9,30 +9,22 @@
   >
     <Pane size="75" min-size="65" class="hide-scrollbar !overflow-auto">
       <Splitpanes class="smart-splitter" :horizontal="COLUMN_LAYOUT">
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 45 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="request">
             <div
-              class="bg-primary flex flex-col space-y-4 p-4 top-0 z-10 sticky"
+              class="bg-primary sticky top-0 z-10 flex flex-col p-4 space-y-4"
             >
-              <div class="space-x-2 flex-1 inline-flex">
+              <div class="inline-flex flex-1 space-x-2">
                 <input
                   id="mqtt-url"
                   v-model="url"
                   type="url"
                   autocomplete="off"
                   spellcheck="false"
-                  class="
-                    bg-primaryLight
-                    border border-divider
-                    rounded
-                    text-secondaryDark
-                    w-full
-                    py-2
-                    px-4
-                    hover:border-dividerDark
-                    focus-visible:bg-transparent
-                    focus-visible:border-dividerDark
-                  "
+                  class="bg-primaryLight border-divider text-secondaryDark hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark w-full px-4 py-2 border rounded"
                   :placeholder="$t('mqtt.url')"
                   :disabled="connectionState"
                   @keyup.enter="validUrl ? toggleConnection() : null"
@@ -71,7 +63,10 @@
             </div>
           </AppSection>
         </Pane>
-        <Pane class="hide-scrollbar !overflow-auto">
+        <Pane
+          :size="COLUMN_LAYOUT ? 65 : 50"
+          class="hide-scrollbar !overflow-auto"
+        >
           <AppSection label="response">
             <RealtimeLog :title="$t('mqtt.log')" :log="log" />
           </AppSection>
@@ -85,8 +80,8 @@
       class="hide-scrollbar !overflow-auto"
     >
       <AppSection label="messages">
-        <div class="flex flex-col flex-1 p-4 inline-flex">
-          <label for="pub_topic" class="font-semibold text-secondaryLight">
+        <div class="flex inline-flex flex-col flex-1 p-4">
+          <label for="pub_topic" class="text-secondaryLight font-semibold">
             {{ $t("mqtt.topic") }}
           </label>
         </div>
@@ -101,12 +96,12 @@
             spellcheck="false"
           />
         </div>
-        <div class="flex flex-1 p-4 items-center justify-between">
-          <label for="mqtt-message" class="font-semibold text-secondaryLight">
+        <div class="flex items-center justify-between flex-1 p-4">
+          <label for="mqtt-message" class="text-secondaryLight font-semibold">
             {{ $t("mqtt.communication") }}
           </label>
         </div>
-        <div class="flex space-x-2 px-4">
+        <div class="flex px-4 space-x-2">
           <input
             id="mqtt-message"
             v-model="msg"
@@ -125,19 +120,13 @@
           />
         </div>
         <div
-          class="
-            border-t border-dividerLight
-            flex flex-col flex-1
-            mt-4
-            p-4
-            inline-flex
-          "
+          class="border-dividerLight flex inline-flex flex-col flex-1 p-4 mt-4 border-t"
         >
-          <label for="sub_topic" class="font-semibold text-secondaryLight">
+          <label for="sub_topic" class="text-secondaryLight font-semibold">
             {{ $t("mqtt.topic") }}
           </label>
         </div>
-        <div class="flex space-x-2 px-4">
+        <div class="flex px-4 space-x-2">
           <input
             id="sub_topic"
             v-model="sub_topic"
@@ -244,7 +233,9 @@ export default defineComponent({
       ]
       const parseUrl = new URL(this.url)
       this.client = new Paho.Client(
-        parseUrl.hostname,
+        `${parseUrl.hostname}${
+          parseUrl.pathname !== "/" ? parseUrl.pathname : ""
+        }`,
         parseUrl.port !== "" ? Number(parseUrl.port) : 8081,
         "hoppscotch"
       )
@@ -286,9 +277,7 @@ export default defineComponent({
         color: "var(--accent-color)",
         ts: new Date().toLocaleTimeString(),
       })
-      this.$toast.success(this.$t("state.connected"), {
-        icon: "sync",
-      })
+      this.$toast.success(this.$t("state.connected"))
     },
     onMessageArrived({ payloadString, destinationName }) {
       this.log.push({
@@ -319,13 +308,9 @@ export default defineComponent({
       this.connectingState = false
       this.connectionState = false
       if (this.manualDisconnect) {
-        this.$toast.error(this.$t("state.disconnected"), {
-          icon: "sync_disabled",
-        })
+        this.$toast.error(this.$t("state.disconnected"))
       } else {
-        this.$toast.error(this.$t("error.something_went_wrong"), {
-          icon: "error_outline",
-        })
+        this.$toast.error(this.$t("error.something_went_wrong"))
       }
       this.manualDisconnect = false
       this.subscriptionState = false

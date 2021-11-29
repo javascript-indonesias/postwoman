@@ -1,19 +1,9 @@
 <template>
   <div class="flex flex-col">
     <div
-      class="
-        bg-primary
-        border-b border-dividerLight
-        flex flex-1
-        pl-4
-        top-0
-        z-10
-        sticky
-        items-center
-        justify-between
-      "
+      class="bg-primary border-dividerLight sticky top-0 z-10 flex items-center justify-between flex-1 pl-4 border-b"
     >
-      <label for="log" class="font-semibold text-secondaryLight py-2">
+      <label for="log" class="text-secondaryLight py-2 font-semibold">
         {{ title }}
       </label>
     </div>
@@ -26,7 +16,7 @@
           >{{ entry.ts }}{{ source(entry.source) }}{{ entry.payload }}</span
         >
       </span>
-      <span v-else>{{ $t("response.waiting_for_connection") }}</span>
+      <span v-else>{{ t("response.waiting_for_connection") }}</span>
     </div>
   </div>
 </template>
@@ -34,6 +24,9 @@
 <script setup lang="ts">
 import { nextTick, ref, watch } from "@nuxtjs/composition-api"
 import { getSourcePrefix as source } from "~/helpers/utils/string"
+import { useI18n } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 const props = defineProps({
   log: { type: Array, default: () => [] },

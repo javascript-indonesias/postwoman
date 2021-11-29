@@ -11,11 +11,11 @@
     />
     <div
       v-if="searchResults.length === 0"
-      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+      class="text-secondaryLight flex flex-col items-center justify-center p-4"
     >
-      <i class="opacity-75 pb-2 material-icons">manage_search</i>
+      <i class="material-icons pb-2 opacity-75">manage_search</i>
       <span class="text-center">
-        {{ $t("state.nothing_found") }} "{{ search }}"
+        {{ t("state.nothing_found") }} "{{ search }}"
       </span>
     </div>
   </div>
@@ -26,6 +26,9 @@ import { computed, onUnmounted, onMounted } from "@nuxtjs/composition-api"
 import Fuse from "fuse.js"
 import { useArrowKeysNavigation } from "~/helpers/powerSearchNavigation"
 import { HoppAction } from "~/helpers/actions"
+import { useI18n } from "~/helpers/utils/composables"
+
+const t = useI18n()
 
 const props = defineProps<{
   input: Record<string, any>[]

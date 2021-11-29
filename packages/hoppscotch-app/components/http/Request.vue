@@ -1,19 +1,9 @@
 <template>
   <div
-    class="
-      bg-primary
-      flex
-      space-x-2
-      p-4
-      top-0
-      z-10
-      sticky
-      overflow-x-auto
-      hide-scrollbar
-    "
+    class="bg-primary hide-scrollbar sticky top-0 z-10 flex p-4 space-x-2 overflow-x-auto"
   >
     <div class="flex flex-1">
-      <div class="flex relative">
+      <div class="relative flex">
         <label for="method">
           <tippy
             ref="methodOptions"
@@ -26,24 +16,10 @@
               <span class="select-wrapper">
                 <input
                   id="method"
-                  class="
-                    bg-primaryLight
-                    border border-divider
-                    rounded-l
-                    cursor-pointer
-                    flex
-                    font-semibold
-                    text-secondaryDark
-                    py-2
-                    px-4
-                    w-26
-                    hover:border-dividerDark
-                    focus-visible:bg-transparent
-                    focus-visible:border-dividerDark
-                  "
+                  class="bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex px-4 py-2 font-semibold border rounded-l cursor-pointer"
                   :value="newMethod"
                   :readonly="!isCustomMethod"
-                  :placeholder="`${$t('request.method')}`"
+                  :placeholder="`${t('request.method')}`"
                   @input="onSelectMethod($event.target.value)"
                 />
               </span>
@@ -60,7 +36,7 @@
       <div class="flex flex-1">
         <SmartEnvInput
           v-model="newEndpoint"
-          :placeholder="`${$t('request.url')}`"
+          :placeholder="`${t('request.url')}`"
           styles="
             bg-primaryLight
             border border-divider
@@ -82,8 +58,8 @@
     <div class="flex">
       <ButtonPrimary
         id="send"
-        class="rounded-r-none flex-1 min-w-20"
-        :label="`${!loading ? $t('action.send') : $t('action.cancel')}`"
+        class="min-w-20 flex-1 rounded-r-none"
+        :label="`${!loading ? t('action.send') : t('action.cancel')}`"
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
       <span class="flex">
@@ -98,7 +74,7 @@
             <ButtonPrimary class="rounded-l-none" filled svg="chevron-down" />
           </template>
           <SmartItem
-            :label="`${$t('import.curl')}`"
+            :label="`${t('import.curl')}`"
             svg="file-code"
             @click.native="
               () => {
@@ -108,7 +84,7 @@
             "
           />
           <SmartItem
-            :label="`${$t('show.code')}`"
+            :label="`${t('show.code')}`"
             svg="code-2"
             @click.native="
               () => {
@@ -119,7 +95,7 @@
           />
           <SmartItem
             ref="clearAll"
-            :label="`${$t('action.clear_all')}`"
+            :label="`${t('action.clear_all')}`"
             svg="rotate-ccw"
             @click.native="
               () => {
@@ -131,10 +107,10 @@
         </tippy>
       </span>
       <ButtonSecondary
-        class="rounded rounded-r-none ml-2"
+        class="ml-2 rounded rounded-r-none"
         :label="
           windowInnerWidth.x.value >= 768 && COLUMN_LAYOUT
-            ? `${$t('request.save')}`
+            ? `${t('request.save')}`
             : ''
         "
         filled
@@ -159,27 +135,27 @@
           <input
             id="request-name"
             v-model="requestName"
-            :placeholder="`${$t('request.name')}`"
+            :placeholder="`${t('request.name')}`"
             name="request-name"
             type="text"
             autocomplete="off"
-            class="mb-2 input"
+            class="input mb-2"
             @keyup.enter="saveOptions.tippy().hide()"
           />
           <SmartItem
             ref="copyRequest"
-            :label="`${$t('request.copy_link')}`"
-            :svg="hasNavigatorShare ? 'share-2' : 'copy'"
+            :label="shareButtonText"
+            :svg="copyLinkIcon"
+            :loading="fetchingShareLink"
             @click.native="
               () => {
                 copyRequest()
-                saveOptions.tippy().hide()
               }
             "
           />
           <SmartItem
             ref="saveRequest"
-            :label="`${$t('request.save_as')}`"
+            :label="`${t('request.save_as')}`"
             svg="folder-plus"
             @click.native="
               () => {
@@ -208,8 +184,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useContext, watch } from "@nuxtjs/composition-api"
+import { computed, ref, watch } from "@nuxtjs/composition-api"
 import { isRight } from "fp-ts/lib/Either"
+import * as E from "fp-ts/Either"
 import {
   updateRESTResponse,
   restEndpoint$,
@@ -220,6 +197,7 @@ import {
   useRESTRequestName,
   getRESTSaveContext,
   getRESTRequest,
+  restRequest$,
 } from "~/newstore/RESTSession"
 import { editRESTRequest } from "~/newstore/collections"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
@@ -227,6 +205,9 @@ import {
   useStreamSubscriber,
   useStream,
   useNuxt,
+  useI18n,
+  useToast,
+  useReadonlyStream,
 } from "~/helpers/utils/composables"
 import { defineActionHandler } from "~/helpers/actions"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
@@ -234,6 +215,9 @@ import { useSetting } from "~/newstore/settings"
 import { overwriteRequestTeams } from "~/helpers/teams/utils"
 import { apolloClient } from "~/helpers/apollo"
 import useWindowSize from "~/helpers/utils/useWindowSize"
+import { createShortcode } from "~/helpers/backend/mutations/Shortcode"
+
+const t = useI18n()
 
 const methods = [
   "GET",
@@ -248,12 +232,9 @@ const methods = [
   "CUSTOM",
 ]
 
-const {
-  $toast,
-  app: { i18n },
-} = useContext()
+const toast = useToast()
 const nuxt = useNuxt()
-const t = i18n.t.bind(i18n)
+
 const { subscribeToStream } = useStreamSubscriber()
 
 const newEndpoint = useStream(restEndpoint$, "", setRESTEndpoint)
@@ -282,6 +263,11 @@ watch(loading, () => {
 })
 
 const newSendRequest = async () => {
+  if (newEndpoint.value === "" || /^\s+$/.test(newEndpoint.value)) {
+    toast.error(`${t("empty.endpoint")}`)
+    return
+  }
+
   loading.value = true
 
   // Double calling is because the function returns a TaskEither than should be executed
@@ -327,7 +313,46 @@ const clearContent = () => {
   resetRESTRequest()
 }
 
-const copyRequest = () => {
+const copyLinkIcon = hasNavigatorShare ? ref("share-2") : ref("copy")
+const shareLink = ref<string | null>("")
+const fetchingShareLink = ref(false)
+
+const shareButtonText = computed(() => {
+  if (shareLink.value) {
+    return shareLink.value
+  } else if (fetchingShareLink.value) {
+    return t("state.loading")
+  } else {
+    return t("request.copy_link")
+  }
+})
+
+const request = useReadonlyStream(restRequest$, getRESTRequest())
+
+watch(request, () => {
+  shareLink.value = null
+})
+
+const copyRequest = async () => {
+  if (shareLink.value) {
+    copyShareLink(shareLink.value)
+  } else {
+    shareLink.value = ""
+    fetchingShareLink.value = true
+    const request = getRESTRequest()
+    const shortcodeResult = await createShortcode(request)()
+    if (E.isLeft(shortcodeResult)) {
+      toast.error(`${shortcodeResult.left.error}`)
+      shareLink.value = `${t("error.something_went_wrong")}`
+    } else if (E.isRight(shortcodeResult)) {
+      shareLink.value = `/${shortcodeResult.right.createShortcode.id}`
+      copyShareLink(shareLink.value)
+    }
+    fetchingShareLink.value = false
+  }
+}
+
+const copyShareLink = (shareLink: string) => {
   if (navigator.share) {
     const time = new Date().toLocaleTimeString()
     const date = new Date().toLocaleDateString()
@@ -335,15 +360,15 @@ const copyRequest = () => {
       .share({
         title: "Hoppscotch",
         text: `Hoppscotch • Open source API development ecosystem at ${time} on ${date}`,
-        url: window.location.href,
+        url: `https://hopp.sh/r${shareLink}`,
       })
       .then(() => {})
       .catch(() => {})
   } else {
-    copyToClipboard(window.location.href)
-    $toast.success(`${t("state.copied_to_clipboard")}`, {
-      icon: "content_paste",
-    })
+    copyLinkIcon.value = "check"
+    copyToClipboard(`https://hopp.sh/r${shareLink}`)
+    toast.success(`${t("state.copied_to_clipboard")}`)
+    setTimeout(() => (copyLinkIcon.value = "copy"), 2000)
   }
 }
 
@@ -382,9 +407,7 @@ const saveRequest = () => {
 
   if (saveCtx.originLocation === "user-collection") {
     editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, getRESTRequest())
-    $toast.success(`${t("request.saved")}`, {
-      icon: "playlist_add_check",
-    })
+    toast.success(`${t("request.saved")}`)
   } else if (saveCtx.originLocation === "team-collection") {
     const req = getRESTRequest()
 
@@ -397,20 +420,14 @@ const saveRequest = () => {
         saveCtx.requestID
       )
         .then(() => {
-          $toast.success(`${t("request.saved")}`, {
-            icon: "playlist_add_check",
-          })
+          toast.success(`${t("request.saved")}`)
         })
         .catch(() => {
-          $toast.error(t("profile.no_permission").toString(), {
-            icon: "error_outline",
-          })
+          toast.error(`${t("profile.no_permission")}`)
         })
     } catch (error) {
       showSaveRequestModal.value = true
-      $toast.error(t("error.something_went_wrong").toString(), {
-        icon: "error_outline",
-      })
+      toast.error(`${t("error.something_went_wrong")}`)
       console.error(error)
     }
   }
