@@ -9,10 +9,10 @@
           <img
             :src="`/images/states/${$colorMode.value}/login.svg`"
             loading="lazy"
-            class="inline-flex flex-col object-contain object-center w-24 h-24 my-4"
+            class="flex-col object-contain object-center h-24 my-4 w-24 inline-flex"
             :alt="`${t('empty.parameters')}`"
           />
-          <p class="text-secondaryLight pb-4 text-center">
+          <p class="text-center text-secondaryLight pb-4">
             {{ t("empty.profile") }}
           </p>
           <ButtonPrimary
@@ -23,33 +23,41 @@
         </div>
         <div v-else class="space-y-8">
           <div
-            class="bg-primaryLight md:h-32 -mb-11 h-24 rounded"
+            class="bg-primaryLight rounded h-24 -mb-11 md:h-32"
             style="background-image: url('/images/cover.svg')"
           ></div>
-          <div class="md:flex-row flex flex-col justify-between px-4 space-y-8">
+          <div class="flex flex-col space-y-8 px-4 justify-between md:flex-row">
             <div class="flex items-end">
               <img
                 v-if="currentUser.photoURL"
                 :src="currentUser.photoURL"
-                class="ring-4 ring-primary w-16 h-16 rounded-lg"
-                :alt="currentUser.displayName"
+                class="rounded-lg h-16 ring-primary ring-4 w-16"
+                :alt="`${currentUser.displayName}`"
               />
               <SmartIcon v-else name="user" class="svg-icons" />
               <div class="ml-4">
                 <label class="heading">
                   {{ currentUser.displayName || t("state.nothing_found") }}
                 </label>
-                <p class="text-secondaryLight flex items-center">
+                <p class="flex text-secondaryLight items-center">
                   {{ currentUser.email }}
                   <SmartIcon
                     v-if="currentUser.emailVerified"
                     name="verified"
-                    class="svg-icons ml-2 text-green-500"
+                    class="ml-2 text-green-500 svg-icons"
+                  />
+                  <ButtonSecondary
+                    v-else
+                    :label="t('settings.verify_email')"
+                    svg="verified"
+                    class="ml-2 py-0 px-1"
+                    :loading="verifyingEmailAddress"
+                    @click.native="sendEmailVerification"
                   />
                 </p>
               </div>
             </div>
-            <div class="flex items-end space-x-2">
+            <div class="flex space-x-2 items-end">
               <div>
                 <SmartItem
                   to="/settings"
@@ -68,10 +76,10 @@
               :selected="true"
             >
               <section class="p-4">
-                <h4 class="text-secondaryDark font-semibold">
+                <h4 class="font-semibold text-secondaryDark">
                   {{ t("settings.profile") }}
                 </h4>
-                <div class="text-secondaryLight mt-1">
+                <div class="my-1 text-secondaryLight">
                   {{ t("settings.profile_description") }}
                 </div>
                 <div class="py-4">
@@ -79,7 +87,7 @@
                     {{ t("settings.profile_name") }}
                   </label>
                   <form
-                    class="md:max-w-sm flex mt-2"
+                    class="flex mt-2 md:max-w-sm"
                     @submit.prevent="updateDisplayName"
                   >
                     <input
@@ -91,23 +99,52 @@
                       autocomplete="off"
                       required
                     />
-                    <ButtonPrimary
+                    <ButtonSecondary
+                      filled
+                      outline
                       :label="t('action.save')"
-                      class="min-w-16 ml-2"
+                      class="ml-2 min-w-16"
                       type="submit"
                       :loading="updatingDisplayName"
                     />
                   </form>
                 </div>
+                <div class="py-4">
+                  <label for="emailAddress">
+                    {{ t("settings.profile_email") }}
+                  </label>
+                  <form
+                    class="flex mt-2 md:max-w-sm"
+                    @submit.prevent="updateEmailAddress"
+                  >
+                    <input
+                      id="emailAddress"
+                      v-model="emailAddress"
+                      class="input"
+                      :placeholder="`${t('settings.profile_name')}`"
+                      type="email"
+                      autocomplete="off"
+                      required
+                    />
+                    <ButtonSecondary
+                      filled
+                      outline
+                      :label="t('action.save')"
+                      class="ml-2 min-w-16"
+                      type="submit"
+                      :loading="updatingEmailAddress"
+                    />
+                  </form>
+                </div>
               </section>
               <section class="p-4">
-                <h4 class="text-secondaryDark font-semibold">
+                <h4 class="font-semibold text-secondaryDark">
                   {{ t("settings.sync") }}
                 </h4>
-                <div class="text-secondaryLight mt-1">
+                <div class="my-1 text-secondaryLight">
                   {{ t("settings.sync_description") }}
                 </div>
-                <div class="py-4 space-y-4">
+                <div class="space-y-4 py-4">
                   <div class="flex items-center">
                     <SmartToggle
                       :on="SYNC_COLLECTIONS"
@@ -136,9 +173,7 @@
               </section>
             </SmartTab>
             <SmartTab :id="'teams'" :label="t('team.title')">
-              <AppSection label="teams">
-                <Teams :modal="false" />
-              </AppSection>
+              <Teams :modal="false" />
             </SmartTab>
           </SmartTabs>
         </div>
@@ -149,12 +184,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref, useMeta, defineComponent } from "@nuxtjs/composition-api"
-import { currentUser$, setDisplayName } from "~/helpers/fb/auth"
-import { useReadonlyStream, useI18n } from "~/helpers/utils/composables"
+import {
+  ref,
+  useMeta,
+  defineComponent,
+  watchEffect,
+} from "@nuxtjs/composition-api"
+import {
+  currentUser$,
+  setDisplayName,
+  setEmailAddress,
+  verifyEmailAddress,
+} from "~/helpers/fb/auth"
+import {
+  useReadonlyStream,
+  useI18n,
+  useToast,
+} from "~/helpers/utils/composables"
 import { toggleSetting, useSetting } from "~/newstore/settings"
 
 const t = useI18n()
+const toast = useToast()
 
 const showLogin = ref(false)
 
@@ -163,14 +213,56 @@ const SYNC_ENVIRONMENTS = useSetting("syncEnvironments")
 const SYNC_HISTORY = useSetting("syncHistory")
 const currentUser = useReadonlyStream(currentUser$, null)
 
-const displayName = ref(currentUser$.value?.displayName)
+const displayName = ref(currentUser.value?.displayName)
 const updatingDisplayName = ref(false)
+watchEffect(() => (displayName.value = currentUser.value?.displayName))
 
 const updateDisplayName = () => {
   updatingDisplayName.value = true
-  setDisplayName(displayName.value).finally(() => {
-    updatingDisplayName.value = false
-  })
+  setDisplayName(displayName.value as string)
+    .then(() => {
+      toast.success(`${t("profile.updated")}`)
+    })
+    .catch(() => {
+      toast.error(`${t("error.something_went_wrong")}`)
+    })
+    .finally(() => {
+      updatingDisplayName.value = false
+    })
+}
+
+const emailAddress = ref(currentUser.value?.email)
+const updatingEmailAddress = ref(false)
+watchEffect(() => (emailAddress.value = currentUser.value?.email))
+
+const updateEmailAddress = () => {
+  updatingEmailAddress.value = true
+  setEmailAddress(emailAddress.value as string)
+    .then(() => {
+      toast.success(`${t("profile.updated")}`)
+    })
+    .catch(() => {
+      toast.error(`${t("error.something_went_wrong")}`)
+    })
+    .finally(() => {
+      updatingEmailAddress.value = false
+    })
+}
+
+const verifyingEmailAddress = ref(false)
+
+const sendEmailVerification = () => {
+  verifyingEmailAddress.value = true
+  verifyEmailAddress()
+    .then(() => {
+      toast.success(`${t("profile.email_verification_mail")}`)
+    })
+    .catch(() => {
+      toast.error(`${t("error.something_went_wrong")}`)
+    })
+    .finally(() => {
+      verifyingEmailAddress.value = false
+    })
 }
 
 useMeta({

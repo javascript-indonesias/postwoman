@@ -29,6 +29,9 @@
     "send": "Надіслати",
     "start": "Почати",
     "stop": "Стій",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
+    "to_close": "to close",
     "turn_off": "Вимкнути",
     "turn_on": "Ввімкнути",
     "undo": "Скасувати",
@@ -63,7 +66,7 @@
     "terms_and_privacy": "Умови та конфіденційність",
     "twitter": "Twitter",
     "type_a_command_search": "Введіть команду або виконайте пошук…",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "Ми використовуємо файли cookie",
     "whats_new": "Що нового?",
     "wiki": "Вікі"
@@ -93,7 +96,8 @@
     "password": "Пароль",
     "token": "Токен",
     "type": "Тип авторизації",
-    "username": "Ім'я користувача"
+    "username": "Ім'я користувача",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Колекція створена",
@@ -103,6 +107,7 @@
     "name": "Моя нова колекція",
     "new": "Нова колекція",
     "renamed": "Колекція перейменована",
+    "request_in_use": "Request in use",
     "save_as": "Зберегти як",
     "select": "Виберіть колекцію",
     "select_location": "Виберіть місце розташування",
@@ -179,6 +184,7 @@
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Не вдалося надіслати запит",
     "no_duration": "Без тривалості",
+    "script_fail": "Не вдалося виконати сценарій попереднього запиту",
     "something_went_wrong": "Щось пішло не так"
   },
   "export": {
@@ -213,6 +219,7 @@
     "offline_short": "Ви, здається, не в мережі.",
     "post_request_tests": "Тестові сценарії записуються на JavaScript і запускаються після отримання відповіді.",
     "pre_request_script": "Сценарії попереднього запиту написані на JavaScript і запускаються перед надсиланням запиту.",
+    "script_fail": "Схоже, є збій у сценарії попереднього запиту. Перевірте помилку нижче та виправте відповідним чином сценарій.",
     "tests": "Напишіть тестовий сценарій для автоматизації налагодження."
   },
   "hide": {
@@ -271,11 +278,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -357,6 +366,7 @@
     "official_proxy_hosting": "Офіційний проксі розміщений компанією Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Проксі",
     "proxy_url": "URL проксі",
@@ -375,7 +385,8 @@
     "theme": "Тема",
     "theme_description": "Налаштуйте тему програми.",
     "use_experimental_url_bar": "Використовуйте експериментальний рядок URL з виділенням середовища",
-    "user": "Користувач"
+    "user": "Користувач",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {
@@ -394,6 +405,7 @@
       "documentation": "Перейдіть на сторінку Документація",
       "forward": "Перейти до наступної сторінки",
       "graphql": "Перейдіть на сторінку GraphQL",
+      "profile": "Go to Profile page",
       "realtime": "Перейдіть на сторінку реального часу",
       "rest": "Перейдіть на сторінку REST",
       "settings": "Перейдіть на сторінку Налаштування",

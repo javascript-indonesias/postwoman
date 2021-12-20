@@ -1,135 +1,160 @@
 <template>
   <div>
     <SmartTabs styles="sticky bg-primary top-upperPrimaryStickyFold z-10">
-      <template #actions>
-        <ButtonSecondary
-          :label="`${t('request.run')}`"
-          svg="play"
-          class="rounded-none !text-accent"
-          @click.native="runQuery()"
-        />
-        <ButtonSecondary
-          ref="saveRequest"
-          :label="`${t('request.save')}`"
-          class="rounded-none"
-          @click.native="saveRequest"
-        />
-      </template>
-
-      <SmartTab :id="'query'" :label="`${t('tab.query')}`" :selected="true">
-        <AppSection label="query">
-          <div
-            class="bg-primary border-dividerLight top-upperSecondaryStickyFold gqlRunQuery sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
-          >
-            <label class="text-secondaryLight font-semibold">
-              {{ t("request.query") }}
-            </label>
-            <div class="flex">
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                to="https://docs.hoppscotch.io/graphql/#queries"
-                blank
-                :title="t('app.wiki')"
-                svg="help-circle"
-              />
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.prettify')"
-                :svg="`${prettifyQueryIcon}`"
-                @click.native="prettifyQuery"
-              />
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.copy')"
-                :svg="`${copyQueryIcon}`"
-                @click.native="copyQuery"
-              />
-            </div>
+      <SmartTab
+        :id="'query'"
+        :label="`${t('tab.query')}`"
+        :selected="true"
+        :indicator="gqlQueryString && gqlQueryString.length > 0 ? true : false"
+      >
+        <div
+          class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between gqlRunQuery"
+        >
+          <label class="font-semibold text-secondaryLight">
+            {{ t("request.query") }}
+          </label>
+          <div class="flex">
+            <ButtonSecondary
+              :label="`${t('request.run')}`"
+              svg="play"
+              class="rounded-none !text-accent !hover:text-accentDark"
+              @click.native="runQuery()"
+            />
+            <ButtonSecondary
+              ref="saveRequest"
+              :label="`${t('request.save')}`"
+              svg="save"
+              class="rounded-none"
+              @click.native="saveRequest"
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              to="https://docs.hoppscotch.io/graphql"
+              blank
+              :title="t('app.wiki')"
+              svg="help-circle"
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.clear_all')"
+              svg="trash-2"
+              @click.native="clearGQLQuery()"
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.prettify')"
+              :svg="`${prettifyQueryIcon}`"
+              @click.native="prettifyQuery"
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.copy')"
+              :svg="`${copyQueryIcon}`"
+              @click.native="copyQuery"
+            />
           </div>
-          <div ref="queryEditor"></div>
-        </AppSection>
+        </div>
+        <div ref="queryEditor"></div>
       </SmartTab>
 
-      <SmartTab :id="'variables'" :label="`${t('tab.variables')}`">
-        <AppSection label="variables">
-          <div
-            class="bg-primary border-dividerLight top-upperSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
-          >
-            <label class="text-secondaryLight font-semibold">
-              {{ t("request.variables") }}
-            </label>
-            <div class="flex">
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                to="https://docs.hoppscotch.io/graphql/#queries"
-                blank
-                :title="t('app.wiki')"
-                svg="help-circle"
-              />
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.copy')"
-                :svg="`${copyVariablesIcon}`"
-                @click.native="copyVariables"
-              />
-            </div>
+      <SmartTab
+        :id="'variables'"
+        :label="`${t('tab.variables')}`"
+        :indicator="variableString && variableString.length > 0 ? true : false"
+      >
+        <div
+          class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
+        >
+          <label class="font-semibold text-secondaryLight">
+            {{ t("request.variables") }}
+          </label>
+          <div class="flex">
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              to="https://docs.hoppscotch.io/graphql"
+              blank
+              :title="t('app.wiki')"
+              svg="help-circle"
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.clear_all')"
+              svg="trash-2"
+              @click.native="clearGQLVariables()"
+            />
+            <ButtonSecondary
+              ref="prettifyRequest"
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.prettify')"
+              :svg="prettifyVariablesIcon"
+              @click.native="prettifyVariableString"
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.copy')"
+              :svg="`${copyVariablesIcon}`"
+              @click.native="copyVariables"
+            />
           </div>
-          <div ref="variableEditor"></div>
-        </AppSection>
+        </div>
+        <div ref="variableEditor"></div>
       </SmartTab>
 
-      <SmartTab :id="'headers'" :label="`${t('tab.headers')}`">
-        <AppSection label="headers">
-          <div
-            class="bg-primary border-dividerLight top-upperSecondaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
-          >
-            <label class="text-secondaryLight font-semibold">
-              {{ t("tab.headers") }}
-            </label>
-            <div class="flex">
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                to="https://docs.hoppscotch.io/graphql/#headers"
-                blank
-                :title="t('app.wiki')"
-                svg="help-circle"
-              />
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('action.clear_all')"
-                svg="trash-2"
-                @click.native="clearContent()"
-              />
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('state.bulk_mode')"
-                svg="edit"
-                :class="{ '!text-accent': bulkMode }"
-                @click.native="bulkMode = !bulkMode"
-              />
-              <ButtonSecondary
-                v-tippy="{ theme: 'tooltip' }"
-                :title="t('add.new')"
-                svg="plus"
-                :disabled="bulkMode"
-                @click.native="addRequestHeader"
-              />
-            </div>
+      <SmartTab
+        :id="'headers'"
+        :label="`${t('tab.headers')}`"
+        :info="activeGQLHeadersCount === 0 ? null : `${activeGQLHeadersCount}`"
+      >
+        <div
+          class="bg-primary border-b border-dividerLight flex flex-1 top-upperSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
+        >
+          <label class="font-semibold text-secondaryLight">
+            {{ t("tab.headers") }}
+          </label>
+          <div class="flex">
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              to="https://docs.hoppscotch.io/graphql"
+              blank
+              :title="t('app.wiki')"
+              svg="help-circle"
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('action.clear_all')"
+              svg="trash-2"
+              @click.native="clearHeaders()"
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('state.bulk_mode')"
+              svg="edit"
+              :class="{ '!text-accent': bulkMode }"
+              @click.native="bulkMode = !bulkMode"
+            />
+            <ButtonSecondary
+              v-tippy="{ theme: 'tooltip' }"
+              :title="t('add.new')"
+              svg="plus"
+              :disabled="bulkMode"
+              @click.native="addRequestHeader"
+            />
           </div>
-          <div v-if="bulkMode" ref="bulkEditor"></div>
-          <div v-else>
-            <div
-              v-for="(header, index) in headers"
-              :key="`header-${String(index)}`"
-              class="divide-dividerLight border-dividerLight flex border-b divide-x"
-            >
-              <SmartAutoComplete
-                :placeholder="`${t('count.header', { count: index + 1 })}`"
-                :source="commonHeaders"
-                :spellcheck="false"
-                :value="header.key"
-                autofocus
-                styles="
+        </div>
+        <div v-if="bulkMode" ref="bulkEditor"></div>
+        <div v-else>
+          <div
+            v-for="(header, index) in headers"
+            :key="`header-${String(index)}`"
+            class="divide-dividerLight divide-x border-b border-dividerLight flex"
+          >
+            <SmartAutoComplete
+              :placeholder="`${t('count.header', { count: index + 1 })}`"
+              :source="commonHeaders"
+              :spellcheck="false"
+              :value="header.key"
+              autofocus
+              styles="
                   bg-transparent
                   flex
                   flex-1
@@ -137,92 +162,90 @@
                   px-4
                   truncate
                 "
-                class="!flex flex-1"
-                @input="
-                  updateRequestHeader(index, {
-                    key: $event,
-                    value: header.value,
-                    active: header.active,
-                  })
+              class="flex-1 !flex"
+              @input="
+                updateRequestHeader(index, {
+                  key: $event,
+                  value: header.value,
+                  active: header.active,
+                })
+              "
+            />
+            <input
+              class="bg-transparent flex flex-1 py-2 px-4"
+              :placeholder="`${t('count.value', { count: index + 1 })}`"
+              :name="`value ${String(index)}`"
+              :value="header.value"
+              autofocus
+              @change="
+                updateRequestHeader(index, {
+                  key: header.key,
+                  value: $event.target.value,
+                  active: header.active,
+                })
+              "
+            />
+            <span>
+              <ButtonSecondary
+                v-tippy="{ theme: 'tooltip' }"
+                :title="
+                  header.hasOwnProperty('active')
+                    ? header.active
+                      ? t('action.turn_off')
+                      : t('action.turn_on')
+                    : t('action.turn_off')
                 "
-              />
-              <input
-                class="flex flex-1 px-4 py-2 bg-transparent"
-                :placeholder="`${t('count.value', { count: index + 1 })}`"
-                :name="`value ${String(index)}`"
-                :value="header.value"
-                autofocus
-                @change="
+                :svg="
+                  header.hasOwnProperty('active')
+                    ? header.active
+                      ? 'check-circle'
+                      : 'circle'
+                    : 'check-circle'
+                "
+                color="green"
+                @click.native="
                   updateRequestHeader(index, {
                     key: header.key,
-                    value: $event.target.value,
-                    active: header.active,
+                    value: header.value,
+                    active: !header.active,
                   })
                 "
               />
-              <span>
-                <ButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="
-                    header.hasOwnProperty('active')
-                      ? header.active
-                        ? t('action.turn_off')
-                        : t('action.turn_on')
-                      : t('action.turn_off')
-                  "
-                  :svg="
-                    header.hasOwnProperty('active')
-                      ? header.active
-                        ? 'check-circle'
-                        : 'circle'
-                      : 'check-circle'
-                  "
-                  color="green"
-                  @click.native="
-                    updateRequestHeader(index, {
-                      key: header.key,
-                      value: header.value,
-                      active: !header.active,
-                    })
-                  "
-                />
-              </span>
-              <span>
-                <ButtonSecondary
-                  v-tippy="{ theme: 'tooltip' }"
-                  :title="t('action.remove')"
-                  svg="trash"
-                  color="red"
-                  @click.native="removeRequestHeader(index)"
-                />
-              </span>
-            </div>
-            <div
-              v-if="headers.length === 0"
-              class="text-secondaryLight flex flex-col items-center justify-center p-4"
-            >
-              <img
-                :src="`/images/states/${$colorMode.value}/add_category.svg`"
-                loading="lazy"
-                class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
-                :alt="`${t('empty.headers')}`"
-              />
-              <span class="pb-4 text-center">
-                {{ t("empty.headers") }}
-              </span>
+            </span>
+            <span>
               <ButtonSecondary
-                :label="`${t('add.new')}`"
-                filled
-                svg="plus"
-                class="mb-4"
-                @click.native="addRequestHeader"
+                v-tippy="{ theme: 'tooltip' }"
+                :title="t('action.remove')"
+                svg="trash"
+                color="red"
+                @click.native="removeRequestHeader(index)"
               />
-            </div>
+            </span>
           </div>
-        </AppSection>
+          <div
+            v-if="headers.length === 0"
+            class="flex flex-col text-secondaryLight p-4 items-center justify-center"
+          >
+            <img
+              :src="`/images/states/${$colorMode.value}/add_category.svg`"
+              loading="lazy"
+              class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
+              :alt="`${t('empty.headers')}`"
+            />
+            <span class="text-center pb-4">
+              {{ t("empty.headers") }}
+            </span>
+            <ButtonSecondary
+              :label="`${t('add.new')}`"
+              filled
+              svg="plus"
+              class="mb-4"
+              @click.native="addRequestHeader"
+            />
+          </div>
+        </div>
       </SmartTab>
     </SmartTabs>
-
     <CollectionsSaveRequest
       mode="graphql"
       :show="showSaveRequestModal"
@@ -232,9 +255,16 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "@nuxtjs/composition-api"
+import {
+  computed,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+} from "@nuxtjs/composition-api"
 import clone from "lodash/clone"
 import * as gql from "graphql"
+import { GQLHeader, makeGQLRequest } from "@hoppscotch/data"
 import { copyToClipboard } from "~/helpers/utils/clipboard"
 import {
   useNuxt,
@@ -262,7 +292,6 @@ import { GQLConnection } from "~/helpers/GQLConnection"
 import { makeGQLHistoryEntry, addGraphqlHistoryEntry } from "~/newstore/history"
 import { logHoppRequestRunToAnalytics } from "~/helpers/fb/analytics"
 import { getCurrentStrategyID } from "~/helpers/network"
-import { GQLHeader, makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
 import { useCodemirror } from "~/helpers/editor/codemirror"
 import jsonLinter from "~/helpers/editor/linting/json"
 import { createGQLQueryLinter } from "~/helpers/editor/linting/gqlQuery"
@@ -309,18 +338,32 @@ useCodemirror(bulkEditor, bulkHeaders, {
   },
   linter: null,
   completer: null,
+  environmentHighlights: false,
 })
+
+const activeGQLHeadersCount = computed(
+  () =>
+    headers.value.filter((x) => x.active && (x.key !== "" || x.value !== ""))
+      .length
+)
 
 const variableEditor = ref<any | null>(null)
 
-useCodemirror(variableEditor, variableString, {
-  extendedEditorConfig: {
-    mode: "application/ld+json",
-    placeholder: `${t("request.variables")}`,
-  },
-  linter: jsonLinter,
-  completer: null,
-})
+useCodemirror(
+  variableEditor,
+  variableString,
+  reactive({
+    extendedEditorConfig: {
+      mode: "application/ld+json",
+      placeholder: `${t("request.variables")}`,
+    },
+    linter: computed(() =>
+      variableString.value.length > 0 ? jsonLinter : null
+    ),
+    completer: null,
+    environmentHighlights: false,
+  })
+)
 
 const queryEditor = ref<any | null>(null)
 const schemaString = useReadonlyStream(props.conn.schema$, null)
@@ -332,11 +375,13 @@ useCodemirror(queryEditor, gqlQueryString, {
   },
   linter: createGQLQueryLinter(schemaString),
   completer: queryCompleter(schemaString),
+  environmentHighlights: false,
 })
 
 const copyQueryIcon = ref("copy")
-const prettifyQueryIcon = ref("wand")
 const copyVariablesIcon = ref("copy")
+const prettifyQueryIcon = ref("wand")
+const prettifyVariablesIcon = ref("wand")
 
 const showSaveRequestModal = ref(false)
 
@@ -362,7 +407,7 @@ const editBulkHeadersLine = (index: number, item?: GQLHeader | null) => {
           ? `${item.active ? "" : "//"}${item.key}: ${item.value}`
           : `${header.active ? "" : "//"}${header.key}: ${header.value}`
       return [...all, current]
-    }, [])
+    }, [] as string[])
     .join("\n")
 }
 
@@ -467,6 +512,19 @@ const copyVariables = () => {
   setTimeout(() => (copyVariablesIcon.value = "copy"), 1000)
 }
 
+const prettifyVariableString = () => {
+  try {
+    const jsonObj = JSON.parse(variableString.value)
+    variableString.value = JSON.stringify(jsonObj, null, 2)
+    prettifyVariablesIcon.value = "check"
+  } catch (e) {
+    console.error(e)
+    prettifyVariablesIcon.value = "info"
+    toast.error(`${t("error.json_prettify_invalid_body")}`)
+  }
+  setTimeout(() => (prettifyVariablesIcon.value = "wand"), 1000)
+}
+
 const addRequestHeader = () => {
   const empty = { key: "", value: "", active: true }
   const index = headers.value.length
@@ -506,8 +564,16 @@ const removeRequestHeader = (index: number) => {
   }
 }
 
-const clearContent = () => {
+const clearHeaders = () => {
   headers.value = []
   clearBulkEditor()
+}
+
+const clearGQLQuery = () => {
+  gqlQueryString.value = ""
+}
+
+const clearGQLVariables = () => {
+  variableString.value = ""
 }
 </script>

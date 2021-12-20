@@ -1,8 +1,11 @@
 <template>
   <SmartModal v-if="show" :title="`${t('import.curl')}`" @close="hideModal">
     <template #body>
-      <div class="flex flex-col px-2">
-        <div ref="curlEditor" class="border rounded border-dividerLight"></div>
+      <div class="h-46 px-2">
+        <div
+          ref="curlEditor"
+          class="border border-dividerLight h-full rounded"
+        ></div>
       </div>
     </template>
     <template #footer>
@@ -22,13 +25,13 @@
 
 <script setup lang="ts">
 import { ref } from "@nuxtjs/composition-api"
-import parseCurlCommand from "~/helpers/curlparser"
-import { useCodemirror } from "~/helpers/editor/codemirror"
 import {
   HoppRESTHeader,
   HoppRESTParam,
   makeRESTRequest,
-} from "~/helpers/types/HoppRESTRequest"
+} from "@hoppscotch/data"
+import parseCurlCommand from "~/helpers/curlparser"
+import { useCodemirror } from "~/helpers/editor/codemirror"
 import { setRESTRequest } from "~/newstore/RESTSession"
 import { useI18n, useToast } from "~/helpers/utils/composables"
 
@@ -47,6 +50,7 @@ useCodemirror(curlEditor, curl, {
   },
   linter: null,
   completer: null,
+  environmentHighlights: false,
 })
 
 defineProps<{ show: boolean }>()

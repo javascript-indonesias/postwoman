@@ -12,7 +12,6 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('action.more')"
-              class="rounded"
               svg="more-vertical"
             />
           </template>
@@ -20,8 +19,10 @@
             icon="assignment_returned"
             :label="$t('import.from_gist')"
             @click.native="
-              readCollectionGist
-              $refs.options.tippy().hide()
+              () => {
+                readCollectionGist()
+                $refs.options.tippy().hide()
+              }
             "
           />
           <span
@@ -45,8 +46,10 @@
               icon="assignment_turned_in"
               :label="$t('export.create_secret_gist')"
               @click.native="
-                createCollectionGist()
-                $refs.options.tippy().hide()
+                () => {
+                  createCollectionGist()
+                  $refs.options.tippy().hide()
+                }
               "
             />
           </span>

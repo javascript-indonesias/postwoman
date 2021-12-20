@@ -1,6 +1,5 @@
 import { pluck, distinctUntilChanged, map, filter } from "rxjs/operators"
 import { Ref } from "@nuxtjs/composition-api"
-import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import {
   FormDataKeyValue,
   HoppRESTHeader,
@@ -8,12 +7,13 @@ import {
   HoppRESTReqBody,
   HoppRESTRequest,
   RESTReqSchemaVersion,
-} from "~/helpers/types/HoppRESTRequest"
+  HoppRESTAuth,
+  ValidContentTypes,
+} from "@hoppscotch/data"
+import DispatchingStore, { defineDispatchers } from "./DispatchingStore"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import { useStream } from "~/helpers/utils/composables"
 import { HoppTestResult } from "~/helpers/types/HoppTestResult"
-import { HoppRESTAuth } from "~/helpers/types/HoppRESTAuth"
-import { ValidContentTypes } from "~/helpers/utils/contenttypes"
 import { HoppRequestSaveContext } from "~/helpers/types/HoppRequestSaveContext"
 
 type RESTSession = {
@@ -689,7 +689,10 @@ export const restResponse$ = restSessionStore.subject$.pipe(
 export const completedRESTResponse$ = restResponse$.pipe(
   filter(
     (res) =>
-      res !== null && res.type !== "loading" && res.type !== "network_fail"
+      res !== null &&
+      res.type !== "loading" &&
+      res.type !== "network_fail" &&
+      res.type !== "script_fail"
   )
 )
 

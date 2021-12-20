@@ -1,9 +1,9 @@
 <template>
   <div
-    class="bg-primary hide-scrollbar sticky top-0 z-10 flex p-4 space-x-2 overflow-x-auto"
+    class="bg-primary flex space-x-2 p-4 top-0 z-10 sticky overflow-x-auto hide-scrollbar"
   >
     <div class="flex flex-1">
-      <div class="relative flex">
+      <div class="flex relative">
         <label for="method">
           <tippy
             ref="methodOptions"
@@ -16,7 +16,7 @@
               <span class="select-wrapper">
                 <input
                   id="method"
-                  class="bg-primaryLight border-divider text-secondaryDark w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark flex px-4 py-2 font-semibold border rounded-l cursor-pointer"
+                  class="bg-primaryLight border border-divider rounded-l cursor-pointer flex font-semibold text-secondaryDark py-2 px-4 w-26 hover:border-dividerDark focus-visible:bg-transparent focus-visible:border-dividerDark"
                   :value="newMethod"
                   :readonly="!isCustomMethod"
                   :placeholder="`${t('request.method')}`"
@@ -58,7 +58,7 @@
     <div class="flex">
       <ButtonPrimary
         id="send"
-        class="min-w-20 flex-1 rounded-r-none"
+        class="rounded-r-none flex-1 min-w-20"
         :label="`${!loading ? t('action.send') : t('action.cancel')}`"
         @click.native="!loading ? newSendRequest() : cancelRequest()"
       />
@@ -69,45 +69,61 @@
           trigger="click"
           theme="popover"
           arrow
+          :on-shown="() => sendTippyActions.focus()"
         >
           <template #trigger>
             <ButtonPrimary class="rounded-l-none" filled svg="chevron-down" />
           </template>
-          <SmartItem
-            :label="`${t('import.curl')}`"
-            svg="file-code"
-            @click.native="
-              () => {
-                showCurlImportModal = !showCurlImportModal
-                sendOptions.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            :label="`${t('show.code')}`"
-            svg="code-2"
-            @click.native="
-              () => {
-                showCodegenModal = !showCodegenModal
-                sendOptions.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            ref="clearAll"
-            :label="`${t('action.clear_all')}`"
-            svg="rotate-ccw"
-            @click.native="
-              () => {
-                clearContent()
-                sendOptions.tippy().hide()
-              }
-            "
-          />
+          <div
+            ref="sendTippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            @keyup.c="curl.$el.click()"
+            @keyup.s="show.$el.click()"
+            @keyup.delete="clearAll.$el.click()"
+            @keyup.escape="sendOptions.tippy().hide()"
+          >
+            <SmartItem
+              ref="curl"
+              :label="`${t('import.curl')}`"
+              svg="file-code"
+              :shortcut="['C']"
+              @click.native="
+                () => {
+                  showCurlImportModal = !showCurlImportModal
+                  sendOptions.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              ref="show"
+              :label="`${t('show.code')}`"
+              svg="code-2"
+              :shortcut="['S']"
+              @click.native="
+                () => {
+                  showCodegenModal = !showCodegenModal
+                  sendOptions.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              ref="clearAll"
+              :label="`${t('action.clear_all')}`"
+              svg="rotate-ccw"
+              :shortcut="['⌫']"
+              @click.native="
+                () => {
+                  clearContent()
+                  sendOptions.tippy().hide()
+                }
+              "
+            />
+          </div>
         </tippy>
       </span>
       <ButtonSecondary
-        class="ml-2 rounded rounded-r-none"
+        class="rounded rounded-r-none ml-2"
         :label="
           windowInnerWidth.x.value >= 768 && COLUMN_LAYOUT
             ? `${t('request.save')}`
@@ -124,6 +140,7 @@
           trigger="click"
           theme="popover"
           arrow
+          :on-shown="() => saveTippyActions.focus()"
         >
           <template #trigger>
             <ButtonSecondary
@@ -139,31 +156,42 @@
             name="request-name"
             type="text"
             autocomplete="off"
-            class="input mb-2"
+            class="mb-2 input"
             @keyup.enter="saveOptions.tippy().hide()"
           />
-          <SmartItem
-            ref="copyRequest"
-            :label="shareButtonText"
-            :svg="copyLinkIcon"
-            :loading="fetchingShareLink"
-            @click.native="
-              () => {
-                copyRequest()
-              }
-            "
-          />
-          <SmartItem
-            ref="saveRequest"
-            :label="`${t('request.save_as')}`"
-            svg="folder-plus"
-            @click.native="
-              () => {
-                showSaveRequestModal = true
-                saveOptions.tippy().hide()
-              }
-            "
-          />
+          <div
+            ref="saveTippyActions"
+            class="flex flex-col focus:outline-none"
+            tabindex="0"
+            @keyup.c="copyRequestAction.$el.click()"
+            @keyup.s="saveRequestAction.$el.click()"
+            @keyup.escape="saveOptions.tippy().hide()"
+          >
+            <SmartItem
+              ref="copyRequestAction"
+              :label="shareButtonText"
+              :svg="copyLinkIcon"
+              :loading="fetchingShareLink"
+              :shortcut="['C']"
+              @click.native="
+                () => {
+                  copyRequest()
+                }
+              "
+            />
+            <SmartItem
+              ref="saveRequestAction"
+              :label="`${t('request.save_as')}`"
+              svg="folder-plus"
+              :shortcut="['S']"
+              @click.native="
+                () => {
+                  showSaveRequestModal = true
+                  saveOptions.tippy().hide()
+                }
+              "
+            />
+          </div>
         </tippy>
       </span>
     </div>
@@ -185,7 +213,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "@nuxtjs/composition-api"
-import { isRight } from "fp-ts/lib/Either"
+import { isLeft, isRight } from "fp-ts/lib/Either"
 import * as E from "fp-ts/Either"
 import {
   updateRESTResponse,
@@ -198,6 +226,7 @@ import {
   getRESTSaveContext,
   getRESTRequest,
   restRequest$,
+  setRESTSaveContext,
 } from "~/newstore/RESTSession"
 import { editRESTRequest } from "~/newstore/collections"
 import { runRESTRequest$ } from "~/helpers/RequestRunner"
@@ -252,6 +281,13 @@ const hasNavigatorShare = !!navigator.share
 const methodOptions = ref<any | null>(null)
 const saveOptions = ref<any | null>(null)
 const sendOptions = ref<any | null>(null)
+const sendTippyActions = ref<any | null>(null)
+const saveTippyActions = ref<any | null>(null)
+const curl = ref<any | null>(null)
+const show = ref<any | null>(null)
+const clearAll = ref<any | null>(null)
+const copyRequestAction = ref<any | null>(null)
+const saveRequestAction = ref<any | null>(null)
 
 // Update Nuxt Loading bar
 watch(loading, () => {
@@ -273,7 +309,6 @@ const newSendRequest = async () => {
   // Double calling is because the function returns a TaskEither than should be executed
   const streamResult = await runRESTRequest$()()
 
-  // TODO: What if stream fetching failed (script execution errors ?) (isLeft)
   if (isRight(streamResult)) {
     subscribeToStream(
       streamResult.right,
@@ -291,6 +326,19 @@ const newSendRequest = async () => {
         loading.value = false
       }
     )
+  } else if (isLeft(streamResult)) {
+    loading.value = false
+    toast.error(`${t("error.script_fail")}`)
+    let error: Error
+    if (typeof streamResult.left === "string") {
+      error = { name: "RequestFailure", message: streamResult.left }
+    } else {
+      error = streamResult.left
+    }
+    updateRESTResponse({
+      type: "script_fail",
+      error,
+    })
   }
 }
 
@@ -406,8 +454,17 @@ const saveRequest = () => {
   }
 
   if (saveCtx.originLocation === "user-collection") {
-    editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, getRESTRequest())
-    toast.success(`${t("request.saved")}`)
+    try {
+      editRESTRequest(
+        saveCtx.folderPath,
+        saveCtx.requestIndex,
+        getRESTRequest()
+      )
+      toast.success(`${t("request.saved")}`)
+    } catch (e) {
+      setRESTSaveContext(null)
+      saveRequest()
+    }
   } else if (saveCtx.originLocation === "team-collection") {
     const req = getRESTRequest()
 

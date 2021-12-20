@@ -46,18 +46,25 @@
             <SmartTab
               :id="'preRequestScript'"
               :label="`${$t('tab.pre_request_script')}`"
+              :indicator="
+                preRequestScript && preRequestScript.length > 0 ? true : false
+              "
             >
               <HttpPreRequestScript />
             </SmartTab>
 
-            <SmartTab :id="'tests'" :label="`${$t('tab.tests')}`">
+            <SmartTab
+              :id="'tests'"
+              :label="`${$t('tab.tests')}`"
+              :indicator="testScript && testScript.length > 0 ? true : false"
+            >
               <HttpTests />
             </SmartTab>
           </SmartTabs>
         </Pane>
         <Pane
           :size="COLUMN_LAYOUT ? 65 : 50"
-          class="hide-scrollbar !overflow-auto flex flex-col"
+          class="flex flex-col hide-scrollbar !overflow-auto"
         >
           <HttpResponse ref="response" />
         </Pane>
@@ -120,6 +127,7 @@ import "splitpanes/dist/splitpanes.css"
 import { map } from "rxjs/operators"
 import { Subscription } from "rxjs"
 import isEqual from "lodash/isEqual"
+import { HoppRESTRequest, HoppRESTAuthOAuth2 } from "@hoppscotch/data"
 import { useSetting } from "~/newstore/settings"
 import {
   restActiveParamsCount$,
@@ -128,6 +136,8 @@ import {
   setRESTRequest,
   setRESTAuth,
   restAuth$,
+  useTestScript,
+  usePreRequestScript,
 } from "~/newstore/RESTSession"
 import { translateExtURLParams } from "~/helpers/RESTExtURLParams"
 import {
@@ -137,9 +147,7 @@ import {
 } from "~/helpers/utils/composables"
 import { loadRequestFromSync, startRequestSync } from "~/helpers/fb/request"
 import { onLoggedIn } from "~/helpers/fb/auth"
-import { HoppRESTRequest } from "~/helpers/types/HoppRESTRequest"
 import { oauthRedirect } from "~/helpers/oauth"
-import { HoppRESTAuthOAuth2 } from "~/helpers/types/HoppRESTAuth"
 import useWindowSize from "~/helpers/utils/useWindowSize"
 
 function bindRequestToURLParams() {
@@ -212,6 +220,9 @@ export default defineComponent({
   setup() {
     const requestForSync = ref<HoppRESTRequest | null>(null)
 
+    const testScript = useTestScript()
+    const preRequestScript = usePreRequestScript()
+
     const confirmSync = ref(false)
 
     const syncRequest = () => {
@@ -248,6 +259,8 @@ export default defineComponent({
       syncRequest,
       oAuthURL,
       requestForSync,
+      testScript,
+      preRequestScript,
     }
   },
 })

@@ -31,6 +31,7 @@
             trigger="click"
             theme="popover"
             arrow
+            :on-shown="() => tippyActions.focus()"
           >
             <template #trigger>
               <ButtonSecondary
@@ -39,38 +40,45 @@
                 :label="`${t('app.help')}`"
               />
             </template>
-            <div class="flex flex-col">
+            <div
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.d="documentation.$el.click()"
+              @keyup.s="shortcuts.$el.click()"
+              @keyup.c="chat.$el.click()"
+              @keyup.escape="options.tippy().hide()"
+            >
               <SmartItem
+                ref="documentation"
                 svg="book"
                 :label="`${t('app.documentation')}`"
                 to="https://docs.hoppscotch.io"
                 blank
-                @click.native="$refs.options.tippy().hide()"
+                :shortcut="['D']"
+                @click.native="options.tippy().hide()"
               />
               <SmartItem
+                ref="shortcuts"
                 svg="zap"
                 :label="`${t('app.keyboard_shortcuts')}`"
+                :shortcut="['S']"
                 @click.native="
                   () => {
                     showShortcuts = true
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
               <SmartItem
-                svg="gift"
-                :label="`${t('app.whats_new')}`"
-                to="https://docs.hoppscotch.io/changelog"
-                blank
-                @click.native="$refs.options.tippy().hide()"
-              />
-              <SmartItem
+                ref="chat"
                 svg="message-circle"
                 :label="`${t('app.chat_with_us')}`"
+                :shortcut="['C']"
                 @click.native="
                   () => {
                     chatWithUs()
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
@@ -80,14 +88,14 @@
                 :label="`${t('app.github')}`"
                 to="https://github.com/hoppscotch/hoppscotch"
                 blank
-                @click.native="$refs.options.tippy().hide()"
+                @click.native="options.tippy().hide()"
               />
               <SmartItem
                 svg="twitter"
                 :label="`${t('app.twitter')}`"
                 to="https://hoppscotch.io/twitter"
                 blank
-                @click.native="$refs.options.tippy().hide()"
+                @click.native="options.tippy().hide()"
               />
               <SmartItem
                 svg="user-plus"
@@ -95,7 +103,7 @@
                 @click.native="
                   () => {
                     showShare = true
-                    $refs.options.tippy().hide()
+                    options.tippy().hide()
                   }
                 "
               />
@@ -104,10 +112,17 @@
                 :label="`${t('app.terms_and_privacy')}`"
                 to="https://docs.hoppscotch.io/privacy"
                 blank
-                @click.native="$refs.options.tippy().hide()"
+                @click.native="options.tippy().hide()"
+              />
+              <SmartItem
+                svg="gift"
+                :label="`${t('app.whats_new')}`"
+                to="https://docs.hoppscotch.io/changelog"
+                blank
+                @click.native="options.tippy().hide()"
               />
               <!-- <SmartItem :label="t('app.status')" /> -->
-              <div class="flex px-4 py-2 opacity-50">
+              <div class="flex opacity-50 py-2 px-4">
                 {{ `${t("app.name")} ${t("app.version")}` }}
               </div>
             </div>
@@ -135,7 +150,7 @@
           @click.native="COLUMN_LAYOUT = !COLUMN_LAYOUT"
         />
         <span
-          class="transition transform"
+          class="transform transition"
           :class="{
             'rotate-180': SIDEBAR_ON_LEFT,
           }"
@@ -208,4 +223,11 @@ const nativeShare = () => {
 const chatWithUs = () => {
   showChat()
 }
+
+// Template refs
+const tippyActions = ref<any | null>(null)
+const documentation = ref<any | null>(null)
+const shortcuts = ref<any | null>(null)
+const chat = ref<any | null>(null)
+const options = ref<any | null>(null)
 </script>

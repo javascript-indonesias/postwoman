@@ -1,18 +1,18 @@
 <template>
   <button
-    class="search-entry focus:outline-none flex items-center flex-1 px-6 py-2 transition cursor-pointer"
+    class="cursor-pointer flex flex-1 py-3 px-6 transition items-center search-entry focus:outline-none"
     :class="{ active: active }"
     tabindex="-1"
     @click="$emit('action', shortcut.action)"
     @keydown.enter="$emit('action', shortcut.action)"
   >
     <SmartIcon
-      class="svg-icons mr-4 transition opacity-50"
+      class="mr-4 opacity-50 transition svg-icons"
       :class="{ 'opacity-100 text-secondaryDark': active }"
       :name="shortcut.icon"
     />
     <span
-      class="flex flex-1 mr-4 font-medium transition"
+      class="flex font-medium flex-1 mr-4 transition"
       :class="{ 'text-secondaryDark': active }"
     >
       {{ t(shortcut.label) }}
@@ -33,7 +33,12 @@ import { useI18n } from "~/helpers/utils/composables"
 const t = useI18n()
 
 defineProps<{
-  shortcut: Object
+  shortcut: {
+    label: string
+    keys: string[]
+    action: string
+    icon: string
+  }
   active: Boolean
 }>()
 </script>
@@ -63,14 +68,5 @@ defineProps<{
       @apply bg-accentLight;
     }
   }
-}
-
-.shortcut-key {
-  @apply bg-dividerLight;
-  @apply rounded;
-  @apply ml-2;
-  @apply py-1;
-  @apply px-2;
-  @apply inline-flex;
 }
 </style>

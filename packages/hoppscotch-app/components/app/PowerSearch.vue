@@ -6,16 +6,39 @@
     @close="$emit('hide-modal')"
   >
     <template #body>
-      <input
-        id="command"
-        v-model="search"
-        v-focus
-        type="text"
-        autocomplete="off"
-        name="command"
-        :placeholder="`${t('app.type_a_command_search')}`"
-        class="border-dividerLight text-secondaryDark flex flex-shrink-0 p-6 text-base bg-transparent border-b"
-      />
+      <div class="flex flex-col border-b border-dividerLight">
+        <input
+          id="command"
+          v-model="search"
+          v-focus
+          type="text"
+          autocomplete="off"
+          name="command"
+          :placeholder="`${t('app.type_a_command_search')}`"
+          class="bg-transparent flex flex-shrink-0 text-base text-secondaryDark p-6"
+        />
+        <div
+          class="flex flex-shrink-0 text-tiny text-secondaryLight px-4 pb-4 justify-between whitespace-nowrap overflow-auto hide-scrollbar <sm:hidden"
+        >
+          <div class="flex items-center">
+            <kbd class="shortcut-key">↑</kbd>
+            <kbd class="shortcut-key">↓</kbd>
+            <span class="ml-2 truncate">
+              {{ t("action.to_navigate") }}
+            </span>
+            <kbd class="shortcut-key">↩</kbd>
+            <span class="ml-2 truncate">
+              {{ t("action.to_select") }}
+            </span>
+          </div>
+          <div class="flex items-center">
+            <kbd class="shortcut-key">ESC</kbd>
+            <span class="ml-2 truncate">
+              {{ t("action.to_close") }}
+            </span>
+          </div>
+        </div>
+      </div>
       <AppFuse
         v-if="search && show"
         :input="fuse"
@@ -24,14 +47,14 @@
       />
       <div
         v-else
-        class="divide-dividerLight hide-scrollbar flex flex-col flex-1 space-y-4 overflow-auto divide-y"
+        class="divide-dividerLight divide-y flex flex-col space-y-4 flex-1 overflow-auto hide-scrollbar"
       >
         <div
           v-for="(map, mapIndex) in mappings"
           :key="`map-${mapIndex}`"
           class="flex flex-col"
         >
-          <h5 class="text-secondaryLight px-6 py-2 my-2">
+          <h5 class="my-2 text-secondaryLight py-2 px-6">
             {{ t(map.section) }}
           </h5>
           <AppPowerSearchEntry

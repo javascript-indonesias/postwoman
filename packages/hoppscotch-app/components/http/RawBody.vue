@@ -1,9 +1,9 @@
 <template>
   <div>
     <div
-      class="bg-primary border-dividerLight top-upperTertiaryStickyFold sticky z-10 flex items-center justify-between flex-1 pl-4 border-b"
+      class="bg-primary border-b border-dividerLight flex flex-1 top-upperTertiaryStickyFold pl-4 z-10 sticky items-center justify-between"
     >
-      <label class="text-secondaryLight font-semibold">
+      <label class="font-semibold text-secondaryLight">
         {{ t("request.raw_body") }}
       </label>
       <div class="flex">
@@ -18,7 +18,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="t('state.linewrap')"
           :class="{ '!text-accent': linewrapEnabled }"
-          svg="corner-down-left"
+          svg="wrap-text"
           @click.native.prevent="linewrapEnabled = !linewrapEnabled"
         />
         <ButtonSecondary
@@ -91,6 +91,7 @@ useCodemirror(
     },
     linter: null,
     completer: null,
+    environmentHighlights: true,
   })
 )
 
@@ -116,10 +117,11 @@ const prettifyRequestBody = () => {
     const jsonObj = JSON.parse(rawParamsBody.value)
     rawParamsBody.value = JSON.stringify(jsonObj, null, 2)
     prettifyIcon.value = "check"
-    setTimeout(() => (prettifyIcon.value = "wand"), 1000)
   } catch (e) {
     console.error(e)
+    prettifyIcon.value = "info"
     toast.error(`${t("error.json_prettify_invalid_body")}`)
   }
+  setTimeout(() => (prettifyIcon.value = "wand"), 1000)
 }
 </script>

@@ -29,6 +29,9 @@
     "send": "Lähettää",
     "start": "alkaa",
     "stop": "Lopettaa",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
+    "to_close": "to close",
     "turn_off": "Sammuttaa",
     "turn_on": "Kiihottua",
     "undo": "Kumoa",
@@ -63,7 +66,7 @@
     "terms_and_privacy": "Ehdot ja yksityisyys",
     "twitter": "Viserrys",
     "type_a_command_search": "Kirjoita komento tai hae…",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "Käytämme evästeitä",
     "whats_new": "Mikä on uutta?",
     "wiki": "Wiki"
@@ -93,7 +96,8 @@
     "password": "Salasana",
     "token": "Token",
     "type": "Valtuustyyppi",
-    "username": "Käyttäjätunnus"
+    "username": "Käyttäjätunnus",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "Kokoelma luotu",
@@ -103,6 +107,7 @@
     "name": "Uusi kokoelmani",
     "new": "Uusi kokoelma",
     "renamed": "Kokoelma nimetty uudelleen",
+    "request_in_use": "Request in use",
     "save_as": "Tallenna nimellä",
     "select": "Valitse kokoelma",
     "select_location": "Valitse sijainti",
@@ -179,6 +184,7 @@
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "Pyyntöä ei voitu lähettää",
     "no_duration": "Ei kestoa",
+    "script_fail": "Ennakkopyyntöskriptiä ei voitu suorittaa",
     "something_went_wrong": "Jotain meni pieleen"
   },
   "export": {
@@ -213,6 +219,7 @@
     "offline_short": "Näytät olevan offline -tilassa.",
     "post_request_tests": "Testikomentosarjat kirjoitetaan JavaScriptillä ja ne suoritetaan vastauksen vastaanottamisen jälkeen.",
     "pre_request_script": "Pyyntöä edeltävät komentosarjat kirjoitetaan JavaScriptillä ja ne suoritetaan ennen pyynnön lähettämistä.",
+    "script_fail": "Vaikuttaa siltä, että ennakkopyyntöskriptissä on virhe. Tarkista alla oleva virhe ja korjaa komentosarja sen mukaisesti.",
     "tests": "Kirjoita testikomentosarja virheenkorjauksen automatisoimiseksi."
   },
   "hide": {
@@ -271,11 +278,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -357,6 +366,7 @@
     "official_proxy_hosting": "Virallista välityspalvelinta isännöi Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Välityspalvelin",
     "proxy_url": "Välityspalvelimen URL -osoite",
@@ -375,7 +385,8 @@
     "theme": "Teema",
     "theme_description": "Mukauta sovellusteemaa.",
     "use_experimental_url_bar": "Käytä kokeellista URL -palkkia ympäristön korostamisen kanssa",
-    "user": "Käyttäjä"
+    "user": "Käyttäjä",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {
@@ -394,6 +405,7 @@
       "documentation": "Siirry dokumentaatiosivulle",
       "forward": "Siirry seuraavalle sivulle",
       "graphql": "Siirry GraphQL -sivulle",
+      "profile": "Go to Profile page",
       "realtime": "Siirry Realtime -sivulle",
       "rest": "Siirry REST -sivulle",
       "settings": "Siirry Asetukset -sivulle",

@@ -29,6 +29,9 @@
     "send": "Envia",
     "start": "Començar",
     "stop": "Atura",
+    "to_navigate": "to navigate",
+    "to_select": "to select",
+    "to_close": "to close",
     "turn_off": "Tanca",
     "turn_on": "Encendre",
     "undo": "Desfés",
@@ -63,7 +66,7 @@
     "terms_and_privacy": "Condicions i privadesa",
     "twitter": "Twitter",
     "type_a_command_search": "Escriviu una ordre o cerqueu ...",
-    "version": "v2.0",
+    "version": "v2.1.0",
     "we_use_cookies": "Utilitzem cookies",
     "whats_new": "Que hi ha de nou?",
     "wiki": "Wiki"
@@ -93,7 +96,8 @@
     "password": "Contrasenya",
     "token": "Testimoni",
     "type": "Tipus d'autorització",
-    "username": "Nom d'usuari"
+    "username": "Nom d'usuari",
+    "pass_key_by": "Pass by"
   },
   "collection": {
     "created": "S'ha creat la col·lecció",
@@ -103,6 +107,7 @@
     "name": "La meva nova col·lecció",
     "new": "Nova col · lecció",
     "renamed": "S'ha canviat el nom de la col·lecció",
+    "request_in_use": "Request in use",
     "save_as": "Guardar com",
     "select": "Seleccioneu una col·lecció",
     "select_location": "Seleccioneu la ubicació",
@@ -179,6 +184,7 @@
     "network_error": "There seems to be a network error. Please try again.",
     "network_fail": "No s'ha pogut enviar la sol·licitud",
     "no_duration": "Sense durada",
+    "script_fail": "No s'ha pogut executar l'script de sol·licitud prèvia",
     "something_went_wrong": "Alguna cosa ha anat malament"
   },
   "export": {
@@ -213,6 +219,7 @@
     "offline_short": "Sembla que estàs fora de línia.",
     "post_request_tests": "Els scripts de prova s’escriuen en JavaScript i s’executen després de rebre la resposta.",
     "pre_request_script": "Els scripts de sol·licitud prèvia s’escriuen en JavaScript i s’executen abans que s’enviï la sol·licitud.",
+    "script_fail": "Sembla que hi ha un error a l'script de sol·licitud prèvia. Comproveu l'error a continuació i solucioneu l'script en conseqüència.",
     "tests": "Escriviu un script de prova per automatitzar la depuració."
   },
   "hide": {
@@ -271,11 +278,13 @@
     "app_settings": "App Settings",
     "editor": "Editor",
     "editor_description": "Editors can add, edit, and delete requests.",
+    "email_verification_mail": "A verification email has been sent to your email address. Please click on the link to verify your email address.",
     "no_permission": "You do not have permission to perform this action.",
     "owner": "Owner",
     "owner_description": "Owners can add, edit, and delete requests, collections and team members.",
     "roles": "Roles",
     "roles_description": "Roles are used to control access to the shared collections.",
+    "updated": "Profile updated",
     "viewer": "Viewer",
     "viewer_description": "Viewers can only view and use requests."
   },
@@ -357,6 +366,7 @@
     "official_proxy_hosting": "El servidor intermediari oficial està allotjat per Hoppscotch.",
     "profile": "Profile",
     "profile_description": "Update your profile details",
+    "profile_email": "Email address",
     "profile_name": "Profile name",
     "proxy": "Servidor intermediari",
     "proxy_url": "URL del servidor intermediari",
@@ -375,7 +385,8 @@
     "theme": "Tema",
     "theme_description": "Personalitzeu el tema de l'aplicació.",
     "use_experimental_url_bar": "Utilitzeu la barra d’URL experimental amb ressaltat de l’entorn",
-    "user": "Usuari"
+    "user": "Usuari",
+    "verify_email": "Verify email"
   },
   "shortcut": {
     "general": {
@@ -394,6 +405,7 @@
       "documentation": "Aneu a la pàgina Documentació",
       "forward": "Aneu a la pàgina següent",
       "graphql": "Aneu a la pàgina GraphQL",
+      "profile": "Go to Profile page",
       "realtime": "Aneu a la pàgina en temps real",
       "rest": "Aneu a la pàgina REST",
       "settings": "Aneu a la pàgina Configuració",

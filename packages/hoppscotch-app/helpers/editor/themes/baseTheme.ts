@@ -18,7 +18,11 @@ import { lineNumbers, highlightActiveLineGutter } from "@codemirror/gutter"
 import { defaultKeymap } from "@codemirror/commands"
 import { bracketMatching } from "@codemirror/matchbrackets"
 import { closeBrackets, closeBracketsKeymap } from "@codemirror/closebrackets"
-import { searchKeymap, highlightSelectionMatches } from "@codemirror/search"
+import {
+  searchKeymap,
+  highlightSelectionMatches,
+  searchConfig,
+} from "@codemirror/search"
 import { autocompletion, completionKeymap } from "@codemirror/autocomplete"
 import { commentKeymap } from "@codemirror/comment"
 import { rectangularSelection } from "@codemirror/rectangular-selection"
@@ -26,7 +30,8 @@ import { lintKeymap } from "@codemirror/lint"
 
 export const baseTheme = EditorView.theme({
   "&": {
-    fontSize: "var(--body-font-size)",
+    fontSize: "var(--font-size-body)",
+    height: "100%",
   },
   ".cm-content": {
     caretColor: "var(--secondary-light-color)",
@@ -63,13 +68,13 @@ export const baseTheme = EditorView.theme({
   },
   ".cm-textfield": {
     backgroundColor: "var(--primary-dark-color)",
-    color: "var(--secondary-light-color)",
+    color: "var(--secondary-dark-color)",
     borderColor: "var(--divider-light-color)",
     borderRadius: "3px",
   },
   ".cm-button": {
     backgroundColor: "var(--primary-dark-color)",
-    color: "var(--secondary-light-color)",
+    color: "var(--secondary-dark-color)",
     backgroundImage: "none",
     border: "none",
   },
@@ -207,17 +212,15 @@ export const baseHighlightStyle = HighlightStyle.define([
   { tag: t.invalid, color: editorInvalidColor },
 ])
 
-const baseFoldStyle = foldGutter({
-  openText: "▾",
-  closedText: "▸",
-})
-
 export const basicSetup: Extension = [
   lineNumbers(),
   highlightActiveLineGutter(),
   highlightSpecialChars(),
   history(),
-  baseFoldStyle,
+  foldGutter({
+    openText: "▾",
+    closedText: "▸",
+  }),
   EditorState.allowMultipleSelections.of(true),
   indentOnInput(),
   defaultHighlightStyle.fallback,
@@ -227,6 +230,9 @@ export const basicSetup: Extension = [
   rectangularSelection(),
   highlightActiveLine(),
   highlightSelectionMatches(),
+  searchConfig({
+    top: true,
+  }),
   keymap.of([
     ...closeBracketsKeymap,
     ...defaultKeymap,

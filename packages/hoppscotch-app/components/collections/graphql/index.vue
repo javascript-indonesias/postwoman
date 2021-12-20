@@ -1,10 +1,7 @@
 <template>
-  <AppSection
-    label="collections"
-    :class="{ 'rounded border border-divider': savingMode }"
-  >
+  <div :class="{ 'rounded border border-divider': savingMode }">
     <div
-      class="divide-dividerLight border-dividerLight sticky top-0 z-10 flex flex-col border-b divide-y"
+      class="divide-dividerLight divide-y border-b border-dividerLight flex flex-col top-0 z-10 sticky"
       :class="{ 'bg-primary': !savingMode }"
     >
       <input
@@ -13,9 +10,9 @@
         type="search"
         autocomplete="off"
         :placeholder="$t('action.search')"
-        class="flex w-full px-4 py-2 bg-transparent"
+        class="bg-transparent flex py-2 px-4"
       />
-      <div class="flex justify-between flex-1">
+      <div class="flex flex-1 justify-between">
         <ButtonSecondary
           svg="plus"
           :label="$t('action.new')"
@@ -62,15 +59,15 @@
     </div>
     <div
       v-if="collections.length === 0"
-      class="text-secondaryLight flex flex-col items-center justify-center p-4"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
       <img
         :src="`/images/states/${$colorMode.value}/pack.svg`"
         loading="lazy"
-        class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
+        class="flex-col object-contain object-center h-16 my-4 w-16 inline-flex"
         :alt="$t('empty.collections')"
       />
-      <span class="pb-4 text-center">
+      <span class="text-center pb-4">
         {{ $t("empty.collections") }}
       </span>
       <ButtonSecondary
@@ -81,10 +78,10 @@
     </div>
     <div
       v-if="!(filteredCollections.length !== 0 || collections.length === 0)"
-      class="text-secondaryLight flex flex-col items-center justify-center p-4"
+      class="flex flex-col text-secondaryLight p-4 items-center justify-center"
     >
-      <i class="material-icons pb-2 opacity-75">manage_search</i>
-      <span class="text-center">
+      <i class="opacity-75 pb-2 material-icons">manage_search</i>
+      <span class="my-2 text-center">
         {{ $t("state.nothing_found") }} "{{ filterText }}"
       </span>
     </div>
@@ -96,6 +93,7 @@
       :show="showModalEdit"
       :editing-collection="editingCollection"
       :editing-collection-index="editingCollectionIndex"
+      :editing-collection-name="editingCollection ? editingCollection.name : ''"
       @hide-modal="displayModalEdit(false)"
     />
     <CollectionsGraphqlAddFolder
@@ -110,6 +108,7 @@
       :folder="editingFolder"
       :folder-index="editingFolderIndex"
       :folder-path="editingFolderPath"
+      :editing-folder-name="editingFolder ? editingFolder.name : ''"
       @hide-modal="displayModalEditFolder(false)"
     />
     <CollectionsGraphqlEditRequest
@@ -117,17 +116,19 @@
       :folder-path="editingFolderPath"
       :request="editingRequest"
       :request-index="editingRequestIndex"
+      :editing-request-name="editingRequest ? editingRequest.name : ''"
       @hide-modal="displayModalEditRequest(false)"
     />
     <CollectionsGraphqlImportExport
       :show="showModalImportExport"
       @hide-modal="displayModalImportExport(false)"
     />
-  </AppSection>
+  </div>
 </template>
 
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
+import cloneDeep from "lodash/cloneDeep"
 import clone from "lodash/clone"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {

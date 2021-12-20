@@ -10,7 +10,6 @@
         v-if="mode == 'import_from_my_collections'"
         v-tippy="{ theme: 'tooltip' }"
         :title="$t('action.go_back')"
-        class="rounded"
         svg="arrow-left"
         @click.native="
           () => {
@@ -34,7 +33,6 @@
             <ButtonSecondary
               v-tippy="{ theme: 'tooltip' }"
               :title="$t('action.more')"
-              class="rounded"
               svg="more-vertical"
             />
           </template>
@@ -43,7 +41,7 @@
             :label="$t('import.from_gist')"
             @click.native="
               () => {
-                readCollectionGist
+                readCollectionGist()
                 $refs.options.tippy().hide()
               }
             "
@@ -180,9 +178,11 @@
 
 <script>
 import { defineComponent } from "@nuxtjs/composition-api"
+import { translateToNewRequest } from "@hoppscotch/data"
 import { currentUser$ } from "~/helpers/fb/auth"
 import * as teamUtils from "~/helpers/teams/utils"
 import { useReadonlyStream } from "~/helpers/utils/composables"
+import { parseInsomniaCollection } from "~/helpers/utils/parseInsomniaCollection"
 import {
   restCollections$,
   setRESTCollections,
@@ -318,8 +318,12 @@ export default defineComponent({
     importFromJSON() {
       const reader = new FileReader()
       reader.onload = ({ target }) => {
-        const content = target.result
+        let content = target.result
         let collections = JSON.parse(content)
+        if (this.isInsomniaCollection(collections)) {
+          collections = parseInsomniaCollection(content)
+          content = JSON.stringify(collections)
+        }
         if (collections[0]) {
           const [name, folders, requests] = Object.keys(collections[0])
           if (
@@ -335,7 +339,7 @@ export default defineComponent({
         ) {
           // replace the variables, postman uses {{var}}, Hoppscotch uses <<var>>
           collections = JSON.parse(
-            content.replaceAll(/{{([a-z]+)}}/gi, "<<$1>>")
+            content.replaceAll(/{{([a-zA-Z_$][a-zA-Z_$0-9]*)}}/gi, "<<$1>>")
           )
           collections = [this.parsePostmanCollection(collections)]
         } else {
@@ -546,10 +550,19 @@ export default defineComponent({
           pwRequest.rawParams = request.body.raw
         }
       }
-      return pwRequest
+      return translateToNewRequest(pwRequest)
     },
     hasFolder(item) {
       return Object.prototype.hasOwnProperty.call(item, "item")
+    },
+    isInsomniaCollection(collection) {
+      if (typeof collection === "object") {
+        return (
+          Object.prototype.hasOwnProperty.call(collection, "__export_source") &&
+          collection.__export_source.includes("insomnia")
+        )
+      }
+      return false
     },
   },
 })

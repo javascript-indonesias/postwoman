@@ -1,28 +1,31 @@
 <template>
   <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
-      class="group flex items-center"
+      class="flex items-stretch group"
       draggable="true"
       @dragstart="dragStart"
       @dragover.stop
       @dragleave="dragging = false"
       @dragend="dragging = false"
+      @contextmenu.prevent="options.tippy().show()"
     >
       <span
-        class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
+        class="cursor-pointer flex px-2 w-16 items-center justify-center truncate"
         @click="!doc ? selectRequest() : {}"
       >
         <SmartIcon
           class="svg-icons"
-          :class="{ 'text-green-500': isSelected }"
+          :class="{ 'text-accent': isSelected }"
           :name="isSelected ? 'check-circle' : 'file'"
         />
       </span>
       <span
-        class="group-hover:text-secondaryDark flex flex-1 min-w-0 py-2 pr-2 transition cursor-pointer"
+        class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition group-hover:text-secondaryDark"
         @click="!doc ? selectRequest() : {}"
       >
-        <span class="truncate"> {{ request.name }} </span>
+        <span class="truncate" :class="{ 'text-accent': isSelected }">
+          {{ request.name }}
+        </span>
       </span>
       <div class="flex">
         <ButtonSecondary
@@ -30,7 +33,7 @@
           v-tippy="{ theme: 'tooltip' }"
           svg="rotate-ccw"
           :title="$t('action.restore')"
-          class="group-hover:inline-flex hidden"
+          class="hidden group-hover:inline-flex"
           @click.native="!doc ? selectRequest() : {}"
         />
         <span>
@@ -40,6 +43,7 @@
             trigger="click"
             theme="popover"
             arrow
+            :on-shown="() => tippyActions.focus()"
           >
             <template #trigger>
               <ButtonSecondary
@@ -48,45 +52,60 @@
                 svg="more-vertical"
               />
             </template>
-            <SmartItem
-              svg="edit"
-              :label="`${$t('action.edit')}`"
-              @click.native="
-                () => {
-                  $emit('edit-request', {
-                    request,
-                    requestIndex,
-                    folderPath,
-                  })
-                  $refs.options.tippy().hide()
-                }
-              "
-            />
-            <SmartItem
-              svg="copy"
-              :label="`${$t('action.duplicate')}`"
-              @click.native="
-                () => {
-                  $emit('duplicate-request', {
-                    request,
-                    requestIndex,
-                    folderPath,
-                  })
-                  $refs.options.tippy().hide()
-                }
-              "
-            />
-            <SmartItem
-              svg="trash-2"
-              color="red"
-              :label="`${$t('action.delete')}`"
-              @click.native="
-                () => {
-                  confirmRemove = true
-                  $refs.options.tippy().hide()
-                }
-              "
-            />
+            <div
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.e="edit.$el.click()"
+              @keyup.d="duplicate.$el.click()"
+              @keyup.delete="deleteAction.$el.click()"
+              @keyup.escape="options.tippy().hide()"
+            >
+              <SmartItem
+                ref="edit"
+                svg="edit"
+                :label="`${$t('action.edit')}`"
+                :shortcut="['E']"
+                @click.native="
+                  () => {
+                    $emit('edit-request', {
+                      request,
+                      requestIndex,
+                      folderPath,
+                    })
+                    options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
+                ref="duplicate"
+                svg="copy"
+                :label="`${$t('action.duplicate')}`"
+                :shortcut="['D']"
+                @click.native="
+                  () => {
+                    $emit('duplicate-request', {
+                      request,
+                      requestIndex,
+                      folderPath,
+                    })
+                    options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
+                ref="deleteAction"
+                svg="trash-2"
+                :label="`${$t('action.delete')}`"
+                :shortcut="['⌫']"
+                @click.native="
+                  () => {
+                    confirmRemove = true
+                    options.tippy().hide()
+                  }
+                "
+              />
+            </div>
           </tippy>
         </span>
       </div>
@@ -101,8 +120,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "@nuxtjs/composition-api"
-import { HoppGQLRequest, makeGQLRequest } from "~/helpers/types/HoppGQLRequest"
+import { defineComponent, PropType, ref } from "@nuxtjs/composition-api"
+import { HoppGQLRequest, makeGQLRequest } from "@hoppscotch/data"
 import { removeGraphqlRequest } from "~/newstore/collections"
 import { setGQLSession } from "~/newstore/GQLSession"
 
@@ -116,6 +135,15 @@ export default defineComponent({
     folderPath: { type: String, default: null },
     requestIndex: { type: Number, default: null },
     doc: Boolean,
+  },
+  setup() {
+    return {
+      tippyActions: ref<any | null>(null),
+      options: ref<any | null>(null),
+      edit: ref<any | null>(null),
+      duplicate: ref<any | null>(null),
+      deleteAction: ref<any | null>(null),
+    }
   },
   data() {
     return {

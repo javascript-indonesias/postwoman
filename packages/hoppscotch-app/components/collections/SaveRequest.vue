@@ -6,7 +6,7 @@
   >
     <template #body>
       <div class="flex flex-col px-2">
-        <div class="relative flex">
+        <div class="flex relative">
           <input
             id="selectLabelSaveReq"
             v-model="requestName"
@@ -59,7 +59,8 @@
 
 <script setup lang="ts">
 import { reactive, ref, watch } from "@nuxtjs/composition-api"
-import { isHoppRESTRequest } from "~/helpers/types/HoppRESTRequest"
+import { HoppGQLRequest, isHoppRESTRequest } from "@hoppscotch/data"
+import cloneDeep from "lodash/cloneDeep"
 import {
   editGraphqlRequest,
   editRESTRequest,
@@ -74,7 +75,6 @@ import {
 } from "~/newstore/RESTSession"
 import * as teamUtils from "~/helpers/teams/utils"
 import { apolloClient } from "~/helpers/apollo"
-import { HoppGQLRequest } from "~/helpers/types/HoppGQLRequest"
 import { useI18n, useToast } from "~/helpers/utils/composables"
 
 const t = useI18n()
@@ -200,8 +200,12 @@ const saveRequestAs = async () => {
     return
   }
 
+  // Clone Deep because objects are shared by reference so updating
+  // just one bit will update other referenced shared instances
   const requestUpdated =
-    props.mode === "rest" ? getRESTRequest() : getGQLSession().request
+    props.mode === "rest"
+      ? cloneDeep(getRESTRequest())
+      : cloneDeep(getGQLSession().request)
 
   // // Filter out all REST file inputs
   // if (this.mode === "rest" && requestUpdated.bodyParams) {

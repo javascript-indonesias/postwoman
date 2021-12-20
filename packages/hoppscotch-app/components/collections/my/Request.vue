@@ -1,22 +1,23 @@
 <template>
   <div class="flex flex-col" :class="[{ 'bg-primaryLight': dragging }]">
     <div
-      class="group flex items-center"
+      class="flex items-stretch group"
       draggable="true"
       @dragstart="dragStart"
       @dragover.stop
       @dragleave="dragging = false"
       @dragend="dragging = false"
+      @contextmenu.prevent="options.tippy().show()"
     >
       <span
-        class="flex items-center justify-center w-16 px-2 truncate cursor-pointer"
+        class="cursor-pointer flex px-2 w-16 items-center justify-center truncate"
         :class="getRequestLabelColor(request.method)"
         @click="!doc ? selectRequest() : {}"
       >
         <SmartIcon
           v-if="isSelected"
           class="svg-icons"
-          :class="{ 'text-green-500': isSelected }"
+          :class="{ 'text-accent': isSelected }"
           name="check-circle"
         />
         <span v-else class="truncate">
@@ -24,10 +25,12 @@
         </span>
       </span>
       <span
-        class="group-hover:text-secondaryDark flex items-center flex-1 min-w-0 py-2 pr-2 transition cursor-pointer"
+        class="cursor-pointer flex flex-1 min-w-0 py-2 pr-2 transition items-center group-hover:text-secondaryDark"
         @click="!doc ? selectRequest() : {}"
       >
-        <span class="truncate"> {{ request.name }} </span>
+        <span class="truncate" :class="{ 'text-accent': isSelected }">
+          {{ request.name }}
+        </span>
         <span
           v-if="
             active &&
@@ -35,7 +38,9 @@
             active.folderPath === folderPath &&
             active.requestIndex === requestIndex
           "
+          v-tippy="{ theme: 'tooltip' }"
           class="rounded-full bg-green-500 flex-shrink-0 h-1.5 mx-3 w-1.5"
+          :title="`${$t('collection.request_in_use')}`"
         ></span>
       </span>
       <div class="flex">
@@ -44,7 +49,7 @@
           v-tippy="{ theme: 'tooltip' }"
           svg="rotate-ccw"
           :title="$t('action.restore')"
-          class="group-hover:inline-flex hidden"
+          class="hidden group-hover:inline-flex"
           @click.native="!doc ? selectRequest() : {}"
         />
         <span>
@@ -54,6 +59,7 @@
             trigger="click"
             theme="popover"
             arrow
+            :on-shown="() => tippyActions.focus()"
           >
             <template #trigger>
               <ButtonSecondary
@@ -62,45 +68,66 @@
                 svg="more-vertical"
               />
             </template>
-            <SmartItem
-              svg="edit"
-              :label="$t('action.edit')"
-              @click.native="
-                $emit('edit-request', {
-                  collectionIndex,
-                  folderIndex,
-                  folderName,
-                  request,
-                  requestIndex,
-                  folderPath,
-                })
-                $refs.options.tippy().hide()
-              "
-            />
-            <SmartItem
-              svg="copy"
-              :label="$t('action.duplicate')"
-              @click.native="
-                $emit('duplicate-request', {
-                  collectionIndex,
-                  folderIndex,
-                  folderName,
-                  request,
-                  requestIndex,
-                  folderPath,
-                })
-                $refs.options.tippy().hide()
-              "
-            />
-            <SmartItem
-              svg="trash-2"
-              color="red"
-              :label="$t('action.delete')"
-              @click.native="
-                confirmRemove = true
-                $refs.options.tippy().hide()
-              "
-            />
+            <div
+              ref="tippyActions"
+              class="flex flex-col focus:outline-none"
+              tabindex="0"
+              @keyup.e="edit.$el.click()"
+              @keyup.d="duplicate.$el.click()"
+              @keyup.delete="deleteAction.$el.click()"
+              @keyup.escape="options.tippy().hide()"
+            >
+              <SmartItem
+                ref="edit"
+                svg="edit"
+                :label="$t('action.edit')"
+                :shortcut="['E']"
+                @click.native="
+                  () => {
+                    $emit('edit-request', {
+                      collectionIndex,
+                      folderIndex,
+                      folderName,
+                      request,
+                      requestIndex,
+                      folderPath,
+                    })
+                    options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
+                ref="duplicate"
+                svg="copy"
+                :label="$t('action.duplicate')"
+                :shortcut="['D']"
+                @click.native="
+                  () => {
+                    $emit('duplicate-request', {
+                      collectionIndex,
+                      folderIndex,
+                      folderName,
+                      request,
+                      requestIndex,
+                      folderPath,
+                    })
+                    options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
+                ref="deleteAction"
+                svg="trash-2"
+                :label="$t('action.delete')"
+                :shortcut="['⌫']"
+                @click.native="
+                  () => {
+                    confirmRemove = true
+                    options.tippy().hide()
+                  }
+                "
+              />
+            </div>
           </tippy>
         </span>
       </div>
@@ -114,9 +141,9 @@
   </div>
 </template>
 
-<script>
-import { defineComponent } from "@nuxtjs/composition-api"
-import { translateToNewRequest } from "~/helpers/types/HoppRESTRequest"
+<script lang="ts">
+import { defineComponent, ref } from "@nuxtjs/composition-api"
+import { translateToNewRequest } from "@hoppscotch/data"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
   restSaveContext$,
@@ -142,6 +169,11 @@ export default defineComponent({
     const active = useReadonlyStream(restSaveContext$, null)
     return {
       active,
+      tippyActions: ref<any | null>(null),
+      options: ref<any | null>(null),
+      edit: ref<any | null>(null),
+      duplicate: ref<any | null>(null),
+      deleteAction: ref<any | null>(null),
     }
   },
   data() {
@@ -158,7 +190,7 @@ export default defineComponent({
     }
   },
   computed: {
-    isSelected() {
+    isSelected(): boolean {
       return (
         this.picked &&
         this.picked.pickedType === "my-request" &&
@@ -209,7 +241,7 @@ export default defineComponent({
         requestIndex: this.$props.requestIndex,
       })
     },
-    getRequestLabelColor(method) {
+    getRequestLabelColor(method: string): string {
       return (
         this.requestMethodLabels[method.toLowerCase()] ||
         this.requestMethodLabels.default

@@ -19,7 +19,8 @@
   @apply bg-divider bg-clip-content;
   @apply rounded-full;
   @apply border-solid border-transparent border-4;
-  @apply hover:(bg-dividerDark bg-clip-content);
+  @apply hover:bg-dividerDark;
+  @apply hover:bg-clip-content;
 }
 
 ::-webkit-scrollbar {
@@ -63,10 +64,10 @@ body {
   @apply font-medium;
   @apply select-none;
   @apply overflow-x-hidden;
+  @apply text-body;
+  @apply leading-body;
 
   animation: fade 300ms forwards;
-  font-size: var(--body-font-size);
-  line-height: var(--body-line-height);
   -webkit-tap-highlight-color: transparent;
   -webkit-touch-callout: none;
 }
@@ -102,15 +103,15 @@ body {
 .material-icons {
   @apply flex-shrink-0;
 
-  font-size: var(--body-line-height) !important;
-  width: var(--body-line-height);
+  font-size: var(--line-height-body) !important;
+  width: var(--line-height-body);
 }
 
 .svg-icons {
   @apply flex-shrink-0;
 
-  height: var(--body-line-height);
-  width: var(--body-line-height);
+  height: var(--line-height-body);
+  width: var(--line-height-body);
 }
 
 a {
@@ -119,9 +120,8 @@ a {
   @apply no-underline;
   @apply outline-none;
   @apply transition;
-
-  font-size: var(--body-font-size);
-  line-height: var(--body-line-height);
+  @apply text-body;
+  @apply leading-body;
 
   &.link {
     @apply items-center;
@@ -130,48 +130,48 @@ a {
     @apply text-accent;
     @apply rounded;
     @apply hover:text-accentDark;
-    @apply focus-visible:(ring ring-accent);
+    @apply focus-visible:ring;
+    @apply focus-visible:ring-accent;
   }
 }
 
-.tippy-popper {
-  .tooltip-theme {
-    @apply bg-tooltip;
-    @apply text-primary;
-    @apply font-semibold;
-    @apply py-1 px-2;
+.tooltip-theme {
+  @apply bg-tooltip;
+  @apply text-primary;
+  @apply font-semibold;
+  @apply py-1 px-2;
+  @apply rounded;
+  @apply truncate;
+  @apply shadow;
+  @apply leading-body;
+
+  font-size: 88%;
+
+  kbd {
+    @apply hidden;
+    @apply sm:inline-flex;
+    @apply font-sans;
+    @apply bg-gray-500;
+    @apply bg-opacity-45;
+    @apply text-primaryLight;
+    @apply rounded-sm;
+    @apply px-1;
+    @apply ml-1;
     @apply truncate;
-    @apply shadow;
-
-    font-size: 88%;
-    line-height: var(--body-line-height);
-
-    kbd {
-      @apply inline-flex;
-      @apply font-sans;
-      @apply bg-gray-500;
-      @apply bg-opacity-45;
-      @apply text-primaryLight;
-      @apply rounded-sm;
-      @apply px-1;
-      @apply ml-1;
-      @apply truncate;
-    }
   }
+}
 
-  .popover-theme {
-    @apply bg-popover;
-    @apply text-secondary;
-    @apply p-2;
-    @apply shadow-lg;
-    @apply focus:outline-none;
+.popover-theme {
+  @apply bg-popover;
+  @apply text-secondary;
+  @apply p-2;
+  @apply shadow-lg;
+  @apply text-body;
+  @apply leading-body;
+  @apply focus:outline-none;
 
-    font-size: var(--body-font-size);
-    line-height: var(--body-line-height);
-
-    .tippy-roundarrow svg {
-      @apply fill-popover;
-    }
+  .tippy-roundarrow svg {
+    @apply fill-popover;
   }
 }
 
@@ -215,13 +215,12 @@ input,
 select,
 textarea,
 button {
-  @apply focus:outline-none;
   @apply truncate;
   @apply transition;
+  @apply text-body;
+  @apply leading-body;
+  @apply focus:outline-none;
   @apply disabled:cursor-not-allowed;
-
-  font-size: var(--body-font-size);
-  line-height: var(--body-line-height);
 }
 
 .input[type="file"],
@@ -322,9 +321,8 @@ pre.ace_editor {
       @apply shadow;
       @apply font-medium;
       @apply transition;
-
-      font-size: var(--body-font-size);
-      line-height: var(--body-line-height);
+      @apply text-body;
+      @apply leading-body;
 
       .action {
         @apply bg-gray-500;
@@ -336,11 +334,11 @@ pre.ace_editor {
         @apply rounded;
         @apply text-current;
         @apply normal-case;
-        @apply hover:(bg-opacity-20 no-underline);
         @apply font-medium;
-
-        font-size: var(--body-font-size);
-        line-height: var(--body-line-height);
+        @apply text-body;
+        @apply leading-body;
+        @apply hover:bg-opacity-20;
+        @apply hover:no-underline;
       }
     }
 
@@ -446,6 +444,17 @@ pre.ace_editor {
   .cm-activeLineGutter {
     @apply bg-primaryDark;
   }
+}
+
+.shortcut-key {
+  @apply inline-flex;
+  @apply font-sans;
+  @apply font-medium;
+  @apply text-tiny;
+  @apply bg-divider;
+  @apply rounded;
+  @apply ml-2;
+  @apply px-1;
 }
 
 @media (max-width: 767px) {
