@@ -16,22 +16,20 @@
     "label": "Etikett",
     "learn_more": "Mehr erfahren",
     "more": "Mehr",
+    "less": "Less",
     "new": "Neu",
     "no": "Nein",
-    "preserve_current": "Aktuelles behalten",
     "prettify": "Verschönern",
     "remove": "Entfernen",
-    "replace_current": "Aktuelles ersetzen",
-    "replace_json": "Durch JSON ersetzen",
     "restore": "Wiederherstellen",
     "save": "Speichern",
     "search": "Suchen",
     "send": "Senden",
     "start": "Start",
     "stop": "Stopp",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Ausschalten",
     "turn_on": "Einschalten",
     "undo": "Rückgängig machen",
@@ -66,7 +64,6 @@
     "terms_and_privacy": "Allgemeine Geschäftsbedingungen und Datenschutzerklärung",
     "twitter": "Twitter",
     "type_a_command_search": "Geben Sie einen Befehl ein oder suchen Sie…",
-    "version": "v2.1.0",
     "we_use_cookies": "Wir verwenden Cookies",
     "whats_new": "Was gibt's Neues?",
     "wiki": "Wiki"
@@ -93,11 +90,11 @@
     "generate_token": "Token generieren",
     "include_in_url": "In URL einschließen",
     "learn": "Lernen wie",
+    "pass_key_by": "Pass by",
     "password": "Passwort",
     "token": "Token",
     "type": "Berechtigungstyp",
-    "username": "Nutzername",
-    "pass_key_by": "Pass by"
+    "username": "Nutzername"
   },
   "collection": {
     "created": "Sammlung erstellt",
@@ -232,9 +229,20 @@
     "curl": "cURL importieren",
     "failed": "Importieren fehlgeschlagen",
     "from_gist": "Import aus Gist",
+    "from_gist_description": "Import from Gist URL",
+    "from_insomnia": "Import from Insomnia",
+    "from_insomnia_description": "Import from Insomnia collection",
     "from_my_collections": "Aus Meine Sammlungen importieren",
+    "from_my_collections_description": "Import from My Collections file",
+    "from_openapi": "Import from OpenAPI",
+    "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
+    "from_postman": "Import from Postman",
+    "from_postman_description": "Import from Postman collection",
+    "from_url": "Import from URL",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Gist-URL eingeben",
-    "json": "Aus JSON importieren",
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Importieren"
   },
   "layout": {
@@ -426,6 +434,13 @@
       "save_to_collections": "In Sammlungen speichern",
       "send_request": "Anfrage senden",
       "title": "Anfrage"
+    },
+    "theme": {
+      "black": "Switch  theme to black mode",
+      "dark": "Switch  theme to  dark mode",
+      "light": "Switch  theme to light mode",
+      "system": "Switch  theme to system mode",
+      "title": "Theme"
     }
   },
   "show": {
@@ -447,7 +462,7 @@
   },
   "state": {
     "bulk_mode": "Bulk-Bearbeitung",
-    "bulk_mode_placeholder": "Einträge werden durch Zeilenumbruch getrennt\nSchlüssel und Werte werden getrennt durch:\nStellen Sie // jeder Zeile voran, die Sie hinzufügen möchten, aber lassen Sie sie deaktiviert",
+    "bulk_mode_placeholder": "Einträge werden durch Zeilenumbruch getrennt\nSchlüssel und Werte werden getrennt durch:\nStellen Sie # jeder Zeile voran, die Sie hinzufügen möchten, aber lassen Sie sie deaktiviert",
     "cleared": "Gelöscht",
     "connected": "In Verbindung gebracht",
     "connected_to": "Verbunden mit {name}",

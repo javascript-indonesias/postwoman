@@ -16,22 +16,20 @@
     "label": "Etiket",
     "learn_more": "Daha fazla bilgi edin",
     "more": "Daha",
+    "less": "Less",
     "new": "Yeni",
     "no": "Numara",
-    "preserve_current": "Şimdikini koru",
     "prettify": "Güzelleştir",
     "remove": "Kaldır",
-    "replace_current": "Şimdikini değiştir",
-    "replace_json": "JSON ile değiştir",
     "restore": "Onar",
     "save": "Kaydet",
     "search": "Arama",
     "send": "Gönder",
     "start": "Başla",
     "stop": "Dur",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Kapat",
     "turn_on": "Aç",
     "undo": "Geri al",
@@ -66,7 +64,6 @@
     "terms_and_privacy": "Şartlar ve gizlilik",
     "twitter": "heyecan",
     "type_a_command_search": "Bir komut yazın veya arayın…",
-    "version": "v2.1.0",
     "we_use_cookies": "çerez kullanıyoruz",
     "whats_new": "Ne var ne yok?",
     "wiki": "Wiki"
@@ -93,11 +90,11 @@
     "generate_token": "Jeton Oluştur",
     "include_in_url": "URL'ye dahil et",
     "learn": "Nasıl öğrenilir",
+    "pass_key_by": "Pass by",
     "password": "Parola",
     "token": "Jeton",
     "type": "Yetki Türü",
-    "username": "Kullanıcı adı",
-    "pass_key_by": "Pass by"
+    "username": "Kullanıcı adı"
   },
   "collection": {
     "created": "Koleksiyon oluşturuldu",
@@ -232,9 +229,20 @@
     "curl": "cURL'yi içe aktar",
     "failed": "İçe aktarılamadı",
     "from_gist": "Gist'ten içe aktar",
+    "from_gist_description": "Import from Gist URL",
+    "from_insomnia": "Import from Insomnia",
+    "from_insomnia_description": "Import from Insomnia collection",
     "from_my_collections": "Koleksiyonlarımdan İçe Aktar",
+    "from_my_collections_description": "Import from My Collections file",
+    "from_openapi": "Import from OpenAPI",
+    "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
+    "from_postman": "Import from Postman",
+    "from_postman_description": "Import from Postman collection",
+    "from_url": "Import from URL",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Gist URL'sini girin",
-    "json": "JSON'dan içe aktar",
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "İçe aktar"
   },
   "layout": {
@@ -426,6 +434,13 @@
       "save_to_collections": "Koleksiyonlara Kaydet",
       "send_request": "İstek gönder",
       "title": "İstek"
+    },
+    "theme": {
+      "black": "Switch  theme to black mode",
+      "dark": "Switch  theme to  dark mode",
+      "light": "Switch  theme to light mode",
+      "system": "Switch  theme to system mode",
+      "title": "Theme"
     }
   },
   "show": {
@@ -447,7 +462,7 @@
   },
   "state": {
     "bulk_mode": "Toplu düzenleme",
-    "bulk_mode_placeholder": "Girişler yeni satırla ayrılır\nAnahtarlar ve değerler şu şekilde ayrılır:\nEklemek istediğiniz ancak devre dışı bırakmak istediğiniz herhangi bir satırın başına // ekleyin",
+    "bulk_mode_placeholder": "Girişler yeni satırla ayrılır\nAnahtarlar ve değerler şu şekilde ayrılır:\nEklemek istediğiniz ancak devre dışı bırakmak istediğiniz herhangi bir satırın başına # ekleyin",
     "cleared": "Temizlendi",
     "connected": "bağlı",
     "connected_to": "{name} ile bağlantılı",

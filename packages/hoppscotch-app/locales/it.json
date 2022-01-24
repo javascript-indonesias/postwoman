@@ -16,22 +16,20 @@
     "label": "Etichetta",
     "learn_more": "Per saperne di più",
     "more": "Di più",
+    "less": "Less",
     "new": "Nuovo",
     "no": "No",
-    "preserve_current": "Conserva attuale",
     "prettify": "Abbellisci",
     "remove": "Rimuovi",
-    "replace_current": "Sostituisci attuale",
-    "replace_json": "Sostituisci con JSON",
     "restore": "Ripristina",
     "save": "Salva",
     "search": "Cerca",
     "send": "Invia",
     "start": "Avvia",
     "stop": "Interrompi",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Spegni",
     "turn_on": "Accendi",
     "undo": "Annulla",
@@ -66,7 +64,6 @@
     "terms_and_privacy": "Termini e privacy",
     "twitter": "Twitter",
     "type_a_command_search": "Digita un comando o cerca...",
-    "version": "v2.1.0",
     "we_use_cookies": "Utilizziamo i cookie",
     "whats_new": "Cosa c'è di nuovo?",
     "wiki": "Wiki"
@@ -93,11 +90,11 @@
     "generate_token": "Genera token",
     "include_in_url": "Includi nell'URL",
     "learn": "Impara come",
+    "pass_key_by": "Pass by",
     "password": "Password",
     "token": "Token",
     "type": "Tipo di autorizzazione",
-    "username": "Nome utente",
-    "pass_key_by": "Pass by"
+    "username": "Nome utente"
   },
   "collection": {
     "created": "Raccolta creata",
@@ -232,9 +229,20 @@
     "curl": "Importa cURL",
     "failed": "Importazione non riuscita",
     "from_gist": "Importa da Gist",
+    "from_gist_description": "Import from Gist URL",
+    "from_insomnia": "Import from Insomnia",
+    "from_insomnia_description": "Import from Insomnia collection",
     "from_my_collections": "Importa da Le Mie Raccolte",
+    "from_my_collections_description": "Import from My Collections file",
+    "from_openapi": "Import from OpenAPI",
+    "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
+    "from_postman": "Import from Postman",
+    "from_postman_description": "Import from Postman collection",
+    "from_url": "Import from URL",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Inserisci l'URL del Gist",
-    "json": "Importa da JSON",
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Importa"
   },
   "layout": {
@@ -426,6 +434,13 @@
       "save_to_collections": "Salva nelle raccolte",
       "send_request": "Invia richiesta",
       "title": "Richiesta"
+    },
+    "theme": {
+      "black": "Switch  theme to black mode",
+      "dark": "Switch  theme to  dark mode",
+      "light": "Switch  theme to light mode",
+      "system": "Switch  theme to system mode",
+      "title": "Theme"
     }
   },
   "show": {
@@ -447,7 +462,7 @@
   },
   "state": {
     "bulk_mode": "Modifica in blocco",
-    "bulk_mode_placeholder": "Le voci sono separate tramite Invio\nChiavi e valori sono separati da:\nAnteponi // a qualsiasi riga che desideri aggiungere ma lasciare disabilitata",
+    "bulk_mode_placeholder": "Le voci sono separate tramite Invio\nChiavi e valori sono separati da:\nAnteponi # a qualsiasi riga che desideri aggiungere ma lasciare disabilitata",
     "cleared": "Cancellato",
     "connected": "Connesso",
     "connected_to": "Connesso a {nome}",

@@ -1,16 +1,17 @@
 <template>
   <SmartModal v-if="show" :title="`${t('import.curl')}`" @close="hideModal">
     <template #body>
-      <div class="h-46 px-2">
+      <div class="px-2 h-46">
         <div
           ref="curlEditor"
-          class="border border-dividerLight h-full rounded"
+          class="h-full border rounded border-dividerLight"
         ></div>
       </div>
     </template>
     <template #footer>
       <span class="flex">
         <ButtonPrimary
+          ref="importButton"
           :label="`${t('import.title')}`"
           @click.native="handleImport"
         />
@@ -24,7 +25,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "@nuxtjs/composition-api"
+import { ref, watch } from "@nuxtjs/composition-api"
 import {
   HoppRESTHeader,
   HoppRESTParam,
@@ -43,6 +44,8 @@ const curl = ref("")
 
 const curlEditor = ref<any | null>(null)
 
+const props = defineProps<{ show: boolean; text: string }>()
+
 useCodemirror(curlEditor, curl, {
   extendedEditorConfig: {
     mode: "application/x-sh",
@@ -53,7 +56,15 @@ useCodemirror(curlEditor, curl, {
   environmentHighlights: false,
 })
 
-defineProps<{ show: boolean }>()
+watch(
+  () => props.show,
+  () => {
+    if (props.show) {
+      curl.value = props.text.toString()
+    }
+  },
+  { immediate: false }
+)
 
 const emit = defineEmits<{
   (e: "hide-modal"): void
@@ -73,6 +84,7 @@ const handleImport = () => {
     const endpoint = origin + pathname
     const headers: HoppRESTHeader[] = []
     const params: HoppRESTParam[] = []
+    const body = parsedCurl.body
     if (parsedCurl.query) {
       for (const key of Object.keys(parsedCurl.query)) {
         const val = parsedCurl.query[key]!
@@ -103,6 +115,7 @@ const handleImport = () => {
         })
       }
     }
+
     const method = parsedCurl.method.toUpperCase()
 
     setRESTRequest(
@@ -120,7 +133,7 @@ const handleImport = () => {
         },
         body: {
           contentType: "application/json",
-          body: "",
+          body,
         },
       })
     )

@@ -16,22 +16,20 @@
     "label": "Label",
     "learn_more": "Leer meer",
     "more": "Meer",
+    "less": "Less",
     "new": "Nieuw",
     "no": "Nee",
-    "preserve_current": "Huidige behouden",
     "prettify": "Netter opmaken",
     "remove": "Verwijderen",
-    "replace_current": "Vervang huidige",
-    "replace_json": "Vervang door JSON",
     "restore": "Herstellen",
     "save": "Opslaan",
     "search": "Zoeken",
     "send": "Versturen",
     "start": "Begin",
     "stop": "Stop",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Uitschakelen",
     "turn_on": "Inschakelen",
     "undo": "Ongedaan maken",
@@ -66,7 +64,6 @@
     "terms_and_privacy": "Voorwaarden en privacy",
     "twitter": "Twitter",
     "type_a_command_search": "Typ een opdracht of zoek...",
-    "version": "v2.1.0",
     "we_use_cookies": "Wij gebruiken cookies",
     "whats_new": "Wat is er nieuw?",
     "wiki": "Wiki"
@@ -93,11 +90,11 @@
     "generate_token": "Token genereren",
     "include_in_url": "Opnemen in URL",
     "learn": "Leren hoe",
+    "pass_key_by": "Pass by",
     "password": "Wachtwoord",
     "token": "token",
     "type": "Autorisatietype:",
-    "username": "Gebruikersnaam",
-    "pass_key_by": "Pass by"
+    "username": "Gebruikersnaam"
   },
   "collection": {
     "created": "Collectie gemaakt",
@@ -232,9 +229,20 @@
     "curl": "cURL-commando importeren",
     "failed": "Importeren mislukt",
     "from_gist": "Importeren uit Gist",
+    "from_gist_description": "Import from Gist URL",
+    "from_insomnia": "Import from Insomnia",
+    "from_insomnia_description": "Import from Insomnia collection",
     "from_my_collections": "Importeren uit Mijn collecties",
+    "from_my_collections_description": "Import from My Collections file",
+    "from_openapi": "Import from OpenAPI",
+    "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
+    "from_postman": "Import from Postman",
+    "from_postman_description": "Import from Postman collection",
+    "from_url": "Import from URL",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Vul de hoofd-URL in",
-    "json": "Importeren uit JSON",
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Importeren"
   },
   "layout": {
@@ -426,6 +434,13 @@
       "save_to_collections": "Opslaan in collecties",
       "send_request": "Verstuur verzoek",
       "title": "Verzoek"
+    },
+    "theme": {
+      "black": "Switch  theme to black mode",
+      "dark": "Switch  theme to  dark mode",
+      "light": "Switch  theme to light mode",
+      "system": "Switch  theme to system mode",
+      "title": "Theme"
     }
   },
   "show": {
@@ -447,7 +462,7 @@
   },
   "state": {
     "bulk_mode": "Bulkbewerking",
-    "bulk_mode_placeholder": "Invoer wordt gescheiden door een nieuwe regel\nSleutels en waarden worden gescheiden door:\nVoeg // toe aan elke rij die u wilt toevoegen, maar blijf uitgeschakeld",
+    "bulk_mode_placeholder": "Invoer wordt gescheiden door een nieuwe regel\nSleutels en waarden worden gescheiden door:\nVoeg # toe aan elke rij die u wilt toevoegen, maar blijf uitgeschakeld",
     "cleared": "gewist",
     "connected": "Verbonden",
     "connected_to": "Verbonden met {naam}",

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      class="bg-primary border-b border-dividerLight flex flex-1 top-lowerSecondaryStickyFold pl-4 z-10 sticky items-center justify-between"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-lowerSecondaryStickyFold"
     >
       <label class="font-semibold text-secondaryLight">{{
         t("response.body")
@@ -36,7 +36,7 @@
     <div ref="jsonResponse"></div>
     <div
       v-if="outlinePath"
-      class="bg-primaryLight border-t border-dividerLight flex flex-nowrap flex-1 px-2 bottom-0 z-10 sticky overflow-auto hide-scrollbar"
+      class="sticky bottom-0 z-10 flex flex-1 px-2 overflow-auto border-t bg-primaryLight border-dividerLight flex-nowrap hide-scrollbar"
     >
       <div
         v-for="(item, index) in outlinePath"
@@ -115,7 +115,7 @@
         </tippy>
         <i
           v-if="index + 1 !== outlinePath.length"
-          class="text-secondaryLight opacity-50 material-icons"
+          class="opacity-50 text-secondaryLight material-icons"
           >chevron_right</i
         >
       </div>
@@ -126,7 +126,6 @@
 <script setup lang="ts">
 import { computed, ref, reactive } from "@nuxtjs/composition-api"
 import { useCodemirror } from "~/helpers/editor/codemirror"
-import { copyToClipboard } from "~/helpers/utils/clipboard"
 import { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
 import jsonParse, { JSONObjectMember, JSONValue } from "~/helpers/jsonParse"
 import { getJSONOutlineAtPos } from "~/helpers/newOutline"
@@ -134,7 +133,10 @@ import {
   convertIndexToLineCh,
   convertLineChToIndex,
 } from "~/helpers/editor/utils"
-import { useI18n, useToast } from "~/helpers/utils/composables"
+import { useI18n } from "~/helpers/utils/composables"
+import useCopyResponse from "~/helpers/lenses/composables/useCopyResponse"
+import useResponseBody from "~/helpers/lenses/composables/useResponseBody"
+import useDownloadResponse from "~/helpers/lenses/composables/useDownloadResponse"
 
 const t = useI18n()
 
@@ -142,24 +144,14 @@ const props = defineProps<{
   response: HoppRESTResponse
 }>()
 
-const toast = useToast()
+const { responseBodyText } = useResponseBody(props.response)
 
-const responseBodyText = computed(() => {
-  if (
-    props.response.type === "loading" ||
-    props.response.type === "network_fail"
-  )
-    return ""
-  if (typeof props.response.body === "string") return props.response.body
-  else {
-    const res = new TextDecoder("utf-8").decode(props.response.body)
-    // HACK: Temporary trailing null character issue from the extension fix
-    return res.replace(/\0+$/, "")
-  }
-})
+const { copyIcon, copyResponse } = useCopyResponse(responseBodyText)
 
-const downloadIcon = ref("download")
-const copyIcon = ref("copy")
+const { downloadIcon, downloadResponse } = useDownloadResponse(
+  "application/json",
+  responseBodyText
+)
 
 const jsonBodyText = computed(() => {
   try {
@@ -203,25 +195,6 @@ const jumpCursor = (ast: JSONValue | JSONObjectMember) => {
   cursor.value = pos
 }
 
-const downloadResponse = () => {
-  const dataToWrite = responseBodyText.value
-  const file = new Blob([dataToWrite], { type: "application/json" })
-  const a = document.createElement("a")
-  const url = URL.createObjectURL(file)
-  a.href = url
-  // TODO get uri from meta
-  a.download = `${url.split("/").pop().split("#")[0].split("?")[0]}`
-  document.body.appendChild(a)
-  a.click()
-  downloadIcon.value = "check"
-  toast.success(`${t("state.download_started")}`)
-  setTimeout(() => {
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    downloadIcon.value = "download"
-  }, 1000)
-}
-
 const outlinePath = computed(() => {
   if (ast.value) {
     return getJSONOutlineAtPos(
@@ -230,13 +203,6 @@ const outlinePath = computed(() => {
     )
   } else return null
 })
-
-const copyResponse = () => {
-  copyToClipboard(responseBodyText.value)
-  copyIcon.value = "check"
-  toast.success(`${t("state.copied_to_clipboard")}`)
-  setTimeout(() => (copyIcon.value = "copy"), 1000)
-}
 </script>
 
 <style lang="scss" scoped>

@@ -1,6 +1,6 @@
 {
   "name": "@hoppscotch/data",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Data Types, Validations and Migrations for Hoppscotch Public Data Structures",
   "main": "dist/index.js",
   "module": "true",
@@ -20,13 +20,17 @@
     "type": "git",
     "url": "git+https://github.com/hoppscotch/hoppscotch.git"
   },
-  "author": "The Hoppscotch Team <support@hoppscotch.io>",
+  "author": "Hoppscotch (support@hoppscotch.io)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/hoppscotch/hoppscotch/issues"
   },
   "homepage": "https://github.com/hoppscotch/hoppscotch#readme",
   "devDependencies": {
-    "tsup": "^5.11.6"
+    "@types/lodash": "^4.14.178",
+    "tsup": "^5.11.11"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
   }
 }

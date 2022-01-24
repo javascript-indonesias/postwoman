@@ -16,22 +16,20 @@
     "label": "Étiqueter",
     "learn_more": "En savoir plus",
     "more": "Suite",
+    "less": "Less",
     "new": "Nouveau",
     "no": "Non",
-    "preserve_current": "Conserver l'actuel",
     "prettify": "Formater",
     "remove": "Supprimer",
-    "replace_current": "Remplacer l'actuel",
-    "replace_json": "Remplacer par JSON",
     "restore": "Restaurer",
     "save": "Sauvegarder",
     "search": "Chercher",
     "send": "Envoyer",
     "start": "Démarrer",
     "stop": "Arrêter",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Éteindre",
     "turn_on": "Allumer",
     "undo": "Annuler",
@@ -66,7 +64,6 @@
     "terms_and_privacy": "Conditions et confidentialité",
     "twitter": "Twitter",
     "type_a_command_search": "Tapez une commande ou recherchez…",
-    "version": "v2.1.0",
     "we_use_cookies": "Nous utilisons des cookies",
     "whats_new": "Quoi de neuf?",
     "wiki": "Wiki"
@@ -93,11 +90,11 @@
     "generate_token": "Générer un jeton",
     "include_in_url": "Inclure dans l'URL",
     "learn": "Apprendre comment",
+    "pass_key_by": "Pass by",
     "password": "Mot de passe",
     "token": "Jeton",
     "type": "Type d'autorisation",
-    "username": "Nom d'utilisateur",
-    "pass_key_by": "Pass by"
+    "username": "Nom d'utilisateur"
   },
   "collection": {
     "created": "Collection créée",
@@ -232,9 +229,20 @@
     "curl": "Importer en cURL",
     "failed": "Échec de l'importation",
     "from_gist": "Importer depuis Gist",
+    "from_gist_description": "Import from Gist URL",
+    "from_insomnia": "Import from Insomnia",
+    "from_insomnia_description": "Import from Insomnia collection",
     "from_my_collections": "Importer depuis Mes collections",
+    "from_my_collections_description": "Import from My Collections file",
+    "from_openapi": "Import from OpenAPI",
+    "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
+    "from_postman": "Import from Postman",
+    "from_postman_description": "Import from Postman collection",
+    "from_url": "Import from URL",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Entrez l'URL principale",
-    "json": "Importer depuis JSON",
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Importer"
   },
   "layout": {
@@ -426,6 +434,13 @@
       "save_to_collections": "Enregistrer dans les collections",
       "send_request": "Envoyer la requête",
       "title": "Requête"
+    },
+    "theme": {
+      "black": "Switch  theme to black mode",
+      "dark": "Switch  theme to  dark mode",
+      "light": "Switch  theme to light mode",
+      "system": "Switch  theme to system mode",
+      "title": "Theme"
     }
   },
   "show": {
@@ -447,7 +462,7 @@
   },
   "state": {
     "bulk_mode": "Modification groupée",
-    "bulk_mode_placeholder": "Les entrées sont séparées par une nouvelle ligne\nLes clés et les valeurs sont séparées par :\nAjoutez // à n'importe quelle ligne que vous souhaitez ajouter mais garder désactivée",
+    "bulk_mode_placeholder": "Les entrées sont séparées par une nouvelle ligne\nLes clés et les valeurs sont séparées par :\nAjoutez # à n'importe quelle ligne que vous souhaitez ajouter mais garder désactivée",
     "cleared": "Effacé",
     "connected": "Connecté",
     "connected_to": "Connecté à {nom}",

@@ -16,22 +16,20 @@
     "label": "Ознака",
     "learn_more": "Сазнајте више",
     "more": "Више",
+    "less": "Less",
     "new": "Нова",
     "no": "Не",
-    "preserve_current": "Очувајте струју",
     "prettify": "Преттифи",
     "remove": "Уклони",
-    "replace_current": "Замените струју",
-    "replace_json": "Замените са ЈСОН",
     "restore": "Ресторе",
     "save": "сачувати",
     "search": "Претрага",
     "send": "Пошаљи",
     "start": "Почетак",
     "stop": "Зауставити",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Искључити",
     "turn_on": "Укључити",
     "undo": "Поништи",
@@ -93,11 +91,11 @@
     "generate_token": "Генериши токен",
     "include_in_url": "Укључи у УРЛ",
     "learn": "Научите како",
+    "pass_key_by": "Pass by",
     "password": "Лозинка",
     "token": "Токен",
     "type": "Врста овлашћења",
-    "username": "Корисничко име",
-    "pass_key_by": "Pass by"
+    "username": "Корисничко име"
   },
   "collection": {
     "created": "Колекција је направљена",
@@ -232,9 +230,20 @@
     "curl": "Увези цУРЛ",
     "failed": "Увоз није успео",
     "from_gist": "Увоз из Гиста",
+    "from_gist_description": "Import from Gist URL",
+    "from_insomnia": "Import from Insomnia",
+    "from_insomnia_description": "Import from Insomnia collection",
     "from_my_collections": "Увези из Мојих колекција",
+    "from_my_collections_description": "Import from My Collections file",
+    "from_openapi": "Import from OpenAPI",
+    "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
+    "from_postman": "Import from Postman",
+    "from_postman_description": "Import from Postman collection",
+    "from_url": "Import from URL",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Унесите Гист УРЛ",
-    "json": "Увези из ЈСОН -а",
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Увоз"
   },
   "layout": {
@@ -426,6 +435,13 @@
       "save_to_collections": "Сачувај у збирке",
       "send_request": "Пошаљите упит",
       "title": "Захтев"
+    },
+    "theme": {
+      "black": "Switch  theme to black mode",
+      "dark": "Switch  theme to  dark mode",
+      "light": "Switch  theme to light mode",
+      "system": "Switch  theme to system mode",
+      "title": "Theme"
     }
   },
   "show": {
@@ -447,7 +463,7 @@
   },
   "state": {
     "bulk_mode": "Скупно уређивање",
-    "bulk_mode_placeholder": "Уноси су одвојени новим редом\nКључеви и вредности су одвојени:\nДодати // било ком реду који желите да додате, али га онемогућите",
+    "bulk_mode_placeholder": "Уноси су одвојени новим редом\nКључеви и вредности су одвојени:\nДодати # било ком реду који желите да додате, али га онемогућите",
     "cleared": "Очишћено",
     "connected": "Повезан",
     "connected_to": "Повезано са {наме}",

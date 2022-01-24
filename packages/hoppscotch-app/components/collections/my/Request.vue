@@ -39,9 +39,17 @@
             active.requestIndex === requestIndex
           "
           v-tippy="{ theme: 'tooltip' }"
-          class="rounded-full bg-green-500 flex-shrink-0 h-1.5 mx-3 w-1.5"
+          class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
           :title="`${$t('collection.request_in_use')}`"
-        ></span>
+        >
+          <span
+            class="absolute animate-ping inline-flex flex-shrink-0 h-full w-full rounded-full bg-green-500 opacity-75"
+          >
+          </span>
+          <span
+            class="relative inline-flex flex-shrink-0 rounded-full h-1.5 w-1.5 bg-green-500"
+          ></span>
+        </span>
       </span>
       <div class="flex">
         <ButtonSecondary
@@ -143,9 +151,13 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "@nuxtjs/composition-api"
-import { translateToNewRequest } from "@hoppscotch/data"
+import {
+  safelyExtractRESTRequest,
+  translateToNewRequest,
+} from "@hoppscotch/data"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
+  getDefaultRESTRequest,
   restSaveContext$,
   setRESTRequest,
   setRESTSaveContext,
@@ -221,11 +233,17 @@ export default defineComponent({
           },
         })
       else {
-        setRESTRequest(translateToNewRequest(this.request), {
-          originLocation: "user-collection",
-          folderPath: this.folderPath,
-          requestIndex: this.requestIndex,
-        })
+        setRESTRequest(
+          safelyExtractRESTRequest(
+            translateToNewRequest(this.request),
+            getDefaultRESTRequest()
+          ),
+          {
+            originLocation: "user-collection",
+            folderPath: this.folderPath,
+            requestIndex: this.requestIndex,
+          }
+        )
       }
     },
     dragStart({ dataTransfer }) {

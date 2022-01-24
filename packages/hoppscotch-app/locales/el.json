@@ -16,22 +16,20 @@
     "label": "Επιγραφή",
     "learn_more": "Μάθε περισσότερα",
     "more": "Περισσότερο",
+    "less": "Less",
     "new": "Νέος",
     "no": "Οχι",
-    "preserve_current": "Διατήρηση ρεύματος",
     "prettify": "Ωραιοποιώ",
     "remove": "Αφαιρώ",
-    "replace_current": "Αντικαταστήστε το ρεύμα",
-    "replace_json": "Αντικαταστήστε με JSON",
     "restore": "Επαναφέρω",
     "save": "Αποθηκεύσετε",
     "search": "Αναζήτηση",
     "send": "Στείλετε",
     "start": "Αρχή",
     "stop": "Να σταματήσει",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "Σβήνω",
     "turn_on": "Ανάβω",
     "undo": "Ξεκάνω",
@@ -66,7 +64,6 @@
     "terms_and_privacy": "Όροι και απόρρητο",
     "twitter": "Κελάδημα",
     "type_a_command_search": "Πληκτρολογήστε μια εντολή ή αναζήτηση…",
-    "version": "v2.1.0",
     "we_use_cookies": "Χρησιμοποιούμε cookies",
     "whats_new": "Τι νέα?",
     "wiki": "Wiki"
@@ -93,11 +90,11 @@
     "generate_token": "Δημιουργήστε το διακριτικό",
     "include_in_url": "Συμπερίληψη στη διεύθυνση URL",
     "learn": "Μάθε πως",
+    "pass_key_by": "Pass by",
     "password": "Κωδικός πρόσβασης",
     "token": "Ενδειξη",
     "type": "Τύπος εξουσιοδότησης",
-    "username": "Όνομα χρήστη",
-    "pass_key_by": "Pass by"
+    "username": "Όνομα χρήστη"
   },
   "collection": {
     "created": "Η συλλογή δημιουργήθηκε",
@@ -232,9 +229,20 @@
     "curl": "Εισαγωγή cURL",
     "failed": "Η εισαγωγή απέτυχε",
     "from_gist": "Εισαγωγή από το Gist",
+    "from_gist_description": "Import from Gist URL",
+    "from_insomnia": "Import from Insomnia",
+    "from_insomnia_description": "Import from Insomnia collection",
     "from_my_collections": "Εισαγωγή από τις Συλλογές μου",
+    "from_my_collections_description": "Import from My Collections file",
+    "from_openapi": "Import from OpenAPI",
+    "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
+    "from_postman": "Import from Postman",
+    "from_postman_description": "Import from Postman collection",
+    "from_url": "Import from URL",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "Εισαγάγετε Gist URL",
-    "json": "Εισαγωγή από JSON",
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "Εισαγωγή"
   },
   "layout": {
@@ -426,6 +434,13 @@
       "save_to_collections": "Αποθήκευση στις Συλλογές",
       "send_request": "Στείλε αίτημα",
       "title": "Αίτηση"
+    },
+    "theme": {
+      "black": "Switch  theme to black mode",
+      "dark": "Switch  theme to  dark mode",
+      "light": "Switch  theme to light mode",
+      "system": "Switch  theme to system mode",
+      "title": "Theme"
     }
   },
   "show": {
@@ -447,7 +462,7 @@
   },
   "state": {
     "bulk_mode": "Μαζική επεξεργασία",
-    "bulk_mode_placeholder": "Οι εγγραφές χωρίζονται με νέα γραμμή\nΤα κλειδιά και οι τιμές διαχωρίζονται με:\nΠροσθήκη // σε οποιαδήποτε γραμμή που θέλετε να προσθέσετε αλλά διατηρήστε απενεργοποιημένη",
+    "bulk_mode_placeholder": "Οι εγγραφές χωρίζονται με νέα γραμμή\nΤα κλειδιά και οι τιμές διαχωρίζονται με:\nΠροσθήκη # σε οποιαδήποτε γραμμή που θέλετε να προσθέσετε αλλά διατηρήστε απενεργοποιημένη",
     "cleared": "Εκκαθαρίστηκε",
     "connected": "Συνδεδεμένος",
     "connected_to": "Συνδέθηκε με το {name}",

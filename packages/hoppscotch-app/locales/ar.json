@@ -16,22 +16,20 @@
     "label": "ملصق",
     "learn_more": "يتعلم أكثر",
     "more": "أكثر",
+    "less": "Less",
     "new": "جديد",
     "no": "رقم",
-    "preserve_current": "الحفاظ على التيار",
     "prettify": "جمال",
     "remove": "يزيل",
-    "replace_current": "استبدال التيار",
-    "replace_json": "استبدل بـ JSON",
     "restore": "يعيد",
     "save": "يحفظ",
     "search": "بحث",
     "send": "يرسل",
     "start": "يبدأ",
     "stop": "قف",
+    "to_close": "to close",
     "to_navigate": "to navigate",
     "to_select": "to select",
-    "to_close": "to close",
     "turn_off": "اطفئه",
     "turn_on": "شغله",
     "undo": "الغاء التحميل",
@@ -93,11 +91,11 @@
     "generate_token": "توليد رمز",
     "include_in_url": "تضمين في URL",
     "learn": "تعلم كيف",
+    "pass_key_by": "Pass by",
     "password": "كلمة المرور",
     "token": "رمز",
     "type": "نوع التفويض",
-    "username": "اسم المستخدم",
-    "pass_key_by": "Pass by"
+    "username": "اسم المستخدم"
   },
   "collection": {
     "created": "تم إنشاء المجموعة",
@@ -232,9 +230,20 @@
     "curl": "استيراد cURL",
     "failed": "فشل الاستيراد",
     "from_gist": "الاستيراد من Gist",
+    "from_gist_description": "Import from Gist URL",
+    "from_insomnia": "Import from Insomnia",
+    "from_insomnia_description": "Import from Insomnia collection",
     "from_my_collections": "الاستيراد من \"مجموعاتي\"",
+    "from_my_collections_description": "Import from My Collections file",
+    "from_openapi": "Import from OpenAPI",
+    "from_openapi_description": "Import from OpenAPI specification file (YML/JSON)",
+    "from_postman": "Import from Postman",
+    "from_postman_description": "Import from Postman collection",
+    "from_url": "Import from URL",
+    "from_json": "Import from Hoppscotch",
+    "from_json_description": "Import from Hoppscotch collection file",
     "gist_url": "أدخل عنوان URL لـ Gist",
-    "json": "استيراد من JSON",
+    "json_description": "Import collections from a Hoppscotch Collections JSON file",
     "title": "يستورد"
   },
   "layout": {
@@ -426,6 +435,13 @@
       "save_to_collections": "حفظ في المجموعات",
       "send_request": "ارسل طلب",
       "title": "طلب"
+    },
+    "theme": {
+      "black": "Switch  theme to black mode",
+      "dark": "Switch  theme to  dark mode",
+      "light": "Switch  theme to light mode",
+      "system": "Switch  theme to system mode",
+      "title": "Theme"
     }
   },
   "show": {
@@ -447,7 +463,7 @@
   },
   "state": {
     "bulk_mode": "التحرير بالجملة",
-    "bulk_mode_placeholder": "يتم فصل الإدخالات بواسطة سطر جديد\nالمفاتيح والقيم مفصولة بـ:\nقم بإلحاق // بأي صف تريد إضافته ولكن يظل معطلاً",
+    "bulk_mode_placeholder": "يتم فصل الإدخالات بواسطة سطر جديد\nالمفاتيح والقيم مفصولة بـ:\nقم بإلحاق # بأي صف تريد إضافته ولكن يظل معطلاً",
     "cleared": "مسح",
     "connected": "متصل",
     "connected_to": "متصل بـ {name}",

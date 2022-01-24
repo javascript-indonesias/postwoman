@@ -38,9 +38,17 @@
             active.requestID === requestIndex
           "
           v-tippy="{ theme: 'tooltip' }"
-          class="rounded-full bg-green-500 flex-shrink-0 h-1.5 mx-3 w-1.5"
+          class="relative h-1.5 w-1.5 flex flex-shrink-0 mx-3"
           :title="`${$t('collection.request_in_use')}`"
-        ></span>
+        >
+          <span
+            class="absolute animate-ping inline-flex flex-shrink-0 h-full w-full rounded-full bg-green-500 opacity-75"
+          >
+          </span>
+          <span
+            class="relative inline-flex flex-shrink-0 rounded-full h-1.5 w-1.5 bg-green-500"
+          ></span>
+        </span>
       </span>
       <div class="flex">
         <ButtonSecondary
@@ -73,6 +81,7 @@
               class="flex flex-col focus:outline-none"
               tabindex="0"
               @keyup.e="edit.$el.click()"
+              @keyup.d="duplicate.$el.click()"
               @keyup.delete="deleteAction.$el.click()"
               @keyup.escape="options.tippy().hide()"
             >
@@ -89,6 +98,22 @@
                       folderName,
                       request,
                       requestIndex,
+                    })
+                    options.tippy().hide()
+                  }
+                "
+              />
+              <SmartItem
+                ref="duplicate"
+                svg="copy"
+                :label="$t('action.duplicate')"
+                :shortcut="['D']"
+                @click.native="
+                  () => {
+                    $emit('duplicate-request', {
+                      request,
+                      requestIndex,
+                      collectionID,
                     })
                     options.tippy().hide()
                   }
@@ -122,9 +147,13 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "@nuxtjs/composition-api"
-import { translateToNewRequest } from "@hoppscotch/data"
+import {
+  safelyExtractRESTRequest,
+  translateToNewRequest,
+} from "@hoppscotch/data"
 import { useReadonlyStream } from "~/helpers/utils/composables"
 import {
+  getDefaultRESTRequest,
   restSaveContext$,
   setRESTRequest,
   setRESTSaveContext,
@@ -142,6 +171,7 @@ export default defineComponent({
     saveRequest: Boolean,
     collectionsType: { type: Object, default: () => {} },
     picked: { type: Object, default: () => {} },
+    collectionID: { type: String, default: null },
   },
   setup() {
     const active = useReadonlyStream(restSaveContext$, null)
@@ -151,6 +181,7 @@ export default defineComponent({
       options: ref<any | null>(null),
       edit: ref<any | null>(null),
       deleteAction: ref<any | null>(null),
+      duplicate: ref<any | null>(null),
     }
   },
   data() {
@@ -193,10 +224,16 @@ export default defineComponent({
           },
         })
       else
-        setRESTRequest(translateToNewRequest(this.request), {
-          originLocation: "team-collection",
-          requestID: this.requestIndex as string,
-        })
+        setRESTRequest(
+          safelyExtractRESTRequest(
+            translateToNewRequest(this.request),
+            getDefaultRESTRequest()
+          ),
+          {
+            originLocation: "team-collection",
+            requestID: this.requestIndex as string,
+          }
+        )
     },
     dragStart({ dataTransfer }) {
       this.dragging = !this.dragging

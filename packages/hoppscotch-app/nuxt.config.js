@@ -1,4 +1,5 @@
 import languages from "./languages"
+import pkg from "./package.json"
 
 require("dotenv").config()
 
@@ -251,6 +252,11 @@ export default {
 
   // Build Configuration (https://go.nuxtjs.dev/config-build)
   build: {
+    loaders: {
+      vue: {
+        compiler: require("vue-template-babel-compiler"),
+      },
+    },
     // You can extend webpack config here
     extend(config, { isDev, isClient }) {
       // Sets webpack's mode to development if `isDev` is true.
@@ -333,6 +339,10 @@ export default {
     APP_ID: process.env.APP_ID,
     MEASUREMENT_ID: process.env.MEASUREMENT_ID,
     BASE_URL: process.env.BASE_URL,
+  },
+
+  publicRuntimeConfig: {
+    clientVersion: pkg.version,
   },
 
   // Router configuration (https://nuxtjs.org/api/configuration-router)
