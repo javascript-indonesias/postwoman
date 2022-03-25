@@ -12,7 +12,7 @@ import {
   EditorSelection,
 } from "@codemirror/state"
 import { Language, LanguageSupport } from "@codemirror/language"
-import { defaultKeymap } from "@codemirror/commands"
+import { defaultKeymap, indentLess, insertTab } from "@codemirror/commands"
 import { Completion, autocompletion } from "@codemirror/autocomplete"
 import { linter } from "@codemirror/lint"
 
@@ -25,6 +25,7 @@ import {
 } from "@nuxtjs/composition-api"
 
 import { javascriptLanguage } from "@codemirror/lang-javascript"
+import { xmlLanguage } from "@codemirror/lang-xml"
 import { jsonLanguage } from "@codemirror/lang-json"
 import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
 import { pipe } from "fp-ts/function"
@@ -136,6 +137,8 @@ const getLanguage = (langMime: string): Language | null => {
     return javascriptLanguage
   } else if (langMime === "graphql") {
     return GQLLanguage
+  } else if (langMime === "application/xml") {
+    return xmlLanguage
   } else if (langMime === "htmlmixed") {
     return StreamLanguage.define(html)
   } else if (langMime === "application/x-sh") {
@@ -237,7 +240,19 @@ export function useCodemirror(
           ? [EditorView.lineWrapping]
           : []
       ),
-      keymap.of(defaultKeymap),
+      keymap.of([
+        ...defaultKeymap,
+        {
+          key: "Tab",
+          preventDefault: true,
+          run: insertTab,
+        },
+        {
+          key: "Shift-Tab",
+          preventDefault: true,
+          run: indentLess,
+        },
+      ]),
     ]
 
     if (environmentTooltip) extensions.push(environmentTooltip.extension)
@@ -259,7 +274,8 @@ export function useCodemirror(
 
   watch(el, () => {
     if (el.value) {
-      if (!view.value) initView(el.value)
+      if (view.value) view.value.destroy()
+      initView(el.value)
     } else {
       view.value?.destroy()
       view.value = undefined

@@ -1,18 +1,21 @@
 <template>
-  <div class="flex h-screen w-screen">
+  <div class="flex w-screen h-screen">
     <Splitpanes class="no-splitter" :dbl-click-splitter="false" horizontal>
       <Pane v-if="!ZEN_MODE" style="height: auto">
         <AppHeader />
       </Pane>
-      <Pane class="flex flex-1 hide-scrollbar !overflow-auto">
+      <Pane
+        :class="spacerClass"
+        class="flex flex-1 hide-scrollbar !overflow-auto md:mb-0"
+      >
         <Splitpanes
           class="no-splitter"
           :dbl-click-splitter="false"
-          :horizontal="!(windowInnerWidth.x.value >= 768)"
+          :horizontal="!mdAndLarger"
         >
           <Pane
             style="width: auto; height: auto"
-            class="hide-scrollbar !overflow-auto"
+            class="hide-scrollbar !overflow-auto hidden md:flex md:flex-col"
           >
             <AppSidenav />
           </Pane>
@@ -23,7 +26,7 @@
               horizontal
             >
               <Pane class="flex flex-1 hide-scrollbar !overflow-auto">
-                <main class="flex flex-1 w-full">
+                <main class="flex flex-1 w-full" role="main">
                   <nuxt class="flex flex-1" />
                 </main>
               </Pane>
@@ -31,7 +34,15 @@
           </Pane>
         </Splitpanes>
       </Pane>
-      <Pane style="height: auto">
+      <Pane v-if="mdAndLarger" style="height: auto">
+        <AppFooter />
+      </Pane>
+      <Pane
+        v-else
+        style="height: auto"
+        class="hide-scrollbar !overflow-auto flex flex-col fixed inset-x-0 bottom-0 z-10"
+      >
+        <AppSidenav />
         <AppFooter />
       </Pane>
     </Splitpanes>
@@ -41,6 +52,7 @@
 <script lang="ts">
 import {
   defineComponent,
+  computed,
   onBeforeMount,
   useContext,
   useRouter,
@@ -48,34 +60,35 @@ import {
 } from "@nuxtjs/composition-api"
 import { Splitpanes, Pane } from "splitpanes"
 import "splitpanes/dist/splitpanes.css"
+import { breakpointsTailwind, useBreakpoints } from "@vueuse/core"
 import { setupLocalPersistence } from "~/newstore/localpersistence"
 import { performMigrations } from "~/helpers/migrations"
 import { initUserInfo } from "~/helpers/teams/BackendUserInfo"
-import { registerApolloAuthUpdate } from "~/helpers/apollo"
 import { applySetting, useSetting } from "~/newstore/settings"
 import { logPageView } from "~/helpers/fb/analytics"
 import { hookKeybindingsListener } from "~/helpers/keybindings"
 import { defineActionHandler } from "~/helpers/actions"
-import useWindowSize from "~/helpers/utils/useWindowSize"
 import { useSentry } from "~/helpers/sentry"
 import { useColorMode } from "~/helpers/utils/composables"
 
 function appLayout() {
   const rightSidebar = useSetting("SIDEBAR")
   const columnLayout = useSetting("COLUMN_LAYOUT")
-  const windowInnerWidth = useWindowSize()
+
+  const breakpoints = useBreakpoints(breakpointsTailwind)
+  const mdAndLarger = breakpoints.greater("md")
 
   // Initially apply
   onBeforeMount(() => {
-    if (windowInnerWidth.x.value < 768) {
+    if (mdAndLarger.value) {
       rightSidebar.value = false
       columnLayout.value = true
     }
   })
 
   // Listen for updates
-  watch(windowInnerWidth.x, () => {
-    if (windowInnerWidth.x.value < 768) {
+  watch(mdAndLarger, () => {
+    if (!mdAndLarger.value) {
       rightSidebar.value = false
       columnLayout.value = true
     }
@@ -107,6 +120,12 @@ function updateThemes() {
   const bgColor = useSetting("BG_COLOR")
   const fontSize = useSetting("FONT_SIZE")
 
+  const spacerClass = computed(() => {
+    if (fontSize.value === "small") return "spacer-small"
+    if (fontSize.value === "large") return "spacer-large"
+    return "spacer-medium"
+  })
+
   // Initially apply
   onBeforeMount(() => {
     document.documentElement.setAttribute("data-accent", themeColor.value)
@@ -122,6 +141,10 @@ function updateThemes() {
   watch(fontSize, () =>
     document.documentElement.setAttribute("data-font-size", fontSize.value)
   )
+
+  return {
+    spacerClass,
+  }
 }
 
 function defineJumpActions() {
@@ -169,11 +192,16 @@ export default defineComponent({
 
     defineJumpActions()
 
-    updateThemes()
+    const { spacerClass } = updateThemes()
 
     setupSentry()
+
+    const breakpoints = useBreakpoints(breakpointsTailwind)
+    const mdAndLarger = breakpoints.greater("md")
+
     return {
-      windowInnerWidth: useWindowSize(),
+      mdAndLarger,
+      spacerClass,
       ZEN_MODE: useSetting("ZEN_MODE"),
     }
   },
@@ -187,8 +215,6 @@ export default defineComponent({
   },
   beforeMount() {
     setupLocalPersistence()
-
-    registerApolloAuthUpdate()
   },
   async mounted() {
     performMigrations()
@@ -233,3 +259,31 @@ export default defineComponent({
   },
 })
 </script>
+
+<style scoped>
+.spacer-small {
+  margin-bottom: 6.1rem;
+}
+
+.spacer-medium {
+  margin-bottom: 6.9rem;
+}
+
+.spacer-large {
+  margin-bottom: 7.8rem;
+}
+
+@media screen and (min-width: 768px) {
+  .spacer-small {
+    margin-bottom: 0rem;
+  }
+
+  .spacer-medium {
+    margin-bottom: 0rem;
+  }
+
+  .spacer-large {
+    margin-bottom: 0rem;
+  }
+}
+</style>

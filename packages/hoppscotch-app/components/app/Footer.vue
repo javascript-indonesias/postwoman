@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex justify-between">
+    <div class="flex justify-between bg-primary">
       <div class="flex">
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip' }"
@@ -59,6 +59,7 @@
             ref="tippyActions"
             class="flex flex-col focus:outline-none"
             tabindex="0"
+            role="menu"
             @keyup.d="documentation.$el.click()"
             @keyup.s="shortcuts.$el.click()"
             @keyup.c="chat.$el.click()"
@@ -165,7 +166,7 @@
           v-tippy="{ theme: 'tooltip' }"
           :title="COLUMN_LAYOUT ? t('layout.row') : t('layout.column')"
           svg="columns"
-          class="transform"
+          class="hidden transform sm:inline"
           :class="{ 'rotate-90': !COLUMN_LAYOUT }"
           @click.native="COLUMN_LAYOUT = !COLUMN_LAYOUT"
         />

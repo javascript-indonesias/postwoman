@@ -5,8 +5,8 @@
     >
       <div class="inline-flex items-center space-x-2">
         <ButtonSecondary
-          class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark"
-          label="HOPPSCOTCH"
+          class="tracking-wide !font-bold !text-secondaryDark hover:bg-primaryDark focus-visible:bg-primaryDark uppercase"
+          :label="t('app.name')"
           to="/"
         />
         <AppGitHubStarButton class="mt-1.5 transition <sm:hidden" />
@@ -21,15 +21,15 @@
           @click.native="showInstallPrompt()"
         />
         <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="`${t('app.search')} <kbd>/</kbd>`"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t('app.search')} <xmp>/</xmp>`"
           svg="search"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click.native="invokeAction('modals.search.toggle')"
         />
         <ButtonSecondary
-          v-tippy="{ theme: 'tooltip' }"
-          :title="`${t('support.title')} <kbd>?</kbd>`"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t('support.title')} <xmp>?</xmp>`"
           svg="life-buoy"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click.native="showSupport = true"
@@ -75,17 +75,22 @@
                   :alt="currentUser.displayName"
                   :title="currentUser.displayName"
                   indicator
-                  :indicator-styles="isOnLine ? 'bg-green-500' : 'bg-red-500'"
+                  :indicator-styles="
+                    network.isOnline ? 'bg-green-500' : 'bg-red-500'
+                  "
                 />
-                <ButtonSecondary
+                <ProfilePicture
                   v-else
                   v-tippy="{ theme: 'tooltip' }"
-                  :title="t('header.account')"
-                  class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
-                  svg="user"
+                  :title="currentUser.displayName"
+                  :initial="currentUser.displayName"
+                  indicator
+                  :indicator-styles="
+                    network.isOnline ? 'bg-green-500' : 'bg-red-500'
+                  "
                 />
               </template>
-              <div class="flex flex-col px-2 text-tiny">
+              <div class="flex flex-col px-2 text-tiny" role="menu">
                 <span class="inline-flex font-semibold truncate">
                   {{ currentUser.displayName }}
                 </span>
@@ -130,7 +135,7 @@
         </div>
       </div>
     </header>
-    <AppAnnouncement v-if="!isOnLine" />
+    <AppAnnouncement v-if="!network.isOnline" />
     <FirebaseLogin :show="showLogin" @hide-modal="showLogin = false" />
     <AppSupport :show="showSupport" @hide-modal="showSupport = false" />
     <TeamsModal :show="showTeamsModal" @hide-modal="showTeamsModal = false" />
@@ -138,8 +143,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "@nuxtjs/composition-api"
-import intializePwa from "~/helpers/pwa"
+import { onMounted, reactive, ref } from "@nuxtjs/composition-api"
+import { useNetwork } from "@vueuse/core"
+import initializePwa from "~/helpers/pwa"
 import { probableUser$ } from "~/helpers/fb/auth"
 import { getLocalConfig, setLocalConfig } from "~/newstore/localpersistence"
 import {
@@ -164,7 +170,7 @@ const showSupport = ref(false)
 const showLogin = ref(false)
 const showTeamsModal = ref(false)
 
-const isOnLine = ref(navigator.onLine)
+const network = reactive(useNetwork())
 
 const currentUser = useReadonlyStream(probableUser$, null)
 
@@ -173,16 +179,9 @@ defineActionHandler("modals.support.toggle", () => {
 })
 
 onMounted(() => {
-  window.addEventListener("online", () => {
-    isOnLine.value = true
-  })
-  window.addEventListener("offline", () => {
-    isOnLine.value = false
-  })
-
   // Initializes the PWA code - checks if the app is installed,
   // etc.
-  showInstallPrompt.value = intializePwa()
+  showInstallPrompt.value = initializePwa()
 
   const cookiesAllowed = getLocalConfig("cookiesAllowed") === "yes"
   if (!cookiesAllowed) {

@@ -1,7 +1,8 @@
 <template>
   <SmartModal
     v-if="show"
-    :title="`${$t('environment.edit')}`"
+    dialog
+    :title="$t(`environment.${action}`)"
     @close="hideModal"
   >
     <template #body>
@@ -41,7 +42,13 @@
             />
           </div>
         </div>
-        <div class="border divide-y rounded divide-dividerLight border-divider">
+        <div
+          v-if="evnExpandError"
+          class="w-full px-4 py-2 mb-2 overflow-auto font-mono text-red-400 whitespace-normal rounded bg-primaryLight"
+        >
+          {{ $t("environment.nested_overflow") }}
+        </div>
+        <div class="border rounded divide-y divide-dividerLight border-divider">
           <div
             v-for="(variable, index) in vars"
             :key="`variable-${index}`"
@@ -53,10 +60,10 @@
               :placeholder="`${$t('count.variable', { count: index + 1 })}`"
               :name="'param' + index"
             />
-            <input
+            <SmartEnvInput
               v-model="variable.value"
-              class="flex flex-1 px-4 py-2 bg-transparent"
               :placeholder="`${$t('count.value', { count: index + 1 })}`"
+              :envs="liveEnvs"
               :name="'value' + index"
             />
             <div class="flex">
@@ -111,38 +118,61 @@
 <script lang="ts">
 import clone from "lodash/clone"
 import { computed, defineComponent, PropType } from "@nuxtjs/composition-api"
+import * as E from "fp-ts/Either"
+import { Environment, parseTemplateStringE } from "@hoppscotch/data"
 import {
-  Environment,
+  createEnvironment,
+  environments$,
   getEnviroment,
   getGlobalVariables,
+  globalEnv$,
+  setCurrentEnvironment,
   setGlobalEnvVariables,
   updateEnvironment,
 } from "~/newstore/environments"
+import { useReadonlyStream } from "~/helpers/utils/composables"
 
 export default defineComponent({
   props: {
     show: Boolean,
+    action: {
+      type: String as PropType<"new" | "edit">,
+      default: "edit",
+    },
     editingEnvironmentIndex: {
       type: [Number, String] as PropType<number | "Global" | null>,
       default: null,
     },
+    envVars: {
+      type: Function as PropType<() => Environment["variables"]>,
+      default: () => [],
+    },
   },
   setup(props) {
-    const workingEnv = computed(() => {
-      if (props.editingEnvironmentIndex === null) return null
+    const globalVars = useReadonlyStream(globalEnv$, [])
 
+    const workingEnv = computed(() => {
       if (props.editingEnvironmentIndex === "Global") {
         return {
           name: "Global",
           variables: getGlobalVariables(),
         } as Environment
-      } else {
+      } else if (props.action === "new") {
+        return {
+          name: "",
+          variables: props.envVars(),
+        }
+      } else if (props.editingEnvironmentIndex !== null) {
         return getEnviroment(props.editingEnvironmentIndex)
+      } else {
+        return null
       }
     })
 
     return {
+      globalVars,
       workingEnv,
+      envList: useReadonlyStream(environments$, []) || props.envVars(),
     }
   },
   data() {
@@ -151,6 +181,33 @@ export default defineComponent({
       vars: [] as { key: string; value: string }[],
       clearIcon: "trash-2",
     }
+  },
+  computed: {
+    evnExpandError(): boolean {
+      for (const variable of this.vars) {
+        const result = parseTemplateStringE(variable.value, this.vars)
+
+        if (E.isLeft(result)) {
+          console.error("error", result.left)
+          return true
+        }
+      }
+      return false
+    },
+    liveEnvs(): Array<{ key: string; value: string; source: string }> {
+      if (this.evnExpandError) {
+        return []
+      }
+
+      if (this.$props.editingEnvironmentIndex === "Global") {
+        return [...this.vars.map((x) => ({ ...x, source: this.name! }))]
+      } else {
+        return [
+          ...this.vars.map((x) => ({ ...x, source: this.name! })),
+          ...this.globalVars.map((x) => ({ ...x, source: "Global" })),
+        ]
+      }
+    },
   },
   watch: {
     show() {
@@ -180,6 +237,11 @@ export default defineComponent({
         return
       }
 
+      if (this.action === "new") {
+        createEnvironment(this.name)
+        setCurrentEnvironment(this.envList.length - 1)
+      }
+
       const environmentUpdated: Environment = {
         name: this.name,
         variables: this.vars,
@@ -187,7 +249,11 @@ export default defineComponent({
 
       if (this.editingEnvironmentIndex === "Global")
         setGlobalEnvVariables(environmentUpdated.variables)
-      else updateEnvironment(this.editingEnvironmentIndex!, environmentUpdated)
+      else if (this.action === "new") {
+        updateEnvironment(this.envList.length - 1, environmentUpdated)
+      } else {
+        updateEnvironment(this.editingEnvironmentIndex!, environmentUpdated)
+      }
       this.hideModal()
     },
     hideModal() {

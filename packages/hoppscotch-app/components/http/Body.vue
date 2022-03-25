@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div class="flex flex-col flex-1">
     <div
-      class="sticky z-10 flex items-center justify-between flex-1 pl-4 border-b bg-primary border-dividerLight top-upperSecondaryStickyFold"
+      class="sticky z-10 flex items-center justify-between pl-4 border-b bg-primary border-dividerLight top-upperMobileSecondaryStickyFold sm:top-upperSecondaryStickyFold"
     >
       <span class="flex items-center">
         <label class="font-semibold text-secondaryLight">
@@ -22,30 +22,32 @@
               />
             </span>
           </template>
-          <SmartItem
-            :label="$t('state.none').toLowerCase()"
-            :info-icon="contentType === null ? 'done' : ''"
-            :active-info-icon="contentType === null"
-            @click.native="
-              () => {
-                contentType = null
-                $refs.contentTypeOptions.tippy().hide()
-              }
-            "
-          />
-          <SmartItem
-            v-for="(contentTypeItem, index) in validContentTypes"
-            :key="`contentTypeItem-${index}`"
-            :label="contentTypeItem"
-            :info-icon="contentTypeItem === contentType ? 'done' : ''"
-            :active-info-icon="contentTypeItem === contentType"
-            @click.native="
-              () => {
-                contentType = contentTypeItem
-                $refs.contentTypeOptions.tippy().hide()
-              }
-            "
-          />
+          <div class="flex flex-col" role="menu">
+            <SmartItem
+              :label="$t('state.none').toLowerCase()"
+              :info-icon="contentType === null ? 'done' : ''"
+              :active-info-icon="contentType === null"
+              @click.native="
+                () => {
+                  contentType = null
+                  $refs.contentTypeOptions.tippy().hide()
+                }
+              "
+            />
+            <SmartItem
+              v-for="(contentTypeItem, index) in validContentTypes"
+              :key="`contentTypeItem-${index}`"
+              :label="contentTypeItem"
+              :info-icon="contentTypeItem === contentType ? 'done' : ''"
+              :active-info-icon="contentTypeItem === contentType"
+              @click.native="
+                () => {
+                  contentType = contentTypeItem
+                  $refs.contentTypeOptions.tippy().hide()
+                }
+              "
+            />
+          </div>
         </tippy>
       </span>
     </div>
@@ -64,9 +66,7 @@
         class="inline-flex flex-col object-contain object-center w-16 h-16 my-4"
         :alt="`${$t('empty.body')}`"
       />
-      <span class="pb-4 text-center">
-        {{ $t("empty.body") }}
-      </span>
+      <span class="pb-4 text-center">{{ $t("empty.body") }}</span>
       <ButtonSecondary
         outline
         :label="`${$t('app.documentation')}`"
