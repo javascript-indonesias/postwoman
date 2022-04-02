@@ -460,6 +460,17 @@ pre.ace_editor {
   }
 }
 
+.cm-editor {
+  .cm-line::selection {
+    background-color: var(--accent-dark-color) !important;
+    color: var(--accent-contrast-color) !important;
+  }
+  .cm-line ::selection {
+    background-color: var(--accent-dark-color) !important;
+    color: var(--accent-contrast-color) !important;
+  }
+}
+
 .shortcut-key {
   @apply inline-flex;
   @apply font-sans;
@@ -482,5 +493,18 @@ details summary::-webkit-details-marker {
 @media (max-width: 767px) {
   main {
     margin-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+// https://pqina.nl/blog/fix-google-mobile-usability-issues/
+:where(body, iframe, pre, img, svg, video, canvas, select) {
+  @apply max-w-full;
+  @apply overflow-auto;
+  @apply break-words;
+}
+
+.env-highlight {
+  * {
+    @apply text-accentContrast;
   }
 }
