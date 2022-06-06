@@ -152,49 +152,43 @@
           />
           <div
             ref="saveTippyActions"
-            class="flex flex-col divide-y-1 divide-primaryDark focus:outline-none"
+            class="flex flex-col focus:outline-none"
             tabindex="0"
             role="menu"
             @keyup.c="copyRequestAction.$el.click()"
             @keyup.s="saveRequestAction.$el.click()"
             @keyup.escape="saveOptions.tippy().hide()"
           >
-            <div class="flex flex-col space-y-1">
-              <SmartItem
-                ref="copyRequestAction"
-                :label="shareButtonText"
-                :svg="copyLinkIcon"
-                :loading="fetchingShareLink"
-                :shortcut="['C']"
-                @click.native="
-                  () => {
-                    copyRequest()
-                  }
-                "
-              />
-              <SmartAnchor
-                :label="`${t('request.view_my_links')}`"
-                to="/profile"
-                svg="arrow-right"
-                reverse
-                blank
-                class="pb-3 -ml-4 text-tiny text-secondaryLight"
-              />
-            </div>
-            <div class="flex pt-3 pb-1">
-              <SmartItem
-                ref="saveRequestAction"
-                :label="`${t('request.save_as')}`"
-                svg="folder-plus"
-                :shortcut="['S']"
-                @click.native="
-                  () => {
-                    showSaveRequestModal = true
-                    saveOptions.tippy().hide()
-                  }
-                "
-              />
-            </div>
+            <SmartItem
+              ref="copyRequestAction"
+              :label="shareButtonText"
+              :svg="copyLinkIcon"
+              :loading="fetchingShareLink"
+              :shortcut="['C']"
+              @click.native="
+                () => {
+                  copyRequest()
+                }
+              "
+            />
+            <SmartItem
+              svg="link-2"
+              :label="`${t('request.view_my_links')}`"
+              to="/profile"
+            />
+            <hr />
+            <SmartItem
+              ref="saveRequestAction"
+              :label="`${t('request.save_as')}`"
+              svg="folder-plus"
+              :shortcut="['S']"
+              @click.native="
+                () => {
+                  showSaveRequestModal = true
+                  saveOptions.tippy().hide()
+                }
+              "
+            />
           </div>
         </tippy>
       </span>
@@ -221,6 +215,7 @@ import { computed, ref, watch } from "@nuxtjs/composition-api"
 import { isLeft, isRight } from "fp-ts/lib/Either"
 import * as E from "fp-ts/Either"
 import cloneDeep from "lodash/cloneDeep"
+import { refAutoReset } from "@vueuse/core"
 import {
   updateRESTResponse,
   restEndpoint$,
@@ -399,7 +394,11 @@ const clearContent = () => {
   resetRESTRequest()
 }
 
-const copyLinkIcon = hasNavigatorShare ? ref("share-2") : ref("copy")
+const copyLinkIcon = refAutoReset<"share-2" | "copy" | "check">(
+  hasNavigatorShare ? "share-2" : "copy",
+  1000
+)
+
 const shareLink = ref<string | null>("")
 const fetchingShareLink = ref(false)
 
@@ -454,7 +453,6 @@ const copyShareLink = (shareLink: string) => {
     copyLinkIcon.value = "check"
     copyToClipboard(`https://hopp.sh/r${shareLink}`)
     toast.success(`${t("state.copied_to_clipboard")}`)
-    setTimeout(() => (copyLinkIcon.value = "copy"), 2000)
   }
 }
 
