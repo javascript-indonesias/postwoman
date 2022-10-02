@@ -142,12 +142,12 @@
     "sync": "Tem certeza de que deseja sincronizar este espaço de trabalho?"
   },
   "count": {
-    "header": "Cabeçalho {contagem}",
-    "message": "Mensagem {contagem}",
-    "parameter": "Parâmetro {contagem}",
-    "protocol": "Protocolo {contagem}",
-    "value": "Valor {contagem}",
-    "variable": "Variável {contagem}"
+    "header": "Cabeçalho {count}",
+    "message": "Mensagem {count}",
+    "parameter": "Parâmetro {count}",
+    "protocol": "Protocolo {count}",
+    "value": "Valor {count}",
+    "variable": "Variável {count}"
   },
   "documentation": {
     "generate": "Gerar documentação",
@@ -362,7 +362,7 @@
     "name": "Nome do pedido",
     "new": "New Request",
     "override": "Override",
-    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
     "parameter_list": "Parâmetros de consulta",
     "parameters": "Parâmetros",
@@ -501,6 +501,11 @@
       "save_to_collections": "Salvar em coleções",
       "send_request": "Enviar pedido",
       "title": "Solicitar"
+    },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
     },
     "theme": {
       "black": "Switch  theme to black mode",

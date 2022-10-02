@@ -362,7 +362,7 @@
     "name": "Begär namn",
     "new": "New Request",
     "override": "Override",
-    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
     "parameter_list": "Frågeparametrar",
     "parameters": "Parametrar",
@@ -501,6 +501,11 @@
       "save_to_collections": "Spara i samlingar",
       "send_request": "Skicka förfrågan",
       "title": "Begäran"
+    },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
     },
     "theme": {
       "black": "Switch  theme to black mode",

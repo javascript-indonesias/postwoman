@@ -362,7 +362,7 @@
     "name": "Имя запроса",
     "new": "New Request",
     "override": "Override",
-    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
     "parameter_list": "Параметры запроса",
     "parameters": "Параметры",
@@ -501,6 +501,11 @@
       "save_to_collections": "Сохранить в коллекции",
       "send_request": "Послать запрос",
       "title": "Запрос"
+    },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
     },
     "theme": {
       "black": "Switch  theme to black mode",

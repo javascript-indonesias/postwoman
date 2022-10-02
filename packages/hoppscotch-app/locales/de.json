@@ -362,7 +362,7 @@
     "name": "Anfragename",
     "new": "New Request",
     "override": "Override",
-    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
     "parameter_list": "Abfrageparameter",
     "parameters": "Parameter",
@@ -501,6 +501,11 @@
       "save_to_collections": "In Sammlungen speichern",
       "send_request": "Anfrage senden",
       "title": "Anfrage"
+    },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
     },
     "theme": {
       "black": "Auf Schwarzes Design wechseln",

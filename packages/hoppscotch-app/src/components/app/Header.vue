@@ -22,7 +22,7 @@
         />
         <ButtonSecondary
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
-          :title="`${t('app.search')} <xmp>/</xmp>`"
+          :title="`${t('app.search')} <kbd>/</kbd>`"
           :icon="IconSearch"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="invokeAction('modals.search.toggle')"
@@ -31,7 +31,7 @@
           v-tippy="{ theme: 'tooltip', allowHTML: true }"
           :title="`${
             mdAndLarger ? t('support.title') : t('app.options')
-          } <xmp>?</xmp>`"
+          } <kbd>?</kbd>`"
           :icon="IconLifeBuoy"
           class="rounded hover:bg-primaryDark focus-visible:bg-primaryDark"
           @click="invokeAction('modals.support.toggle')"
@@ -63,7 +63,6 @@
               interactive
               trigger="click"
               theme="popover"
-              arrow
               :on-shown="() => tippyActions.focus()"
             >
               <ProfilePicture
@@ -103,7 +102,6 @@
                   ref="tippyActions"
                   class="flex flex-col focus:outline-none"
                   tabindex="0"
-                  role="menu"
                   @keyup.enter="profile.$el.click()"
                   @keyup.s="settings.$el.click()"
                   @keyup.l="logout.$el.click()"

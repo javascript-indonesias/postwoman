@@ -17,24 +17,28 @@
         />
         <ButtonSecondary
           v-if="response.body"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${
             previewEnabled ? t('hide.preview') : t('response.preview_html')
-          "
+          } <kbd>${getSpecialKey()}</kbd><kbd>Shift</kbd><kbd>P</kbd>`"
           :icon="!previewEnabled ? IconEye : IconEyeOff"
           @click.prevent="togglePreview"
         />
         <ButtonSecondary
           v-if="response.body"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.download_file')"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t(
+            'action.download_file'
+          )} <kbd>${getSpecialKey()}</kbd><kbd>J</kbd>`"
           :icon="downloadIcon"
           @click="downloadResponse"
         />
         <ButtonSecondary
           v-if="response.body"
-          v-tippy="{ theme: 'tooltip' }"
-          :title="t('action.copy')"
+          v-tippy="{ theme: 'tooltip', allowHTML: true }"
+          :title="`${t(
+            'action.copy'
+          )} <kbd>${getSpecialKey()}</kbd><kbd>.</kbd>`"
           :icon="copyIcon"
           @click="copyResponse"
         />
@@ -70,6 +74,8 @@ import {
 import { useCodemirror } from "@composables/codemirror"
 import { useI18n } from "@composables/i18n"
 import type { HoppRESTResponse } from "~/helpers/types/HoppRESTResponse"
+import { defineActionHandler } from "~/helpers/actions"
+import { getPlatformSpecialKey as getSpecialKey } from "~/helpers/platformutils"
 
 const t = useI18n()
 
@@ -105,6 +111,10 @@ useCodemirror(
     environmentHighlights: true,
   })
 )
+
+defineActionHandler("response.preview.toggle", () => togglePreview())
+defineActionHandler("response.file.download", () => downloadResponse())
+defineActionHandler("response.copy", () => copyResponse())
 </script>
 
 <style lang="scss" scoped>

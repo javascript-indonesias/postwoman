@@ -362,7 +362,7 @@
     "name": "Forespørselsnavn",
     "new": "New Request",
     "override": "Override",
-    "override_help": "Set <xmp>Content-Type</xmp> in Headers",
+    "override_help": "Set <kbd>Content-Type</kbd> in Headers",
     "overriden": "Overridden",
     "parameter_list": "Spørringsparametere",
     "parameters": "Parametere",
@@ -501,6 +501,11 @@
       "save_to_collections": "Lagre i samlinger",
       "send_request": "Send forespørsel",
       "title": "Be om"
+    },
+    "response": {
+      "copy": "Copy response to clipboard",
+      "download": "Download response as file",
+      "title": "Response"
     },
     "theme": {
       "black": "Switch  theme to black mode",
