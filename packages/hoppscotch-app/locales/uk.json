@@ -7,6 +7,7 @@
     "clear_all": "Очистити все",
     "close": "Закрити",
     "connect": "Підключіться",
+    "connecting": "Connecting",
     "copy": "Копіювати",
     "delete": "Видалити",
     "disconnect": "Відключити",
@@ -35,6 +36,7 @@
     "search": "Пошук",
     "send": "Надіслати",
     "start": "Почати",
+    "starting": "Starting",
     "stop": "Стій",
     "to_close": "щоб закрити",
     "to_navigate": "для навігації",
@@ -184,13 +186,13 @@
     "deleted": "Видалення середовища",
     "edit": "Редагувати середовище",
     "invalid_name": "Укажіть дійсну назву середовища",
-    "my_environments": "My Environments",
+    "my_environments": "Мої середовища",
     "nested_overflow": "вкладені змінні середовища обмежені до 10 рівнів",
     "new": "Нове середовище",
     "no_environment": "Жодного середовища",
     "no_environment_description": "Не було обрано жодного середовища. Виберіть, що робити з наступними змінними.",
     "select": "Виберіть середовище",
-    "team_environments": "Team Environments",
+    "team_environments": "Командні середовища",
     "title": "Середовища",
     "updated": "Environment updation",
     "variable_list": "Список змінних"
@@ -327,7 +329,7 @@
   },
   "profile": {
     "app_settings": "Параметри програми",
-    "default_hopp_displayname": "Unnamed User",
+    "default_hopp_displayname": "Користувач без імені",
     "editor": "Редактор",
     "editor_description": "Редактори можуть додавати, змінювати та видаляти запити.",
     "email_verification_mail": "Лист для підтвердження електронної пошти було надіслано на вашу електронну адресу. Будь ласка, натисніть на посилання для підтвердження своєї адреси електронної пошти.",
@@ -656,9 +658,9 @@
     "we_sent_invite_link_description": "Попросіть всіх запрошених перевірити свої поштові скриньки. Перейдіть за посиланням, щоб приєднатися до команди."
   },
   "team_environment": {
-    "deleted": "Environment Deleted",
-    "duplicate": "Environment Duplicated",
-    "not_found": "Environment not found."
+    "deleted": "Середовище видалено",
+    "duplicate": "Середовище дубльовано",
+    "not_found": "Середовище не знайдено."
   },
   "test": {
     "failed": "помилка тесту",

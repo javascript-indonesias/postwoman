@@ -42,7 +42,9 @@
             name="start"
             class="w-32"
             :label="
-              connectionState === 'STOPPED'
+              connectionState === 'STARTING'
+                ? t('action.starting')
+                : connectionState === 'STOPPED'
                 ? t('action.start')
                 : t('action.stop')
             "
