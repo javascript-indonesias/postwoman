@@ -40,7 +40,7 @@
     "@sentry/vue": "^7.13.0",
     "@urql/core": "^2.5.0",
     "@urql/devtools": "^2.0.3",
-    "@urql/exchange-auth": "^0.1.7",
+    "@urql/exchange-auth": "^1.0.0",
     "@urql/exchange-graphcache": "^4.4.3",
     "@vitejs/plugin-legacy": "^2.3.0",
     "@vueuse/core": "^8.7.5",
