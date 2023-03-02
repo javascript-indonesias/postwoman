@@ -10,12 +10,13 @@
     "prepare": "husky install",
     "dev": "pnpm -r do-dev",
     "generate": "pnpm -r do-build-prod",
-    "start": "http-server packages/hoppscotch-app/dist -p 3000",
+    "start": "http-server packages/hoppscotch-web/dist -p 3000",
     "lint": "pnpm -r do-lint",
     "typecheck": "pnpm -r do-typecheck",
     "lintfix": "pnpm -r do-lintfix",
     "pre-commit": "pnpm -r do-lint && pnpm -r do-typecheck",
-    "test": "pnpm -r do-test"
+    "test": "pnpm -r do-test",
+    "generate-ui": "pnpm -r do-build-ui"
   },
   "workspaces": [
     "./packages/*"

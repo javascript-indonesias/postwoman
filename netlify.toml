@@ -4,13 +4,13 @@
 
 [build]
   base = "/"
-  publish = "packages/hoppscotch-app/dist"
+  publish = "packages/hoppscotch-web/dist"
   command = "npx pnpm i --store=node_modules/.pnpm-store && npx pnpm run generate"
 
 [[headers]]
   for = "/*"
   [headers.values]
-    X-Frame-Options = "DENY"
+    X-Frame-Options = "SAMEORIGIN"
     X-XSS-Protection = "1; mode=block"
 
 [[redirects]]
