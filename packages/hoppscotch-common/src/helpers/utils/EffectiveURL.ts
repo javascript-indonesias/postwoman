@@ -1,26 +1,29 @@
+import {
+  Environment,
+  FormDataKeyValue,
+  HoppRESTAuth,
+  HoppRESTHeader,
+  HoppRESTHeaders,
+  HoppRESTParam,
+  HoppRESTParams,
+  HoppRESTReqBody,
+  HoppRESTRequest,
+  parseBodyEnvVariables,
+  parseRawKeyValueEntriesE,
+  parseTemplateString,
+  parseTemplateStringE,
+} from "@hoppscotch/data"
+import { AwsV4Signer } from "aws4fetch"
 import * as A from "fp-ts/Array"
 import * as E from "fp-ts/Either"
+import { flow, pipe } from "fp-ts/function"
 import * as O from "fp-ts/Option"
 import * as RA from "fp-ts/ReadonlyArray"
 import * as S from "fp-ts/string"
 import qs from "qs"
-import { flow, pipe } from "fp-ts/function"
 import { combineLatest, Observable } from "rxjs"
 import { map } from "rxjs/operators"
-import {
-  FormDataKeyValue,
-  HoppRESTReqBody,
-  HoppRESTRequest,
-  parseTemplateString,
-  parseBodyEnvVariables,
-  Environment,
-  HoppRESTHeader,
-  HoppRESTParam,
-  parseRawKeyValueEntriesE,
-  parseTemplateStringE,
-  HoppRESTAuth,
-  HoppRESTHeaders,
-} from "@hoppscotch/data"
+
 import { arrayFlatMap, arraySort } from "../functional/array"
 import { toFormData } from "../functional/formData"
 import { tupleWithSameKeysToRecord } from "../functional/record"
@@ -32,8 +35,8 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
    * This contains path, params and environment variables all applied to it
    */
   effectiveFinalURL: string
-  effectiveFinalHeaders: { key: string; value: string }[]
-  effectiveFinalParams: { key: string; value: string }[]
+  effectiveFinalHeaders: HoppRESTHeaders
+  effectiveFinalParams: HoppRESTParams
   effectiveFinalBody: FormData | string | null
   effectiveFinalRequestVariables: { key: string; value: string }[]
 }
@@ -47,7 +50,7 @@ export interface EffectiveHoppRESTRequest extends HoppRESTRequest {
  * @param showKeyIfSecret Whether to show the key if the value is a secret
  * @returns The list of headers
  */
-export const getComputedAuthHeaders = (
+export const getComputedAuthHeaders = async (
   envVars: Environment["variables"],
   req?:
     | HoppRESTRequest
@@ -93,6 +96,7 @@ export const getComputedAuthHeaders = (
       active: true,
       key: "Authorization",
       value: `Basic ${btoa(`${username}:${password}`)}`,
+      description: "",
     })
   } else if (
     request.auth.authType === "bearer" ||
@@ -111,6 +115,7 @@ export const getComputedAuthHeaders = (
           ? parseTemplateString(token, envVars, false, showKeyIfSecret)
           : token
       }`,
+      description: "",
     })
   } else if (request.auth.authType === "api-key") {
     const { key, addTo } = request.auth
@@ -126,6 +131,38 @@ export const getComputedAuthHeaders = (
               showKeyIfSecret
             )
           : request.auth.value ?? "",
+        description: "",
+      })
+    }
+  } else if (request.auth.authType === "aws-signature") {
+    const { addTo } = request.auth
+    if (addTo === "HEADERS") {
+      const currentDate = new Date()
+      const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
+      const { method, endpoint } = req as HoppRESTRequest
+      const signer = new AwsV4Signer({
+        method: method,
+        datetime: amzDate,
+        accessKeyId: parseTemplateString(request.auth.accessKey, envVars),
+        secretAccessKey: parseTemplateString(request.auth.secretKey, envVars),
+        region:
+          parseTemplateString(request.auth.region, envVars) ?? "us-east-1",
+        service: parseTemplateString(request.auth.serviceName, envVars),
+        sessionToken:
+          request.auth.serviceToken &&
+          parseTemplateString(request.auth.serviceToken, envVars),
+        url: parseTemplateString(endpoint, envVars),
+      })
+
+      const sign = await signer.sign()
+
+      sign.headers.forEach((x, k) => {
+        headers.push({
+          active: true,
+          key: k,
+          value: x,
+          description: "",
+        })
       })
     }
   }
@@ -164,6 +201,7 @@ export const getComputedBodyHeaders = (
       active: true,
       key: "content-type",
       value: req.body.contentType,
+      description: "",
     },
   ]
 }
@@ -182,7 +220,7 @@ export type ComputedHeader = {
  * @param showKeyIfSecret Whether to show the key if the value is a secret
  * @returns The headers that are generated along with the source of that header
  */
-export const getComputedHeaders = (
+export const getComputedHeaders = async (
   req:
     | HoppRESTRequest
     | {
@@ -192,14 +230,16 @@ export const getComputedHeaders = (
   envVars: Environment["variables"],
   parse = true,
   showKeyIfSecret = false
-): ComputedHeader[] => {
+): Promise<ComputedHeader[]> => {
   return [
-    ...getComputedAuthHeaders(
-      envVars,
-      req,
-      undefined,
-      parse,
-      showKeyIfSecret
+    ...(
+      await getComputedAuthHeaders(
+        envVars,
+        req,
+        undefined,
+        parse,
+        showKeyIfSecret
+      )
     ).map((header) => ({
       source: "auth" as const,
       header,
@@ -223,22 +263,58 @@ export type ComputedParam = {
  * @param envVars The environment variables active
  * @returns The params that are generated along with the source of that header
  */
-export const getComputedParams = (
+export const getComputedParams = async (
   req: HoppRESTRequest,
   envVars: Environment["variables"]
-): ComputedParam[] => {
+): Promise<ComputedParam[]> => {
   // When this gets complex, its best to split this function off (like with getComputedHeaders)
   // API-key auth can be added to query params
-  if (!req.auth || !req.auth.authActive) {
-    return []
-  }
+  if (!req.auth || !req.auth.authActive) return []
 
-  if (req.auth.authType !== "api-key" && req.auth.authType !== "oauth-2") {
+  if (
+    req.auth.authType !== "api-key" &&
+    req.auth.authType !== "oauth-2" &&
+    req.auth.authType !== "aws-signature"
+  )
     return []
-  }
 
-  if (req.auth.addTo !== "QUERY_PARAMS") {
-    return []
+  if (req.auth.addTo !== "QUERY_PARAMS") return []
+
+  if (req.auth.authType === "aws-signature") {
+    const { addTo } = req.auth
+    const params: ComputedParam[] = []
+    if (addTo === "QUERY_PARAMS") {
+      const currentDate = new Date()
+      const amzDate = currentDate.toISOString().replace(/[:-]|\.\d{3}/g, "")
+
+      const signer = new AwsV4Signer({
+        method: req.method,
+        datetime: amzDate,
+        signQuery: true,
+        accessKeyId: parseTemplateString(req.auth.accessKey, envVars),
+        secretAccessKey: parseTemplateString(req.auth.secretKey, envVars),
+        region: parseTemplateString(req.auth.region, envVars) ?? "us-east-1",
+        service: parseTemplateString(req.auth.serviceName, envVars),
+        sessionToken:
+          req.auth.serviceToken &&
+          parseTemplateString(req.auth.serviceToken, envVars),
+        url: parseTemplateString(req.endpoint, envVars),
+      })
+      const sign = await signer.sign()
+
+      for (const [k, v] of sign.url.searchParams) {
+        params.push({
+          source: "auth" as const,
+          param: {
+            active: true,
+            key: k,
+            value: v,
+            description: "",
+          },
+        })
+      }
+    }
+    return params
   }
 
   if (req.auth.authType === "api-key") {
@@ -249,23 +325,27 @@ export const getComputedParams = (
           active: true,
           key: parseTemplateString(req.auth.key, envVars, false, true),
           value: parseTemplateString(req.auth.value, envVars, false, true),
+          description: "",
         },
       },
     ]
   }
 
-  const { grantTypeInfo } = req.auth
-
-  return [
-    {
-      source: "auth",
-      param: {
-        active: true,
-        key: "access_token",
-        value: parseTemplateString(grantTypeInfo.token, envVars, false, true),
+  if (req.auth.authType === "oauth-2") {
+    const { grantTypeInfo } = req.auth
+    return [
+      {
+        source: "auth",
+        param: {
+          active: true,
+          key: "access_token",
+          value: parseTemplateString(grantTypeInfo.token, envVars),
+          description: "",
+        },
       },
-    },
-  ]
+    ]
+  }
+  return []
 }
 
 // Resolves environment variables in the body
@@ -399,18 +479,15 @@ function getFinalBodyFromRequest(
  *
  * @returns An object with extra fields defining a complete request
  */
-export function getEffectiveRESTRequest(
+export async function getEffectiveRESTRequest(
   request: HoppRESTRequest,
   environment: Environment,
   showKeyIfSecret = false
-): EffectiveHoppRESTRequest {
+): Promise<EffectiveHoppRESTRequest> {
   const effectiveFinalHeaders = pipe(
-    getComputedHeaders(
-      request,
-      environment.variables,
-      true,
-      showKeyIfSecret
-    ).map((h) => h.header),
+    (await getComputedHeaders(request, environment.variables)).map(
+      (h) => h.header
+    ),
     A.concat(request.headers),
     A.filter((x) => x.active && x.key !== ""),
     A.map((x) => ({
@@ -427,11 +504,14 @@ export function getEffectiveRESTRequest(
         false,
         showKeyIfSecret
       ),
+      description: x.description,
     }))
   )
 
   const effectiveFinalParams = pipe(
-    getComputedParams(request, environment.variables).map((p) => p.param),
+    (await getComputedParams(request, environment.variables)).map(
+      (p) => p.param
+    ),
     A.concat(request.params),
     A.filter((x) => x.active && x.key !== ""),
     A.map((x) => ({
@@ -448,6 +528,7 @@ export function getEffectiveRESTRequest(
         false,
         showKeyIfSecret
       ),
+      description: x.description,
     }))
   )
 
@@ -494,8 +575,8 @@ export function getEffectiveRESTRequest(
 export function getEffectiveRESTRequestStream(
   request$: Observable<HoppRESTRequest>,
   environment$: Observable<Environment>
-): Observable<EffectiveHoppRESTRequest> {
+): Observable<Promise<EffectiveHoppRESTRequest>> {
   return combineLatest([request$, environment$]).pipe(
-    map(([request, env]) => getEffectiveRESTRequest(request, env))
+    map(async ([request, env]) => await getEffectiveRESTRequest(request, env))
   )
 }
