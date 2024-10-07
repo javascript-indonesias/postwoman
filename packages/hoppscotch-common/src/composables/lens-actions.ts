@@ -1,9 +1,6 @@
 import { HoppRESTResponse } from "@helpers/types/HoppRESTResponse"
 import { copyToClipboard } from "@helpers/utils/clipboard"
 import { refAutoReset } from "@vueuse/core"
-import { pipe } from "fp-ts/function"
-import * as RNEA from "fp-ts/ReadonlyNonEmptyArray"
-import * as S from "fp-ts/string"
 import { computed, ComputedRef, onMounted, ref, Ref } from "vue"
 
 import jsonToLanguage from "~/helpers/utils/json-to-language"
@@ -13,6 +10,7 @@ import IconCopy from "~icons/lucide/copy"
 import IconDownload from "~icons/lucide/download"
 import { useI18n } from "./i18n"
 import { useToast } from "./toast"
+import { HoppRESTRequestResponse } from "@hoppscotch/data"
 
 export function useCopyInterface(responseBodyText: Ref<string>) {
   const toast = useToast()
@@ -58,7 +56,8 @@ export type downloadResponseReturnType = (() => void) | Ref<any>
 
 export function useDownloadResponse(
   contentType: string,
-  responseBody: Ref<string | ArrayBuffer>
+  responseBody: Ref<string | ArrayBuffer>,
+  filename: string
 ) {
   const downloadIcon = refAutoReset(IconDownload, 1000)
 
@@ -67,24 +66,6 @@ export function useDownloadResponse(
 
   const downloadResponse = async () => {
     const dataToWrite = responseBody.value
-
-    // Guess extension and filename
-    const file = new Blob([dataToWrite], { type: contentType })
-    const url = URL.createObjectURL(file)
-
-    const filename = pipe(
-      url,
-      S.split("/"),
-      RNEA.last,
-      S.split("#"),
-      RNEA.head,
-      S.split("?"),
-      RNEA.head
-    )
-
-    URL.revokeObjectURL(url)
-
-    console.log(filename)
 
     // TODO: Look at the mime type and determine extension ?
     const result = await platform.io.saveFileWithDialog({
@@ -160,18 +141,22 @@ export function usePreview(
   }
 }
 
-export function useResponseBody(response: HoppRESTResponse): {
+export function useResponseBody(
+  response: HoppRESTResponse | HoppRESTRequestResponse
+): {
   responseBodyText: ComputedRef<string>
 } {
   const responseBodyText = computed(() => {
-    if (
-      response.type === "loading" ||
-      response.type === "network_fail" ||
-      response.type === "script_fail" ||
-      response.type === "fail" ||
-      response.type === "extension_error"
-    )
-      return ""
+    if ("type" in response) {
+      if (
+        response.type === "loading" ||
+        response.type === "network_fail" ||
+        response.type === "script_fail" ||
+        response.type === "fail" ||
+        response.type === "extension_error"
+      )
+        return ""
+    }
     return getResponseBodyText(response.body)
   })
   return {
@@ -179,7 +164,7 @@ export function useResponseBody(response: HoppRESTResponse): {
   }
 }
 
-export function getResponseBodyText(body: ArrayBuffer): string {
+export function getResponseBodyText(body: ArrayBuffer | string): string {
   if (typeof body === "string") return body
 
   const res = new TextDecoder("utf-8").decode(body)
