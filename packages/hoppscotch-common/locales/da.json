@@ -326,6 +326,7 @@
     "danger_zone": "Farligt område",
     "delete_account": "Din konto er i øjeblikket ejer af disse arbejdsområder:",
     "delete_account_description": "Du skal enten fjerne dig selv, overføre ejerskab eller slette disse arbejdsområder, før du kan slette din konto.",
+    "empty_email_address": "E-mailadresse må ikke være tom",
     "empty_profile_name": "Profilnavn kan ikke være tomt",
     "empty_req_name": "Tomt anmodningsnavn",
     "f12_details": "(F12 for detaljer)",
@@ -346,10 +347,11 @@
     "page_not_found": "Denne side kunne ikke findes",
     "please_install_extension": "Installer venligst udvidelsen og tilføj oprindelse til udvidelsen.",
     "proxy_error": "Proxy-fejl",
+    "same_email_address": "Opdateret e-mailadresse er den samme som den aktuelle e-mailadresse",
     "same_profile_name": "Opdateret profilnavn er det samme som det nuværende profilnavn",
     "script_fail": "Kunne ikke udføre pre-request script",
     "something_went_wrong": "Noget gik galt",
-    "test_script_fail": "Kunne ikke udføre post-request script",
+    "post_request_script_fail": "Kunne ikke udføre post-request script",
     "reading_files": "Fejl under læsning af en eller flere filer.",
     "fetching_access_tokens_list": "Noget gik galt under hentning af listen over tokens",
     "generate_access_token": "Noget gik galt under generering af adgangstoken",
@@ -411,8 +413,8 @@
     "post_request_tests": "Testscripts er skrevet i JavaScript og køres efter svaret er modtaget.",
     "pre_request_script": "Pre-request scripts er skrevet i JavaScript og køres før anmodningen sendes.",
     "script_fail": "Det ser ud til, at der er en fejl i pre-request scriptet. Tjek fejlen nedenfor og ret scriptet i overensstemmelse hermed.",
-    "test_script_fail": "Der ser ud til at være en fejl med testscriptet. Ret venligst fejlene og kør tests igen",
-    "tests": "Skriv et testscript for at automatisere fejlfinding."
+    "post_request_script_fail": "Der ser ud til at være en fejl med post-request scriptet. Ret venligst fejlene og kør tests igen",
+    "post_request_script": "Skriv et testscript for at automatisere fejlfinding."
   },
   "hide": {
     "collection": "Skjul samlingspanel",

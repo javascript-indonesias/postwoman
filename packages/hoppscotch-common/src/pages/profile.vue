@@ -116,10 +116,12 @@
                       v-model="emailAddress"
                       :autofocus="false"
                       styles="flex mt-2 md:max-w-sm"
-                      :placeholder="`${t('settings.profile_name')}`"
+                      :placeholder="`${t('settings.profile_email')}`"
+                      :disabled="!isEmailEditable"
                     >
                       <template #button>
                         <HoppButtonSecondary
+                          v-if="isEmailEditable"
                           filled
                           outline
                           :label="t('action.save')"
@@ -238,6 +240,10 @@ const probableUser = useReadonlyStream(
   platform.auth.getProbableUser()
 )
 
+const isEmailEditable = computed(() => {
+  return platform.auth.isEmailEditable ?? false
+})
+
 const loadingCurrentUser = computed(() => {
   if (!probableUser.value) return false
   else if (!currentUser.value) return true
@@ -249,19 +255,20 @@ const updatingDisplayName = ref(false)
 watchEffect(() => (displayName.value = currentUser.value?.displayName || ""))
 
 const updateDisplayName = async () => {
-  if (!displayName.value) {
+  const inputName = displayName.value.trim()
+  if (!inputName) {
     toast.error(`${t("error.empty_profile_name")}`)
     return
   }
 
-  if (currentUser.value?.displayName === displayName.value) {
+  if (currentUser.value?.displayName === inputName) {
     toast.error(`${t("error.same_profile_name")}`)
     return
   }
 
   updatingDisplayName.value = true
 
-  const res = await platform.auth.setDisplayName(displayName.value)
+  const res = await platform.auth.setDisplayName(inputName)
 
   if (E.isLeft(res)) {
     toast.error(t("error.something_went_wrong"))
@@ -276,19 +283,38 @@ const emailAddress = ref(currentUser.value?.email || "")
 const updatingEmailAddress = ref(false)
 watchEffect(() => (emailAddress.value = currentUser.value?.email || ""))
 
-const updateEmailAddress = () => {
+const updateEmailAddress = async () => {
+  const inputEmailAddress = emailAddress.value.trim()
+  if (!inputEmailAddress) {
+    toast.error(`${t("error.empty_email_address")}`)
+    return
+  }
+
+  if (currentUser.value?.email === inputEmailAddress) {
+    toast.error(`${t("error.same_email_address")}`)
+    return
+  }
+
   updatingEmailAddress.value = true
-  platform.auth
-    .setEmailAddress(emailAddress.value as string)
-    .then(() => {
-      toast.success(`${t("profile.updated")}`)
-    })
-    .catch(() => {
-      toast.error(`${t("error.something_went_wrong")}`)
-    })
-    .finally(() => {
-      updatingEmailAddress.value = false
-    })
+
+  const result = await platform.auth.setEmailAddress(inputEmailAddress)
+
+  if (!result) {
+    toast.error(`${t("error.something_went_wrong")}`)
+    updatingEmailAddress.value = false
+    return
+  }
+
+  if (result.type === "success") {
+    toast.success(`${t("profile.verified_email_sent")}`)
+  } else if (result.type === "email-already-in-use") {
+    toast.error(`${t("error.email_already_exists")}`)
+  } else if (result.type === "requires-recent-login") {
+    await result.link()
+  } else {
+    toast.error(`${t("error.something_went_wrong")}`)
+  }
+  updatingEmailAddress.value = false
 }
 
 const verifyingEmailAddress = ref(false)

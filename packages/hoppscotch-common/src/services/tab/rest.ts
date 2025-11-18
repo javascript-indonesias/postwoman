@@ -1,9 +1,11 @@
 import { Container } from "dioc"
-import { isEqual } from "lodash-es"
 import { computed } from "vue"
 import { getDefaultRESTRequest } from "~/helpers/rest/default"
 import { HoppRESTSaveContext, HoppTabDocument } from "~/helpers/rest/document"
+import { getService } from "~/modules/dioc"
+import { PersistenceService, STORE_KEYS } from "../persistence"
 import { TabService } from "./tab"
+import { PersistableTabState } from "."
 
 export class RESTTabService extends TabService<HoppTabDocument> {
   public static readonly ID = "REST_TAB_SERVICE"
@@ -60,6 +62,14 @@ export class RESTTabService extends TabService<HoppTabDocument> {
     }),
   }))
 
+  protected async loadPersistedState(): Promise<PersistableTabState<HoppTabDocument> | null> {
+    const persistenceService = getService(PersistenceService)
+    const savedState = await persistenceService.getNullable<
+      PersistableTabState<HoppTabDocument>
+    >(STORE_KEYS.REST_TABS)
+    return savedState
+  }
+
   public getTabRefWithSaveContext(ctx: HoppRESTSaveContext) {
     for (const tab of this.tabMap.values()) {
       // For `team-collection` request id can be considered unique
@@ -73,7 +83,13 @@ export class RESTTabService extends TabService<HoppTabDocument> {
         ) {
           return this.getTabRef(tab.id)
         }
-      } else if (isEqual(ctx, tab.document.saveContext)) {
+      } else if (
+        tab.document.saveContext?.originLocation === "user-collection" &&
+        tab.document.saveContext.folderPath === ctx?.folderPath &&
+        tab.document.saveContext.requestIndex === ctx?.requestIndex &&
+        tab.document.saveContext.exampleID === ctx?.exampleID &&
+        tab.document.saveContext.requestRefID === ctx?.requestRefID
+      ) {
         return this.getTabRef(tab.id)
       }
     }

@@ -59,6 +59,10 @@
         ghost-class="cursor-move"
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
+        :move="
+          (event: DragDropEvent) =>
+            isDragDropAllowed(event, workingRequestVariables.length)
+        "
       >
         <template #item="{ element: variable, index }">
           <div
@@ -84,6 +88,7 @@
             <SmartEnvInput
               v-model="variable.key"
               :placeholder="`${t('count.variable', { count: index + 1 })}`"
+              :class="{ 'opacity-50': !variable.active }"
               @change="
                 updateVariable(index, {
                   id: variable.id,
@@ -96,6 +101,7 @@
             <SmartEnvInput
               v-model="variable.value"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
+              :class="{ 'opacity-50': !variable.active }"
               @change="
                 updateVariable(index, {
                   id: variable.id,
@@ -185,6 +191,7 @@ import { useI18n } from "~/composables/i18n"
 import { useNestedSetting } from "~/composables/settings"
 import { useColorMode } from "~/composables/theming"
 import { useToast } from "~/composables/toast"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 import linter from "~/helpers/editor/linting/rawKeyValue"
 import { objRemoveKey } from "~/helpers/functional/object"
 import { toggleNestedSetting } from "~/newstore/settings"

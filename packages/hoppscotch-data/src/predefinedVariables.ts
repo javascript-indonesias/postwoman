@@ -61,7 +61,7 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
   // Text, numbers, and colors
   {
     key: "$randomAlphaNumeric",
-    description: "A random alpha-numeric character.",
+    description: "A random alphanumeric character.",
     getValue: () => {
       const characters =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -159,7 +159,7 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
 
   {
     key: "$randomPassword",
-    description: "A random 15-character alpha-numeric password.",
+    description: "A random 15-character alphanumeric password.",
     getValue: () => {
       const characters =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
@@ -286,6 +286,38 @@ export const HOPP_SUPPORTED_PREDEFINED_VARIABLES: PredefinedVariable[] = [
     getValue: () => {
       const suffixes = ["I", "MD", "DDS", "PhD", "Esq.", "Jr."]
       return suffixes[Math.floor(Math.random() * suffixes.length)]
+    },
+  },
+
+  // Company names
+  {
+    key: "$randomCompanyName",
+    description: "A random company name.",
+    getValue: () => {
+      const companyNames = [
+        "Nexora",
+        "CodeLoom",
+        "BitHaven",
+        "SynapseWorks",
+        "VoltEdge",
+        "Elevoria",
+        "Bridgent",
+        "Verniq",
+        "Corevia",
+        "Stratigen",
+        "Lunova Studio",
+        "Pixelora",
+        "MuseMind",
+        "BrightNest",
+        "Auralis",
+        "VerdaFlow",
+        "BloomShift",
+        "PureTrek",
+        "EcoVerse",
+        "ReLeaf Labs",
+      ]
+
+      return companyNames[Math.floor(Math.random() * companyNames.length)]
     },
   },
 

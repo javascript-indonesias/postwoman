@@ -1,4 +1,5 @@
 import {
+  HoppCollectionVariable,
   HoppRESTAuth,
   HoppRESTHeader,
   HoppRESTRequest,
@@ -211,7 +212,12 @@ export class TeamSearchService extends Service {
     this.searchResultsRequests = {}
     this.expandedCollections.value = []
 
-    const axiosPlatformConfig = platform.auth.axiosPlatformConfig?.() ?? {}
+    const getAxiosPlatformConfig = async () => {
+      await platform.auth.waitProbableLoginToConfirm()
+      return platform.auth.axiosPlatformConfig?.() ?? {}
+    }
+
+    const axiosPlatformConfig = await getAxiosPlatformConfig()
 
     try {
       const searchResponse = await axios.get(
@@ -332,7 +338,7 @@ export class TeamSearchService extends Service {
     this.teamsSearchResultsLoading.value = false
   }
 
-  cascadeParentCollectionForHeaderAuthForSearchResults = (
+  cascadeParentCollectionForPropertiesForSearchResults = (
     collectionID: string
   ): HoppInheritedProperty => {
     const defaultInheritedAuth: HoppInheritedProperty["auth"] = {
@@ -346,15 +352,23 @@ export class TeamSearchService extends Service {
 
     const defaultInheritedHeaders: HoppInheritedProperty["headers"] = []
 
+    const defaultInheritedVariables: HoppInheritedProperty["variables"] = []
+
     const collection = Object.values(this.searchResultsCollections).find(
       (col) => col.id === collectionID
     )
 
     if (!collection)
-      return { auth: defaultInheritedAuth, headers: defaultInheritedHeaders }
+      return {
+        auth: defaultInheritedAuth,
+        headers: defaultInheritedHeaders,
+        variables: defaultInheritedVariables,
+      }
 
     const inheritedAuthData = this.findInheritableParentAuth(collectionID)
     const inheritedHeadersData = this.findInheritableParentHeaders(collectionID)
+    const inheritedVariablesData =
+      this.findInheritableParentVariables(collectionID)
 
     return {
       auth: E.isRight(inheritedAuthData)
@@ -363,6 +377,9 @@ export class TeamSearchService extends Service {
       headers: E.isRight(inheritedHeadersData)
         ? Object.values(inheritedHeadersData.right)
         : defaultInheritedHeaders,
+      variables: E.isRight(inheritedVariablesData)
+        ? Object.values(inheritedVariablesData.right)
+        : defaultInheritedVariables,
     }
   }
 
@@ -389,6 +406,7 @@ export class TeamSearchService extends Service {
       const parentInheritedData = JSON.parse(collection.data) as {
         auth: HoppRESTAuth
         headers: HoppRESTHeader[]
+        variables: HoppCollectionVariable[]
       }
 
       const inheritedAuth = parentInheritedData.auth
@@ -432,6 +450,7 @@ export class TeamSearchService extends Service {
       const parentInheritedData = JSON.parse(collection.data) as {
         auth: HoppRESTAuth
         headers: HoppRESTHeader[]
+        variables: HoppCollectionVariable[]
       }
 
       const inheritedHeaders = parentInheritedData.headers
@@ -457,6 +476,45 @@ export class TeamSearchService extends Service {
     }
 
     return E.right(existingHeaders)
+  }
+
+  findInheritableParentVariables = (
+    collectionID: string,
+    existingVariables: HoppInheritedProperty["variables"] = []
+  ): E.Either<string, HoppInheritedProperty["variables"]> => {
+    const collection = Object.values(this.searchResultsCollections).find(
+      (col) => col.id === collectionID
+    )
+
+    const vars = [...Object.values(existingVariables)]
+
+    if (!collection) {
+      return E.left("PARENT_NOT_FOUND" as const)
+    }
+
+    if (collection.data) {
+      const parentData = JSON.parse(collection.data) as {
+        auth: HoppRESTAuth
+        headers: HoppRESTHeader[]
+        variables: HoppCollectionVariable[]
+      }
+
+      const variables = parentData.variables
+
+      if (variables) {
+        vars.push({
+          parentID: collection.id,
+          parentName: collection.title,
+          inheritedVariables: variables,
+        })
+      }
+    }
+
+    if (collection.parentID) {
+      return this.findInheritableParentVariables(collection.parentID, vars)
+    }
+
+    return E.right(vars)
   }
 
   expandCollection = async (collectionID: string) => {

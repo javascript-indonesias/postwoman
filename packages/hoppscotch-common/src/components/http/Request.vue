@@ -20,6 +20,9 @@
                 :value="tab.document.request.method"
                 :readonly="!isCustomMethod"
                 :placeholder="`${t('request.method')}`"
+                :style="{
+                  color: getMethodLabelColor(tab.document.request.method),
+                }"
                 @input="onSelectMethod($event)"
               />
             </HoppSmartSelectWrapper>
@@ -261,15 +264,16 @@ import { platform } from "~/platform"
 import { HoppRESTRequest } from "@hoppscotch/data"
 import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
-import { InterceptorService } from "~/services/interceptor.service"
 import { HoppTab } from "~/services/tab"
 import { HoppRequestDocument } from "~/helpers/rest/document"
 import { RESTTabService } from "~/services/tab/rest"
 import { getMethodLabelColor } from "~/helpers/rest/labelColoring"
 import { WorkspaceService } from "~/services/workspace.service"
+import { KernelInterceptorService } from "~/services/kernel-interceptor.service"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
-const interceptorService = useService(InterceptorService)
+const interceptorService = useService(KernelInterceptorService)
 
 const methods = [
   "GET",
@@ -348,7 +352,7 @@ const newSendRequest = async () => {
   platform.analytics?.logEvent({
     type: "HOPP_REQUEST_RUN",
     platform: "rest",
-    strategy: interceptorService.currentInterceptorID.value!,
+    strategy: interceptorService.current.value!.id,
     workspaceType: workspaceService.currentWorkspace.value.type,
   })
 
@@ -511,7 +515,10 @@ const cycleDownMethod = () => {
   }
 }
 
-const saveRequest = () => {
+const saveRequest = async () => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
+
   const saveCtx = tab.value.document.saveContext
 
   if (!saveCtx) {

@@ -5,11 +5,13 @@
       v-if="!loading && hasResponse"
       v-model:document="doc"
       :is-editable="false"
+      :tab-id="tabId"
       @save-as-example="saveAsExample"
     />
   </div>
   <HttpSaveResponseName
-    v-model="responseName"
+    v-model:response-name="responseName"
+    :has-same-name-response="hasSameNameResponse"
     :show="showSaveResponseName"
     @submit="onSaveAsExample"
     @hide-modal="showSaveResponseName = false"
@@ -23,8 +25,9 @@ import { HoppRequestDocument } from "~/helpers/rest/document"
 import { useResponseBody } from "@composables/lens-actions"
 import { getStatusCodeReasonPhrase } from "~/helpers/utils/statusCodes"
 import {
-  HoppRESTResponseOriginalRequest,
   HoppRESTRequestResponse,
+  HoppRESTResponseOriginalRequest,
+  makeHoppRESTResponseOriginalRequest,
 } from "@hoppscotch/data"
 import { editRESTRequest } from "~/newstore/collections"
 import { useToast } from "@composables/toast"
@@ -38,6 +41,7 @@ const toast = useToast()
 
 const props = defineProps<{
   document: HoppRequestDocument
+  tabId: string
   isEmbed: boolean
 }>()
 
@@ -56,10 +60,17 @@ const hasResponse = computed(
 const responseName = ref("")
 const showSaveResponseName = ref(false)
 
+const hasSameNameResponse = computed(() => {
+  return responseName.value
+    ? responseName.value in doc.value.request.responses
+    : false
+})
+
 const loading = computed(() => doc.value.response?.type === "loading")
 
 const saveAsExample = () => {
   showSaveResponseName.value = true
+  responseName.value = doc.value.request.name
 }
 
 const onSaveAsExample = () => {
@@ -84,17 +95,17 @@ const onSaveAsExample = () => {
       requestVariables,
     } = response.req
 
-    const originalRequest: HoppRESTResponseOriginalRequest = {
-      v: "2",
-      method,
-      endpoint,
-      headers,
-      body,
-      auth,
-      params,
-      name,
-      requestVariables,
-    }
+    const originalRequest: HoppRESTResponseOriginalRequest =
+      makeHoppRESTResponseOriginalRequest({
+        method,
+        endpoint,
+        headers,
+        body,
+        auth,
+        params,
+        name,
+        requestVariables,
+      })
 
     const resName = responseName.value.trim()
 
@@ -115,17 +126,18 @@ const onSaveAsExample = () => {
     showSaveResponseName.value = false
 
     const saveCtx = doc.value.saveContext
-
     if (!saveCtx) return
 
     const req = doc.value.request
+
     if (saveCtx.originLocation === "user-collection") {
       try {
         editRESTRequest(saveCtx.folderPath, saveCtx.requestIndex, req)
-
         toast.success(`${t("response.saved")}`)
+        responseName.value = ""
       } catch (e) {
         console.error(e)
+        responseName.value = ""
       }
     } else {
       runMutation(UpdateRequestDocument, {
@@ -137,10 +149,11 @@ const onSaveAsExample = () => {
       })().then((result) => {
         if (E.isLeft(result)) {
           toast.error(`${t("profile.no_permission")}`)
+          responseName.value = ""
         } else {
           doc.value.isDirty = false
-
           toast.success(`${t("request.saved")}`)
+          responseName.value = ""
         }
       })
     }

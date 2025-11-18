@@ -48,12 +48,17 @@
             </td>
 
             <td class="py-4 px-8">
-              {{ team.members?.length }}
+              {{ team.teamMembers?.length }}
             </td>
 
             <td @click.stop class="flex justify-end mr-10">
               <div class="relative">
-                <tippy interactive trigger="click" theme="popover">
+                <tippy
+                  :key="team.id"
+                  interactive
+                  trigger="click"
+                  theme="popover"
+                >
                   <HoppButtonSecondary
                     v-tippy="{ theme: 'tooltip' }"
                     :icon="IconMoreHorizontal"

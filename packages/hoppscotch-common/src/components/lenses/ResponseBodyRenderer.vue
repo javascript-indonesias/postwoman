@@ -16,6 +16,7 @@
         v-model:response="doc.response"
         :is-savable="isSavable"
         :is-editable="isEditable"
+        :tab-id="props.tabId"
         @save-as-example="$emit('save-as-example')"
       />
     </HoppSmartTab>
@@ -29,7 +30,7 @@
       <LensesHeadersRenderer v-model="maybeHeaders" :is-editable="false" />
     </HoppSmartTab>
     <HoppSmartTab
-      v-if="!isEditable"
+      v-if="doc.response?.type !== 'network_fail' && !isEditable"
       id="results"
       :label="t('test.results')"
       :indicator="showIndicator"
@@ -49,23 +50,34 @@
         :is-editable="false"
       />
     </HoppSmartTab>
+    <HoppSmartTab
+      v-if="showConsoleTab"
+      id="console"
+      label="Console"
+      class="flex flex-1 flex-col"
+    >
+      <ConsolePanel :messages="consoleEntries" />
+    </HoppSmartTab>
   </HoppSmartTabs>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue"
-import {
-  getSuitableLenses,
-  getLensRenderers,
-  Lens,
-} from "~/helpers/lenses/lenses"
 import { useI18n } from "@composables/i18n"
 import { useVModel } from "@vueuse/core"
+import { computed, ref, watch } from "vue"
+import { useSetting } from "~/composables/settings"
+import {
+  getLensRenderers,
+  getSuitableLenses,
+  Lens,
+} from "~/helpers/lenses/lenses"
 import { HoppRequestDocument } from "~/helpers/rest/document"
+import { ConsoleEntry } from "../console/Panel.vue"
 
 const props = defineProps<{
   document: HoppRequestDocument
   isEditable: boolean
+  tabId: string
   isTestRunner?: boolean
 }>()
 
@@ -75,6 +87,10 @@ const emit = defineEmits<{
 }>()
 
 const doc = useVModel(props, "document", emit)
+const t = useI18n()
+const EXPERIMENTAL_SCRIPTING_SANDBOX = useSetting(
+  "EXPERIMENTAL_SCRIPTING_SANDBOX"
+)
 
 const isSavable = computed(() => {
   return doc.value.response?.type === "success" && doc.value.saveContext
@@ -99,8 +115,6 @@ function lensRendererFor(name: string) {
   return allLensRenderers[name]
 }
 
-const t = useI18n()
-
 const selectedLensTab = ref("")
 
 const maybeHeaders = computed(() => {
@@ -116,8 +130,17 @@ const maybeHeaders = computed(() => {
 })
 
 const requestHeaders = computed(() => {
-  if (!props.isTestRunner || !doc.value) return null
-  return doc.value.request.headers
+  if (
+    !props.isTestRunner ||
+    !doc.value.response ||
+    !(
+      doc.value.response.type === "success" ||
+      doc.value.response.type === "fail" ||
+      doc.value.response.type === "network_fail"
+    )
+  )
+    return null
+  return doc.value.response?.req.headers || doc.value.request.headers
 })
 
 const validLenses = computed(() => {
@@ -125,10 +148,34 @@ const validLenses = computed(() => {
   return getSuitableLenses(doc.value.response)
 })
 
+const showConsoleTab = computed(() => {
+  if (!doc.value.testResults?.consoleEntries) {
+    return false
+  }
+
+  return (
+    doc.value.testResults?.consoleEntries.length > 0 &&
+    EXPERIMENTAL_SCRIPTING_SANDBOX.value
+  )
+})
+
+const consoleEntries = computed(() => {
+  if (!doc.value.testResults?.consoleEntries) {
+    return []
+  }
+
+  return doc.value.testResults?.consoleEntries.filter(({ type }) =>
+    ["log", "warn", "debug", "error", "info"].includes(type)
+  ) as ConsoleEntry[]
+})
+
 watch(
   validLenses,
   (newLenses: Lens[]) => {
-    if (newLenses.length === 0) return
+    if (newLenses.length === 0) {
+      selectedLensTab.value = "req-headers"
+      return
+    }
 
     const validRenderers = [
       ...newLenses.map((x) => x.renderer),

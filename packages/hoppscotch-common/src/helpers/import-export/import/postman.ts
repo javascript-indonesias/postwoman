@@ -11,6 +11,9 @@ import {
   makeCollection,
   makeRESTRequest,
   ValidContentTypes,
+  HoppRESTRequestResponses,
+  makeHoppRESTResponseOriginalRequest,
+  HoppCollectionVariable,
 } from "@hoppscotch/data"
 import * as A from "fp-ts/Array"
 import { flow, pipe } from "fp-ts/function"
@@ -26,15 +29,39 @@ import {
   RequestAuthDefinition,
   Variable,
   VariableDefinition,
+  VariableList,
 } from "postman-collection"
 import { stringArrayJoin } from "~/helpers/functional/array"
 import { PMRawLanguage } from "~/types/pm-coll-exts"
 import { IMPORTER_INVALID_FILE_FORMAT } from "."
-import { HoppRESTRequestResponses } from "@hoppscotch/data"
 
 const safeParseJSON = (jsonStr: string) => O.tryCatch(() => JSON.parse(jsonStr))
 
 const isPMItem = (x: unknown): x is Item => Item.isItem(x)
+
+/**
+ * Checks if the Postman collection schema version supports scripts (v2.0+)
+ * @param schema - The schema URL from collection.info.schema
+ * @returns true if v2.0 or v2.1, false otherwise
+ */
+const isSchemaVersionSupported = (schema?: string): boolean => {
+  if (!schema) return false
+  // Support both schema.getpostman.com and schema.postman.com
+  return schema.includes("/v2.0.") || schema.includes("/v2.1.")
+}
+
+/**
+ * Extracts the collection schema from raw JSON data
+ * Note: PMCollection SDK doesn't expose .info.schema, so we parse raw JSON
+ */
+const getCollectionSchema = (jsonStr: string): string | null => {
+  try {
+    const data = JSON.parse(jsonStr)
+    return data?.info?.schema ?? null
+  } catch {
+    return null
+  }
+}
 
 const replacePMVarTemplating = flow(
   S.replace(/{{\s*/g, "<<"),
@@ -76,6 +103,32 @@ const parseDescription = (descField?: string | DescriptionDefinition) => {
   }
 
   return descField.content
+}
+
+const getHoppCollVariables = (
+  ig: ItemGroup<Item>
+): HoppCollectionVariable[] => {
+  if (!("variables" in ig && ig.variables)) {
+    return []
+  }
+
+  return pipe(
+    (ig.variables as VariableList).all(),
+    A.filter(
+      (variable) =>
+        variable.key !== undefined &&
+        variable.key !== null &&
+        variable.key.length > 0
+    ),
+    A.map((variable) => {
+      return <HoppCollectionVariable>{
+        key: replacePMVarTemplating(variable.key ?? ""),
+        initialValue: replacePMVarTemplating(variable.value ?? ""),
+        currentValue: "",
+        secret: variable.type === "secret",
+      }
+    })
+  )
 }
 
 const getHoppReqHeaders = (
@@ -146,6 +199,25 @@ const getHoppReqVariables = (
   }
 }
 
+// This regex is used to remove unsupported unicode characters from the response body which fails in Prisma
+// https://dba.stackexchange.com/questions/115029/unicode-error-with-u0000-on-copy-of-large-json-file-into-postgres
+const UNSUPPORTED_UNICODES_REGEX = /[\u0000]/g
+
+const getHoppResponseBody = (
+  body: string | ArrayBuffer | undefined
+): string => {
+  if (!body) return ""
+  if (typeof body === "string")
+    return body.replace(UNSUPPORTED_UNICODES_REGEX, "")
+  if (body instanceof ArrayBuffer) {
+    return new TextDecoder()
+      .decode(body)
+      .replace(UNSUPPORTED_UNICODES_REGEX, "")
+  }
+
+  return ""
+}
+
 const getHoppResponses = (
   responses: Item["responses"]
 ): HoppRESTRequestResponses => {
@@ -156,10 +228,10 @@ const getHoppResponses = (
         const res = {
           name: response.name,
           status: response.status,
-          body: response.body ?? "",
+          body: getHoppResponseBody(response.body),
           headers: getHoppReqHeaders(response.headers),
           code: response.code,
-          originalRequest: {
+          originalRequest: makeHoppRESTResponseOriginalRequest({
             auth: getHoppReqAuth(response.originalRequest?.auth),
             body: getHoppReqBody({
               body: response.originalRequest?.body,
@@ -177,8 +249,7 @@ const getHoppResponses = (
             requestVariables: getHoppReqVariables(
               response.originalRequest?.url.variables ?? null
             ),
-            v: "2" as const,
-          },
+          }),
         }
         return [response.name, res]
       })
@@ -197,11 +268,16 @@ type PMRequestAuthDef<
 const getVariableValue = (defs: VariableDefinition[], key: string) =>
   defs.find((param) => param.key === key)?.value as string | undefined
 
-const getHoppReqAuth = (hoppAuth: Item["request"]["auth"]): HoppRESTAuth => {
-  if (!hoppAuth) return { authType: "none", authActive: true }
+const getHoppReqAuth = (
+  hoppAuth: Item["request"]["auth"] | null
+): HoppRESTAuth => {
+  if (!hoppAuth) return { authType: "inherit", authActive: true }
 
-  // Cast to the type for more stricter checking down the line
   const auth = hoppAuth as unknown as PMRequestAuthDef
+
+  if (auth.type === "noauth") {
+    return { authType: "none", authActive: true }
+  }
 
   if (auth.type === "basic") {
     return {
@@ -251,6 +327,31 @@ const getHoppReqAuth = (hoppAuth: Item["request"]["auth"]): HoppRESTAuth => {
     const token = replacePMVarTemplating(
       getVariableValue(auth.oauth2, "accessToken") ?? ""
     )
+    const clientSecret = replacePMVarTemplating(
+      getVariableValue(auth.oauth2, "clientSecret") ?? ""
+    )
+
+    // Check for PKCE settings
+    const usePkce = getVariableValue(auth.oauth2, "usePkce")
+    const isPKCE = usePkce === "true"
+
+    // Get challenge algorithm, default to S256 if PKCE is enabled but no algorithm specified
+    const challengeAlgorithm = getVariableValue(
+      auth.oauth2,
+      "challengeAlgorithm"
+    )
+    let codeVerifierMethod: "plain" | "S256" | undefined
+
+    if (isPKCE) {
+      // Postman uses "SHA-256" or "plain" - normalize to our format
+      // Default to S256 for any value other than "plain"
+      if (challengeAlgorithm === "plain") {
+        codeVerifierMethod = "plain"
+      } else {
+        // Covers "S256", "SHA-256", undefined, and any other value
+        codeVerifierMethod = "S256"
+      }
+    }
 
     return {
       authType: "oauth-2",
@@ -262,14 +363,18 @@ const getHoppReqAuth = (hoppAuth: Item["request"]["auth"]): HoppRESTAuth => {
         scopes: scope,
         token: token,
         tokenEndpoint: accessTokenURL,
-        clientSecret: "",
-        isPKCE: false,
+        clientSecret: clientSecret,
+        isPKCE: isPKCE,
+        ...(codeVerifierMethod ? { codeVerifierMethod } : {}),
+        authRequestParams: [],
+        tokenRequestParams: [],
+        refreshRequestParams: [],
       },
       addTo: "HEADERS",
     }
   }
 
-  return { authType: "none", authActive: true }
+  return { authType: "inherit", authActive: true }
 }
 
 const getHoppReqBody = ({
@@ -291,7 +396,7 @@ const getHoppReqBody = ({
             <FormDataKeyValue>{
               key: replacePMVarTemplating(param.key),
               value: replacePMVarTemplating(
-                param.type === "text" ? (param.value as string) : ""
+                param.type === "text" ? String(param.value) : ""
               ),
               active: !param.disabled,
               isFile: false, // TODO: Preserve isFile state ?
@@ -308,7 +413,7 @@ const getHoppReqBody = ({
           (param) =>
             `${replacePMVarTemplating(
               param.key ?? ""
-            )}: ${replacePMVarTemplating(param.value ?? "")}`
+            )}: ${replacePMVarTemplating(String(param.value ?? ""))}`
         ),
         stringArrayJoin("\n")
       ),
@@ -331,7 +436,7 @@ const getHoppReqBody = ({
               contentType in knownContentTypes
           ),
 
-          // Back-up plan, assume language from raw language defintion
+          // Back-up plan, assume language from raw language definition
           O.alt(() =>
             pipe(
               body.options?.raw?.language,
@@ -366,10 +471,28 @@ const getHoppReqBody = ({
           }
       )
     )
+  } else if (body.mode === "graphql") {
+    const formattedQuery = {
+      // @ts-expect-error - this is a valid option, but seems like the types are not updated
+      query: body.graphql?.query,
+      variables: pipe(
+        // @ts-expect-error - this is a valid option, but seems like the types are not updated
+        body.graphql?.variables,
+        safeParseJSON,
+        O.getOrElse(() => undefined)
+      ),
+    }
+
+    return {
+      contentType: "application/json",
+      body: pipe(
+        JSON.stringify(formattedQuery, null, 2),
+        replacePMVarTemplating
+      ),
+    }
   }
 
   // TODO: File
-  // TODO: GraphQL ?
 
   return { contentType: null, body: null }
 }
@@ -383,7 +506,56 @@ const getHoppReqURL = (url: Item["request"]["url"] | null): string => {
   )
 }
 
-const getHoppRequest = (item: Item): HoppRESTRequest => {
+/**
+ * Extracts script content from a Postman event
+ * Handles both string format and exec array format
+ */
+const extractScriptFromEvent = (event: any): string => {
+  if (!event?.script) return ""
+
+  if (typeof event.script === "string") {
+    return event.script
+  }
+
+  if (event.script.exec && Array.isArray(event.script.exec)) {
+    return event.script.exec.join("\n")
+  }
+
+  return ""
+}
+
+const getHoppScripts = (
+  item: Item,
+  importScripts: boolean
+): { preRequestScript: string; testScript: string } => {
+  if (!importScripts) {
+    return { preRequestScript: "", testScript: "" }
+  }
+
+  let preRequestScript = ""
+  let testScript = ""
+
+  // Postman stores scripts in the events array
+  if (item.events) {
+    const events = item.events.all()
+    events.forEach((event: any) => {
+      if (event.listen === "prerequest") {
+        preRequestScript = extractScriptFromEvent(event)
+      } else if (event.listen === "test") {
+        testScript = extractScriptFromEvent(event)
+      }
+    })
+  }
+
+  return { preRequestScript, testScript }
+}
+
+const getHoppRequest = (
+  item: Item,
+  importScripts: boolean
+): HoppRESTRequest => {
+  const { preRequestScript, testScript } = getHoppScripts(item, importScripts)
+
   return makeRESTRequest({
     name: item.name,
     endpoint: getHoppReqURL(item.request.url),
@@ -397,37 +569,68 @@ const getHoppRequest = (item: Item): HoppRESTRequest => {
     }),
     requestVariables: getHoppReqVariables(item.request.url.variables),
     responses: getHoppResponses(item.responses),
-
-    // TODO: Decide about this
-    preRequestScript: "",
-    testScript: "",
+    preRequestScript,
+    testScript,
   })
 }
 
-const getHoppFolder = (ig: ItemGroup<Item>): HoppCollection =>
+const getHoppFolder = (
+  ig: ItemGroup<Item>,
+  importScripts: boolean
+): HoppCollection =>
   makeCollection({
     name: ig.name,
     folders: pipe(
       ig.items.all(),
       A.filter(isPMItemGroup),
-      A.map(getHoppFolder)
+      A.map((folder) => getHoppFolder(folder, importScripts))
     ),
-    requests: pipe(ig.items.all(), A.filter(isPMItem), A.map(getHoppRequest)),
-    auth: { authType: "inherit", authActive: true },
+    requests: pipe(
+      ig.items.all(),
+      A.filter(isPMItem),
+      A.map((item) => getHoppRequest(item, importScripts))
+    ),
+    auth: getHoppReqAuth(ig.auth),
     headers: [],
+    variables: getHoppCollVariables(ig),
   })
 
-export const getHoppCollections = (collections: PMCollection[]) => {
-  return collections.map(getHoppFolder)
+export const getHoppCollections = (
+  collections: PMCollection[],
+  importScripts: boolean
+) => {
+  return collections.map((collection) =>
+    getHoppFolder(collection, importScripts)
+  )
 }
 
-export const hoppPostmanImporter = (fileContents: string[]) =>
+export const hoppPostmanImporter = (
+  fileContents: string[],
+  importScripts = false
+) =>
   pipe(
     // Try reading
     fileContents,
     A.traverse(O.Applicative)(readPMCollection),
 
-    O.map(flow(getHoppCollections)),
+    O.map((collections) => {
+      // Validate schema version if importing scripts
+      if (importScripts && fileContents.length > 0) {
+        const schema = getCollectionSchema(fileContents[0])
+        const isSupported = isSchemaVersionSupported(schema ?? undefined)
+
+        if (!isSupported) {
+          console.warn(
+            `[Postman Import] Script import requested but collection schema "${schema ?? "unknown"}" does not support scripts. ` +
+              `Only Postman Collection Format v2.0 and v2.1 are supported. Scripts will be skipped.`
+          )
+          // Skip script import for unsupported versions
+          return getHoppCollections(collections, false)
+        }
+      }
+
+      return getHoppCollections(collections, importScripts)
+    }),
 
     TE.fromOption(() => IMPORTER_INVALID_FILE_FORMAT)
   )

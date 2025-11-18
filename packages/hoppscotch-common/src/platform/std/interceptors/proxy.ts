@@ -1,12 +1,12 @@
 import { Interceptor, RequestRunResult } from "~/services/interceptor.service"
-import { AxiosRequestConfig, CancelToken } from "axios"
+import axios, { AxiosRequestConfig, CancelToken } from "axios"
 import * as E from "fp-ts/Either"
 import { preProcessRequest } from "./helpers"
 import { v4 } from "uuid"
-import axios from "axios"
 import { settingsStore } from "~/newstore/settings"
 import { decodeB64StringToArrayBuffer } from "~/helpers/utils/b64"
 import SettingsProxy from "~/components/settings/Proxy.vue"
+import { getDefaultProxyUrl } from "~/helpers/proxyUrl"
 
 type ProxyHeaders = {
   "multipart-part-key"?: string
@@ -40,6 +40,8 @@ async function runRequest(
   req: AxiosRequestConfig,
   cancelToken: CancelToken
 ): RequestRunResult["response"] {
+  const defaultProxyURL = await getDefaultProxyUrl()
+
   const multipartKey =
     req.data instanceof FormData ? `proxyRequestData-${v4()}` : null
 
@@ -55,7 +57,7 @@ async function runRequest(
   try {
     // TODO: Validation for the proxy result
     const { data } = await axios.post(
-      settingsStore.value.PROXY_URL ?? "https://proxy.hoppscotch.io",
+      settingsStore.value.PROXY_URL ?? defaultProxyURL,
       payload,
       {
         headers,

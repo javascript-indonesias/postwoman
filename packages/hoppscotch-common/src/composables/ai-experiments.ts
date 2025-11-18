@@ -50,6 +50,7 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
     }
 
     const namingStyle = useSetting("AI_REQUEST_NAMING_STYLE").value
+    const customNamingStyle = useSetting("CUSTOM_NAMING_STYLE").value
 
     isGenerateRequestNamePending.value = true
 
@@ -60,7 +61,7 @@ export const useRequestNameGeneration = (targetNameRef: Ref<string>) => {
 
     const result = await generateRequestNameForPlatform(
       JSON.stringify(requestContext),
-      namingStyle
+      namingStyle === "CUSTOM" ? customNamingStyle : namingStyle
     )
 
     if (result && E.isLeft(result)) {
@@ -255,7 +256,7 @@ export const useModifyTestScript = (
     isModifyTestScriptPending.value = true
 
     if (!modifyTestScriptForPlatform) {
-      toast.error(t("ai_experiments.modify_test_script_error"))
+      toast.error(t("ai_experiments.modify_post_request_script_error"))
       isModifyTestScriptPending.value = false
       return
     }
@@ -266,7 +267,7 @@ export const useModifyTestScript = (
     )
 
     if (result && E.isLeft(result)) {
-      toast.error(t("ai_experiments.modify_test_script_error"))
+      toast.error(t("ai_experiments.modify_post_request_script_error"))
       isModifyTestScriptPending.value = false
       return
     }

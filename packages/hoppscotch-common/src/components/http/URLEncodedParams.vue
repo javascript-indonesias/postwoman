@@ -60,6 +60,10 @@
         ghost-class="cursor-move"
         chosen-class="bg-primaryLight"
         drag-class="cursor-grabbing"
+        :move="
+          (event: DragDropEvent) =>
+            isDragDropAllowed(event, workingUrlEncodedParams.length)
+        "
       >
         <template #item="{ element: param, index }">
           <div
@@ -86,6 +90,7 @@
             </span>
             <SmartEnvInput
               v-model="param.key"
+              :class="{ 'opacity-50': !param.active }"
               :placeholder="`${t('count.parameter', { count: index + 1 })}`"
               :auto-complete-env="true"
               :envs="envs"
@@ -100,6 +105,7 @@
             />
             <SmartEnvInput
               v-model="param.value"
+              :class="{ 'opacity-50': !param.active }"
               :placeholder="`${t('count.value', { count: index + 1 })}`"
               :auto-complete-env="true"
               :envs="envs"
@@ -207,6 +213,7 @@ import { useVModel } from "@vueuse/core"
 import { useNestedSetting } from "~/composables/settings"
 import { toggleNestedSetting } from "~/newstore/settings"
 import { AggregateEnvironment } from "~/newstore/environments"
+import { isDragDropAllowed, DragDropEvent } from "~/helpers/dragDropValidation"
 
 type Body = HoppRESTReqBody & {
   contentType: "application/x-www-form-urlencoded"

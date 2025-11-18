@@ -144,15 +144,16 @@ import { platform } from "~/platform"
 import { useReadonlyStream } from "~/composables/stream"
 import { useService } from "dioc/vue"
 import { InspectionService } from "~/services/inspection"
-import { HeaderInspectorService } from "~/services/inspection/inspectors/header.inspector"
+import { RequestInspectorService } from "~/services/inspection/inspectors/request.inspector"
 import { EnvironmentInspectorService } from "~/services/inspection/inspectors/environment.inspector"
-import { InterceptorsInspectorService } from "~/services/inspection/inspectors/interceptors.inspector"
 import { ResponseInspectorService } from "~/services/inspection/inspectors/response.inspector"
 import { cloneDeep } from "lodash-es"
 import { RESTTabService } from "~/services/tab/rest"
 import { HoppTab } from "~/services/tab"
 import { HoppRequestDocument, HoppTabDocument } from "~/helpers/rest/document"
-import { AuthorizationInspectorService } from "~/services/inspection/inspectors/authorization.inspector"
+import { ScrollService } from "~/services/scroll.service"
+
+const scrollService = useService(ScrollService)
 
 const savingRequest = ref(false)
 const confirmingCloseForTabID = ref<string | null>(null)
@@ -251,6 +252,7 @@ const removeTab = (tabID: string) => {
   if (tabState.document.isDirty) {
     confirmingCloseForTabID.value = tabID
   } else {
+    scrollService.cleanupScrollForTab(tabState.id)
     tabs.closeTab(tabState.id)
     inspectionService.deleteTabInspectorResult(tabState.id)
   }
@@ -268,6 +270,7 @@ const closeOtherTabsAction = (tabID: string) => {
     unsavedTabsCount.value = balanceDirtyTabCount
     exceptedTabID.value = tabID
   } else {
+    scrollService.cleanupAllScroll(tabID)
     tabs.closeOtherTabs(tabID)
   }
 }
@@ -285,7 +288,10 @@ const duplicateTab = (tabID: string) => {
 }
 
 const onResolveConfirmCloseAllTabs = () => {
-  if (exceptedTabID.value) tabs.closeOtherTabs(exceptedTabID.value)
+  if (exceptedTabID.value) {
+    scrollService.cleanupAllScroll(exceptedTabID.value)
+    tabs.closeOtherTabs(exceptedTabID.value)
+  }
   confirmingCloseAllTabs.value = false
 }
 
@@ -403,22 +409,44 @@ defineActionHandler("request.rename", () => {
   if (tabs.currentActiveTab.value.document.type === "request")
     openReqRenameModal(tabs.currentActiveTab.value.id)
 })
+
 defineActionHandler("tab.duplicate-tab", ({ tabID }) => {
   duplicateTab(tabID ?? currentTabID.value)
 })
+
 defineActionHandler("tab.close-current", () => {
   removeTab(currentTabID.value)
 })
+
 defineActionHandler("tab.close-other", () => {
   tabs.closeOtherTabs(currentTabID.value)
 })
+
 defineActionHandler("tab.open-new", addNewTab)
 
-useService(HeaderInspectorService)
+defineActionHandler("tab.next", () => {
+  tabs.goToNextTab()
+})
+
+defineActionHandler("tab.prev", () => {
+  tabs.goToPreviousTab()
+})
+
+defineActionHandler("tab.switch-to-first", () => {
+  tabs.goToFirstTab()
+})
+
+defineActionHandler("tab.switch-to-last", () => {
+  tabs.goToLastTab()
+})
+
+defineActionHandler("tab.reopen-closed", () => {
+  tabs.reopenClosedTab()
+})
+
+useService(RequestInspectorService)
 useService(EnvironmentInspectorService)
 useService(ResponseInspectorService)
-useService(AuthorizationInspectorService)
-useService(InterceptorsInspectorService)
 
 for (const inspectorDef of platform.additionalInspectors ?? []) {
   useService(inspectorDef.service)

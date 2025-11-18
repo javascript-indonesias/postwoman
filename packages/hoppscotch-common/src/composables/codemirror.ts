@@ -30,10 +30,21 @@ import { GQLLanguage } from "@hoppscotch/codemirror-lang-graphql"
 import { html } from "@codemirror/legacy-modes/mode/xml"
 import { shell } from "@codemirror/legacy-modes/mode/shell"
 import { yaml } from "@codemirror/legacy-modes/mode/yaml"
+import { rust } from "@codemirror/legacy-modes/mode/rust"
+import { go } from "@codemirror/legacy-modes/mode/go"
+import { clojure } from "@codemirror/legacy-modes/mode/clojure"
+import { http } from "@codemirror/legacy-modes/mode/http"
+import { csharp, java } from "@codemirror/legacy-modes/mode/clike"
+import { powerShell } from "@codemirror/legacy-modes/mode/powershell"
+import { python } from "@codemirror/legacy-modes/mode/python"
+import { r } from "@codemirror/legacy-modes/mode/r"
+import { ruby } from "@codemirror/legacy-modes/mode/ruby"
+import { swift } from "@codemirror/legacy-modes/mode/swift"
 import { isJSONContentType } from "@helpers/utils/contenttypes"
 import { useStreamSubscriber } from "@composables/stream"
 import { Completer } from "@helpers/editor/completion"
 import { LinterDefinition } from "@helpers/editor/linting/linter"
+import { MODULE_PREFIX } from "@helpers/scripting"
 import {
   basicSetup,
   baseTheme,
@@ -157,10 +168,45 @@ const hoppLang = (
   return language ? new LanguageSupport(language, exts) : exts
 }
 
+/**
+ * Map of language MIME types to their corresponding language definitions
+ * where the import name matches the langMime string exactly.
+ * These are used with `StreamLanguage.define(...)` to register the language.
+ */
+const streamLanguageMap: Record<string, any> = {
+  rust,
+  clojure,
+  csharp,
+  go,
+  http,
+  java,
+  powershell: powerShell,
+  python,
+  shell,
+  html,
+  r,
+  ruby,
+  swift,
+}
+
+/**
+ * Returns the appropriate CodeMirror language object based on the provided MIME type.
+ *
+ * Handles specific content types like JSON, JavaScript, GraphQL, XML, etc.
+ * For simpler languages that directly match the import name, uses a lookup map
+ * to reduce repetition and automatically defines the StreamLanguage.
+ *
+ * @param langMime - The MIME type or shorthand language identifier (e.g., "javascript", "go", "python")
+ * @returns The corresponding CodeMirror Language object
+ */
 const getLanguage = (langMime: string): Language | null => {
+  // Special case for JSON types
   if (isJSONContentType(langMime)) {
     return jsoncLanguage
-  } else if (langMime === "application/javascript") {
+  } else if (
+    langMime === "application/javascript" ||
+    langMime === "javascript"
+  ) {
     return javascriptLanguage
   } else if (langMime === "graphql") {
     return GQLLanguage
@@ -174,7 +220,13 @@ const getLanguage = (langMime: string): Language | null => {
     return StreamLanguage.define(yaml)
   }
 
-  // None matched, so return null
+  // Handle cases where langMime directly matches the import name
+  const streamLang = streamLanguageMap[langMime]
+  if (streamLang) {
+    return StreamLanguage.define(streamLang)
+  }
+
+  // If no match is found, return null
   return null
 }
 
@@ -216,6 +268,17 @@ const getEditorLanguage = (
   linter: LinterDefinition | undefined,
   completer: Completer | undefined
 ): Extension => hoppLang(getLanguage(langMime) ?? undefined, linter, completer)
+
+/**
+ * Strips the `export {};\n` prefix from the value for display in the editor.
+ * The prefix is used internally for Monaco editor's module scope,
+ * and should not be visible in the CodeMirror editor.
+ */
+const stripModulePrefixForDisplay = (value?: string): string | undefined => {
+  return value?.startsWith(MODULE_PREFIX)
+    ? value.slice(MODULE_PREFIX.length)
+    : value
+}
 
 export function useCodemirror(
   el: Ref<any | null>,
@@ -279,7 +342,7 @@ export function useCodemirror(
       }
 
       const text = view.value?.state.doc.sliceString(from, to)
-      const coords = view.value?.coordsAtPos(from)
+      const coords = view.value?.coordsAtPos(to)
       const top = coords?.top ?? 0
       const left = coords?.left ?? 0
       if (text?.trim()) {
@@ -358,8 +421,8 @@ export function useCodemirror(
           view.requestMeasure()
 
           if (event.target && options.contextMenuEnabled) {
-            // Debounce to make the performance better
-            debouncedTextSelection(30)()
+            // close the context menu when the editor is scrolled
+            closeContextMenu()
           }
         },
       }),
@@ -402,7 +465,8 @@ export function useCodemirror(
       Prec.highest(
         keymap.of([
           {
-            key: "Cmd-Enter" /* macOS */ || "Ctrl-Enter" /* Windows */,
+            key: "Ctrl-Enter" /* Windows */,
+            mac: "Cmd-Enter" /* Mac */,
             preventDefault: true,
             run: () => true,
           },
@@ -422,7 +486,10 @@ export function useCodemirror(
     view.value = new EditorView({
       parent: el,
       state: EditorState.create({
-        doc: parseDoc(value.value, options.extendedEditorConfig.mode ?? ""),
+        doc: parseDoc(
+          stripModulePrefixForDisplay(value.value),
+          options.extendedEditorConfig.mode ?? ""
+        ),
         extensions,
       }),
       // scroll to top when mounting
@@ -462,13 +529,17 @@ export function useCodemirror(
     if (!view.value && el.value) {
       initView(el.value)
     }
+
+    // Strip `export {};\n` before displaying in CodeMirror
+    const displayValue = stripModulePrefixForDisplay(newVal) ?? ""
+
     if (cachedValue.value !== newVal) {
       view.value?.dispatch({
         filter: false,
         changes: {
           from: 0,
           to: view.value.state.doc.length,
-          insert: newVal,
+          insert: displayValue,
         },
       })
     }
@@ -532,7 +603,8 @@ export function useCodemirror(
         cachedCursor.value.ch !== newPos.ch
       ) {
         const line = view.value.state.doc.line(newPos.line + 1)
-        const selUpdate = EditorSelection.cursor(line.from + newPos.ch - 1)
+        const ch = newPos.ch === -1 ? line.length : newPos.ch
+        const selUpdate = EditorSelection.cursor(line.from + ch)
 
         view.value?.focus()
 

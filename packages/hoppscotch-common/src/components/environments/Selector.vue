@@ -26,12 +26,19 @@
         <div
           ref="envSelectorActions"
           role="menu"
-          class="flex flex-col focus:outline-none"
+          class="flex flex-col space-y-2 focus:outline-none"
           tabindex="0"
           @keyup.escape="hide()"
         >
+          <SmartEnvInput
+            v-model="filterText"
+            :placeholder="`${t('action.search')}`"
+            :context-menu-enabled="false"
+            class="border border-dividerDark focus:border-primaryDark rounded"
+          />
           <HoppSmartItem
             v-if="!isScopeSelector"
+            class="my-2"
             :label="`${t('environment.no_environment')}`"
             :info-icon="
               selectedEnvironmentIndex.type === 'NO_ENV_SELECTED'
@@ -58,6 +65,7 @@
               () => {
                 $emit('update:modelValue', {
                   type: 'global',
+                  variables: globalVals.variables,
                 })
                 hide()
               }
@@ -65,7 +73,7 @@
           />
           <HoppSmartTabs
             v-model="selectedEnvTab"
-            :styles="`sticky overflow-x-auto my-2 border border-divider rounded flex-shrink-0 z-10 top-0 bg-primary ${
+            :styles="`sticky overflow-x-auto mb-2  border border-divider rounded flex-shrink-0 z-10 top-0 bg-primary ${
               !isTeamSelected || workspace.type === 'personal'
                 ? 'bg-primaryLight'
                 : ''
@@ -77,10 +85,7 @@
               :label="`${t('environment.my_environments')}`"
             >
               <HoppSmartItem
-                v-for="{
-                  env,
-                  index,
-                } in alphabeticallySortedPersonalEnvironments"
+                v-for="{ env, index } in filteredAndAlphabetizedPersonalEnvs"
                 :key="`gen-${index}`"
                 :icon="IconLayers"
                 :label="env.name"
@@ -97,12 +102,30 @@
                 "
               />
               <HoppSmartPlaceholder
-                v-if="alphabeticallySortedPersonalEnvironments.length === 0"
-                :src="`/images/states/${colorMode.value}/blockchain.svg`"
-                :alt="`${t('empty.environments')}`"
-                :text="t('empty.environments')"
-              />
+                v-if="filteredAndAlphabetizedPersonalEnvs.length === 0"
+                class="break-words"
+                :src="
+                  filterText
+                    ? undefined
+                    : `/images/states/${colorMode.value}/blockchain.svg`
+                "
+                :alt="
+                  filterText
+                    ? `${t('empty.search_environment')}`
+                    : t('empty.environments')
+                "
+                :text="
+                  filterText
+                    ? `${t('empty.search_environment')} '${filterText}'`
+                    : t('empty.environments')
+                "
+              >
+                <template v-if="filterText" #icon>
+                  <icon-lucide-search class="svg-icons opacity-75" />
+                </template>
+              </HoppSmartPlaceholder>
             </HoppSmartTab>
+
             <HoppSmartTab
               :id="'team-environments'"
               :label="`${t('environment.team_environments')}`"
@@ -119,7 +142,7 @@
               </div>
               <div v-if="isTeamSelected" class="flex flex-col">
                 <HoppSmartItem
-                  v-for="{ env, index } in alphabeticallySortedTeamEnvironments"
+                  v-for="{ env, index } in filteredAndAlphabetizedTeamEnvs"
                   :key="`gen-team-${index}`"
                   :icon="IconLayers"
                   :label="env.environment.name"
@@ -136,11 +159,28 @@
                   "
                 />
                 <HoppSmartPlaceholder
-                  v-if="alphabeticallySortedTeamEnvironments.length === 0"
-                  :src="`/images/states/${colorMode.value}/blockchain.svg`"
-                  :alt="`${t('empty.environments')}`"
-                  :text="t('empty.environments')"
-                />
+                  v-if="filteredAndAlphabetizedTeamEnvs.length === 0"
+                  class="break-words"
+                  :src="
+                    filteredAndAlphabetizedTeamEnvs.length === 0 && !filterText
+                      ? `/images/states/${colorMode.value}/blockchain.svg`
+                      : undefined
+                  "
+                  :alt="
+                    filterText
+                      ? `${t('empty.search_environment')}`
+                      : t('empty.environments')
+                  "
+                  :text="
+                    filterText
+                      ? `${t('empty.search_environment')} '${filterText}'`
+                      : t('empty.environments')
+                  "
+                >
+                  <template v-if="filterText" #icon>
+                    <icon-lucide-search class="svg-icons opacity-75" />
+                  </template>
+                </HoppSmartPlaceholder>
               </div>
               <div
                 v-if="!teamListLoading && teamAdapterError"
@@ -199,30 +239,38 @@
                   {{ t("environment.name") }}
                 </span>
                 <span
-                  class="min-w-[9rem] w-full truncate text-tiny font-semibold"
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
                 >
-                  {{ t("environment.value") }}
+                  {{ t("environment.initial_value") }}
+                </span>
+                <span
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
+                >
+                  {{ t("environment.current_value") }}
                 </span>
               </div>
               <div
-                v-for="(variable, index) in globalEnvs.variables"
+                v-for="(variable, index) in globalEnvs"
                 :key="index"
                 class="flex flex-1 space-x-4"
               >
                 <span class="min-w-[9rem] w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="min-w-[9rem] w-full truncate text-secondaryLight">
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
                   <template v-if="variable.secret"> ******** </template>
                   <template v-else>
-                    {{ variable.value }}
+                    {{ variable.initialValue }}
+                  </template>
+                </span>
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.currentValue }}
                   </template>
                 </span>
               </div>
-              <div
-                v-if="globalEnvs.variables.length === 0"
-                class="text-secondaryLight"
-              >
+              <div v-if="globalEnvs.length === 0" class="text-secondaryLight">
                 {{ t("environment.empty_variables") }}
               </div>
             </div>
@@ -260,9 +308,14 @@
                   {{ t("environment.name") }}
                 </span>
                 <span
-                  class="min-w-[9rem] w-full truncate text-tiny font-semibold"
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
                 >
-                  {{ t("environment.value") }}
+                  {{ t("environment.initial_value") }}
+                </span>
+                <span
+                  class="min-w-[4rem] w-full truncate text-tiny font-semibold"
+                >
+                  {{ t("environment.current_value") }}
                 </span>
               </div>
               <div
@@ -273,10 +326,16 @@
                 <span class="min-w-[9rem] w-1/4 truncate text-secondaryLight">
                   {{ variable.key }}
                 </span>
-                <span class="min-w-[9rem] w-full truncate text-secondaryLight">
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
                   <template v-if="variable.secret"> ******** </template>
                   <template v-else>
-                    {{ variable.value }}
+                    {{ variable.initialValue }}
+                  </template>
+                </span>
+                <span class="min-w-[4rem] w-full truncate text-secondaryLight">
+                  <template v-if="variable.secret"> ******** </template>
+                  <template v-else>
+                    {{ variable.currentValue }}
                   </template>
                 </span>
               </div>
@@ -319,6 +378,7 @@ import {
   setSelectedEnvironmentIndex,
 } from "~/newstore/environments"
 import { useLocalState } from "~/newstore/localstate"
+import { CurrentValueService } from "~/services/current-environment-value.service"
 import { WorkspaceService } from "~/services/workspace.service"
 import IconCheck from "~icons/lucide/check"
 import IconEdit from "~icons/lucide/edit"
@@ -326,9 +386,10 @@ import IconEye from "~icons/lucide/eye"
 import IconGlobe from "~icons/lucide/globe"
 import IconLayers from "~icons/lucide/layers"
 
-type Scope =
+export type Scope =
   | {
       type: "global"
+      variables: GlobalEnvironment["variables"]
     }
   | {
       type: "my-environment"
@@ -356,10 +417,14 @@ const colorMode = useColorMode()
 
 type EnvironmentType = "my-environments" | "team-environments"
 
+const filterText = ref("")
+
 const myEnvironments = useReadonlyStream(environments$, [])
 
 const workspaceService = useService(WorkspaceService)
 const workspace = workspaceService.currentWorkspace
+
+const currentEnvironmentValueService = useService(CurrentValueService)
 
 // TeamList-Adapter
 const teamListAdapter = workspaceService.acquireTeamListAdapter(null)
@@ -398,14 +463,44 @@ const teamEnvironmentList = useReadonlyStream(
   []
 )
 
-// Sort environments alphabetically by default
-const alphabeticallySortedPersonalEnvironments = computed(() =>
-  sortPersonalEnvironmentsAlphabetically(myEnvironments.value, "asc")
-)
+// Sort environments alphabetically by default and filter based on search
+const filteredAndAlphabetizedPersonalEnvs = computed(() => {
+  const envs = sortPersonalEnvironmentsAlphabetically(
+    myEnvironments.value,
+    "asc"
+  )
 
-const alphabeticallySortedTeamEnvironments = computed(() =>
-  sortTeamEnvironmentsAlphabetically(teamEnvironmentList.value, "asc")
-)
+  if (selectedEnvTab.value !== "my-environments" || !filterText.value)
+    return envs
+
+  // Ensure specifying whitespace characters alone result in the empty state for no search results
+  const trimmedFilterText = filterText.value.trim().toLowerCase()
+
+  return envs.filter(({ env }) =>
+    trimmedFilterText
+      ? env.name.toLowerCase().includes(trimmedFilterText)
+      : false
+  )
+})
+
+const filteredAndAlphabetizedTeamEnvs = computed(() => {
+  const envs = sortTeamEnvironmentsAlphabetically(
+    teamEnvironmentList.value,
+    "asc"
+  )
+
+  if (selectedEnvTab.value !== "team-environments" || !filterText.value)
+    return envs
+
+  // Ensure specifying whitespace characters alone result in the empty state for no search results
+  const trimmedFilterText = filterText.value.trim().toLowerCase()
+
+  return envs.filter(({ env }) =>
+    trimmedFilterText
+      ? env.environment.name.toLowerCase().includes(trimmedFilterText)
+      : false
+  )
+})
 
 const handleEnvironmentChange = (
   index: number,
@@ -505,6 +600,7 @@ const selectedEnv = computed(() => {
         index: props.modelValue.index,
         name: props.modelValue.environment?.name,
         variables: props.modelValue.environment?.variables,
+        id: props.modelValue.environment.id,
       }
     } else if (props.modelValue?.type === "team-environment") {
       return {
@@ -512,11 +608,13 @@ const selectedEnv = computed(() => {
         name: props.modelValue.environment.environment.name,
         teamEnvID: props.modelValue.environment.id,
         variables: props.modelValue.environment.environment.variables,
+        id: props.modelValue.environment.id,
       }
     }
     return {
       type: "global",
       name: "Global",
+      variables: globalVals.value.variables,
     }
   }
   if (selectedEnvironmentIndex.value.type === "MY_ENV") {
@@ -527,6 +625,7 @@ const selectedEnv = computed(() => {
       index: selectedEnvironmentIndex.value.index,
       name: environment.name,
       variables: environment.variables,
+      id: environment.id,
     }
   } else if (selectedEnvironmentIndex.value.type === "TEAM_ENV") {
     const teamEnv = teamEnvironmentList.value.find(
@@ -541,6 +640,7 @@ const selectedEnv = computed(() => {
         name: teamEnv.environment.name,
         teamEnvID: selectedEnvironmentIndex.value.teamEnvID,
         variables: teamEnv.environment.variables,
+        id: teamEnv.id,
       }
     }
     return { type: "NO_ENV_SELECTED" }
@@ -581,6 +681,7 @@ onMounted(() => {
     } else {
       emit("update:modelValue", {
         type: "global",
+        variables: globalVals.value.variables,
       })
     }
   }
@@ -590,11 +691,29 @@ onMounted(() => {
 const envSelectorActions = ref<TippyComponent | null>(null)
 const envQuickPeekActions = ref<TippyComponent | null>(null)
 
-const globalEnvs = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+const globalVals = useReadonlyStream(globalEnv$, {} as GlobalEnvironment)
+
+const globalEnvs = computed(() => {
+  return globalVals.value.variables.map((variable, index) => ({
+    ...variable,
+    currentValue:
+      currentEnvironmentValueService.getEnvironmentVariableValue(
+        "Global",
+        index
+      ) ?? "",
+  }))
+})
 
 const environmentVariables = computed(() => {
-  if (selectedEnv.value.variables) {
-    return selectedEnv.value.variables
+  if (selectedEnv.value.variables && selectedEnv.value.id) {
+    return selectedEnv.value.variables.map((variable, index) => ({
+      ...variable,
+      currentValue:
+        currentEnvironmentValueService.getEnvironmentVariableValue(
+          selectedEnv.value.id ?? "",
+          index
+        ) ?? "",
+    }))
   }
   return []
 })

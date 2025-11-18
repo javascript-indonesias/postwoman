@@ -46,6 +46,7 @@
         :key="`collection-${index}`"
         :picked="picked"
         :name="collection.name"
+        :folder-path="String(index)"
         :collection-index="index"
         :collection="collection"
         :is-filtered="filterText.length > 0"
@@ -116,7 +117,6 @@
     <CollectionsGraphqlAddRequest
       :show="showModalAddRequest"
       :folder-path="editingFolderPath"
-      :request-context="requestContext"
       @add-request="onAddRequest($event)"
       @hide-modal="displayModalAddRequest(false)"
     />
@@ -166,7 +166,7 @@ import {
   graphqlCollections$,
   addGraphqlFolder,
   saveGraphqlRequestAs,
-  cascadeParentCollectionForHeaderAuth,
+  cascadeParentCollectionForProperties,
   editGraphqlCollection,
   editGraphqlFolder,
   moveGraphqlRequest,
@@ -182,7 +182,11 @@ import { platform } from "~/platform"
 import { useService } from "dioc/vue"
 import { GQLTabService } from "~/services/tab/graphql"
 import { computed } from "vue"
-import { HoppCollection, HoppGQLRequest } from "@hoppscotch/data"
+import {
+  getDefaultGQLRequest,
+  HoppCollection,
+  HoppGQLRequest,
+} from "@hoppscotch/data"
 import { Picked } from "~/helpers/types/HoppPicked"
 import { HoppInheritedProperty } from "~/helpers/types/HoppInheritedProperties"
 import { updateInheritedPropertiesForAffectedRequests } from "~/helpers/collection/collection"
@@ -193,6 +197,7 @@ import { PersistedOAuthConfig } from "~/services/oauth/oauth.service"
 import { GQLOptionTabs } from "~/components/graphql/RequestOptions.vue"
 import { EditingProperties } from "../Properties.vue"
 import { defineActionHandler } from "~/helpers/actions"
+import { handleTokenValidation } from "~/helpers/handleTokenValidation"
 
 const t = useI18n()
 const toast = useToast()
@@ -243,9 +248,9 @@ const persistenceService = useService(PersistenceService)
 
 const collectionPropertiesModalActiveTab = ref<GQLOptionTabs>("headers")
 
-onMounted(() => {
+onMounted(async () => {
   const localOAuthTempConfig =
-    persistenceService.getLocalConfig("oauth_temp_config")
+    await persistenceService.getLocalConfig("oauth_temp_config")
 
   if (!localOAuthTempConfig) {
     return
@@ -260,9 +265,8 @@ onMounted(() => {
 
   if (context?.type === "collection-properties") {
     // load the unsaved editing properties
-    const unsavedCollectionPropertiesString = persistenceService.getLocalConfig(
-      "unsaved_collection_properties"
-    )
+    const unsavedCollectionPropertiesString =
+      await persistenceService.getLocalConfig("unsaved_collection_properties")
 
     if (unsavedCollectionPropertiesString) {
       const unsavedCollectionProperties: EditingProperties = JSON.parse(
@@ -284,7 +288,7 @@ onMounted(() => {
       editingProperties.value = unsavedCollectionProperties
     }
 
-    persistenceService.removeLocalConfig("oauth_temp_config")
+    await persistenceService.removeLocalConfig("oauth_temp_config")
     collectionPropertiesModalActiveTab.value = "authorization"
     showModalEditProperties.value = true
   }
@@ -331,11 +335,9 @@ const filteredCollections = computed(() => {
   return filteredCollections
 })
 
-const requestContext = computed(() => {
-  return tabs.currentActiveTab.value.document.request
-})
-
-const displayModalAdd = (shouldDisplay: boolean) => {
+const displayModalAdd = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   showModalAdd.value = shouldDisplay
 }
 
@@ -345,7 +347,9 @@ const displayModalEdit = (shouldDisplay: boolean) => {
   if (!shouldDisplay) resetSelectedData()
 }
 
-const displayModalImportExport = (shouldDisplay: boolean) => {
+const displayModalImportExport = async (shouldDisplay: boolean) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   showModalImportExport.value = shouldDisplay
 }
 
@@ -388,26 +392,27 @@ const editCollection = (
   displayModalEdit(true)
 }
 
-const duplicateCollection = ({
+const duplicateCollection = async ({
   path,
   collectionSyncID,
 }: {
   path: string
   collectionSyncID?: string
-}) => duplicateGraphQLCollection(path, collectionSyncID)
+}) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
+  duplicateGraphQLCollection(path, collectionSyncID)
+}
 
-const onAddRequest = ({ name, path }: { name: string; path: string }) => {
+const onAddRequest = async ({ name, path }: { name: string; path: string }) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   const newRequest = {
-    ...tabs.currentActiveTab.value.document.request,
+    ...getDefaultGQLRequest(),
     name,
   }
 
   const insertionIndex = saveGraphqlRequestAs(path, newRequest)
-
-  const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-    path,
-    "graphql"
-  )
 
   tabs.createNewTab({
     saveContext: {
@@ -417,10 +422,7 @@ const onAddRequest = ({ name, path }: { name: string; path: string }) => {
     },
     request: newRequest,
     isDirty: false,
-    inheritedProperties: {
-      auth,
-      headers,
-    },
+    inheritedProperties: cascadeParentCollectionForProperties(path, "graphql"),
   })
 
   platform.analytics?.logEvent({
@@ -439,13 +441,15 @@ const addRequest = (payload: { path: string }) => {
   displayModalAddRequest(true)
 }
 
-const onAddFolder = ({
+const onAddFolder = async ({
   name,
   path,
 }: {
   name: string
   path: string | undefined
 }) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   addGraphqlFolder(name, path ?? "0")
 
   platform.analytics?.logEvent({
@@ -499,13 +503,15 @@ const editRequest = (payload: {
   displayModalEditRequest(true)
 }
 
-const duplicateRequest = ({
+const duplicateRequest = async ({
   folderPath,
   request,
 }: {
   folderPath: string
   request: HoppGQLRequest
 }) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   saveGraphqlRequestAs(folderPath, {
     ...cloneDeep(request),
     name: `${request.name} - ${t("action.duplicate")}`,
@@ -526,10 +532,6 @@ const selectRequest = ({
     folderPath: folderPath,
     requestIndex: requestIndex,
   })
-  const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-    folderPath,
-    "graphql"
-  )
   // Switch to that request if that request is open
   if (possibleTab) {
     tabs.setActiveTab(possibleTab.value.id)
@@ -543,14 +545,14 @@ const selectRequest = ({
     },
     request: cloneDeep(request),
     isDirty: false,
-    inheritedProperties: {
-      auth,
-      headers,
-    },
+    inheritedProperties: cascadeParentCollectionForProperties(
+      folderPath,
+      "graphql"
+    ),
   })
 }
 
-const dropRequest = ({
+const dropRequest = async ({
   folderPath,
   requestIndex,
   collectionIndex,
@@ -559,10 +561,8 @@ const dropRequest = ({
   requestIndex: number
   collectionIndex: number
 }) => {
-  const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-    `${collectionIndex}`,
-    "graphql"
-  )
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
 
   const possibleTab = tabs.getTabRefWithSaveContext({
     originLocation: "user-collection",
@@ -578,10 +578,8 @@ const dropRequest = ({
         .length,
     }
 
-    possibleTab.value.document.inheritedProperties = {
-      auth,
-      headers,
-    }
+    possibleTab.value.document.inheritedProperties =
+      cascadeParentCollectionForProperties(`${collectionIndex}`, "graphql")
   }
 
   moveGraphqlRequest(folderPath, requestIndex, `${collectionIndex}`)
@@ -610,17 +608,11 @@ const editProperties = ({
 
   const parentIndex = collectionIndex.split("/").slice(0, -1).join("/") // remove last folder to get parent folder
   let inheritedProperties = undefined
-
-  if (parentIndex) {
-    const { auth, headers } = cascadeParentCollectionForHeaderAuth(
+  if (parentIndex && parentIndex !== "") {
+    inheritedProperties = cascadeParentCollectionForProperties(
       parentIndex,
       "graphql"
     )
-
-    inheritedProperties = {
-      auth,
-      headers,
-    }
   }
 
   editingProperties.value = {
@@ -633,12 +625,15 @@ const editProperties = ({
   displayModalEditProperties(true)
 }
 
-const setCollectionProperties = (newCollection: {
+const setCollectionProperties = async (newCollection: {
   collection: Partial<HoppCollection> | null
   path: string
   isRootCollection: boolean
 }) => {
+  const isValidToken = await handleTokenValidation()
+  if (!isValidToken) return
   const { collection, path, isRootCollection } = newCollection
+
   if (!collection) {
     return
   }
@@ -649,20 +644,8 @@ const setCollectionProperties = (newCollection: {
     editGraphqlFolder(path, collection)
   }
 
-  const { auth, headers } = cascadeParentCollectionForHeaderAuth(
-    path,
-    "graphql"
-  )
-
   nextTick(() => {
-    updateInheritedPropertiesForAffectedRequests(
-      path,
-      {
-        auth,
-        headers,
-      },
-      "graphql"
-    )
+    updateInheritedPropertiesForAffectedRequests(path, "graphql")
   })
 
   displayModalEditProperties(false)
